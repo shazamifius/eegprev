@@ -117,13 +117,24 @@ body {
 /* Profile Page */
 
 .profile-banner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   height: 250px;
-  background-color: var(--background-light);
   border-radius: var(--border-radius);
-  margin-bottom: -100px; /* Overlap with header */
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
+  margin-bottom: 20px; /* Remove the negative margin */
   border: 1px solid var(--secondary-color);
+}
+
+.showcase-image-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+.showcase-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Crop, don't distort */
 }
 
 .profile-header {
@@ -273,6 +284,8 @@ button, .button {
   color: var(--text-primary);
   border: none;
   padding: 12px 25px;
+  min-width: 120px;
+  text-align: center;
   border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 600;
@@ -363,6 +376,16 @@ header .container {
     align-items: center;
     width: 95%;
     max-width: 1400px;
+    margin: 0 auto; /* Center the container */
+}
+
+/* This is for the main content container */
+.container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 #branding h1 a {
