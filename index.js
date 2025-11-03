@@ -28,7 +28,11 @@ const storage = multer.diskStorage({
         } else if (file.fieldname === "media") {
             dest += 'publications';
         } else if (file.fieldname === "image") {
-            dest += 'news';
+            if (req.path.includes('help')) {
+                dest += 'help';
+            } else {
+                dest += 'news';
+            }
         }
         cb(null, dest);
     },
@@ -348,12 +352,13 @@ app.post('/help/:id/resolve', (req, res) => {
     }
 });
 
-app.post('/help/:id/comment', (req, res) => {
+app.post('/help/:id/comment', upload.single('image'), (req, res) => {
     if (req.session.user) {
         const requestId = req.params.id;
         const { comment } = req.body;
-        db.run('INSERT INTO help_request_comments (content, author_id, request_id) VALUES (?, ?, ?)',
-            [comment, req.session.user.id, requestId],
+        const imagePath = req.file ? '/images/help/' + req.file.filename : null;
+        db.run('INSERT INTO help_request_comments (content, image_path, author_id, request_id) VALUES (?, ?, ?, ?)',
+            [comment, imagePath, req.session.user.id, requestId],
             (err) => {
                 if (err) return handleDbError(err, res);
                 res.redirect('/help/' + requestId);

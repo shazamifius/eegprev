@@ -112,6 +112,7 @@ const setupDatabase = () => {
         db.run(`CREATE TABLE IF NOT EXISTS help_request_comments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content TEXT NOT NULL,
+            image_path TEXT,
             author_id INTEGER,
             request_id INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

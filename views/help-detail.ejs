@@ -16,8 +16,10 @@
     <hr>
     <h2>Réponses</h2>
     <% if (user) { %>
-        <form action="/help/<%= request.id %>/comment" method="POST">
+        <form action="/help/<%= request.id %>/comment" method="POST" enctype="multipart/form-data">
             <textarea name="comment" placeholder="Proposer votre aide..." required></textarea>
+            <label for="image">Ajouter une image :</label>
+            <input type="file" name="image">
             <button type="submit">Répondre</button>
         </form>
     <% } %>
@@ -30,6 +32,9 @@
                         <strong><a href="/students/<%= comment.author_id %>"><%= comment.authorName %></a></strong>
                     </div>
                     <p><%= comment.content %></p>
+                    <% if (comment.image_path) { %>
+                        <img src="<%= comment.image_path %>" alt="Image de commentaire" class="comment-image">
+                    <% } %>
                 </div>
             <% }); %>
         <% } else { %>
