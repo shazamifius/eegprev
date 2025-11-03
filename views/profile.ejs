@@ -53,10 +53,11 @@
                 <% if (projects && projects.length > 0) { %>
                     <% projects.forEach(project => { %>
                         <div class="project-card">
-                             <!-- Ici, nous devrions avoir l'image principale du projet -->
-                            <h3><%= project.title %></h3>
-                            <p><%= project.description.substring(0, 100) %>...</p>
-                            <!-- Bouton Upvote et autres détails du projet à ajouter -->
+                            <a href="/projects/<%= project.id %>">
+                                <img src="<%= project.main_image || '/images/default-project.png' %>" alt="Image de <%= project.title %>">
+                                <h3><%= project.title %></h3>
+                                <p><%= project.description.substring(0, 100) %>...</p>
+                            </a>
                         </div>
                     <% }); %>
                 <% } else { %>

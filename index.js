@@ -5,6 +5,23 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const fs = require('fs');
+const path = require('path');
+
+// Créer les dossiers d'upload s'ils n'existent pas
+const uploadDirs = [
+    './public/images/avatars',
+    './public/images/showcase',
+    './public/images/projects',
+    './public/images/publications',
+    './public/images/news',
+    './public/images/help'
+];
+
+uploadDirs.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+});
 
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -168,7 +185,17 @@ app.get('/profile', (req, res) => {
         const projectsPromise = new Promise((resolve, reject) => {
             db.all('SELECT * FROM projects WHERE author_id = ?', [userId], (err, projects) => {
                 if (err) return reject(err);
-                resolve(projects);
+
+                const detailedProjects = projects.map(project =>
+                    new Promise((resolveProject, rejectProject) => {
+                        db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
+                            if (err) return rejectProject(err);
+                            project.main_image = mainImage ? mainImage.image_path : null;
+                            resolveProject(project);
+                        });
+                    })
+                );
+                Promise.all(detailedProjects).then(resolve).catch(reject);
             });
         });
         const showcasePromise = new Promise((resolve, reject) => {
@@ -544,7 +571,17 @@ app.get('/students/:id', (req, res) => {
         const projectsPromise = new Promise((resolve, reject) => {
             db.all('SELECT * FROM projects WHERE author_id = ?', [userId], (err, projects) => {
                 if (err) return reject(err);
-                resolve(projects);
+
+                const detailedProjects = projects.map(project =>
+                    new Promise((resolveProject, rejectProject) => {
+                        db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
+                            if (err) return rejectProject(err);
+                            project.main_image = mainImage ? mainImage.image_path : null;
+                            resolveProject(project);
+                        });
+                    })
+                );
+                Promise.all(detailedProjects).then(resolve).catch(reject);
             });
         });
         const showcasePromise = new Promise((resolve, reject) => {
