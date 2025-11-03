@@ -27,7 +27,6 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
-const path = require('path');
 const db = require('./database');
 
 const port = 3000;
