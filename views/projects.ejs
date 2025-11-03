@@ -1,0 +1,29 @@
+<%- include('partials/header', { title: "Projets", user: typeof user !== 'undefined' ? user : undefined }) %>
+
+<h1>Projets</h1>
+<a href="/projects/new" class="button">Créer un nouveau projet</a>
+
+<% projects.forEach(project => { %>
+    <div class="project-card">
+        <h2><%= project.title %></h2>
+        <img class="main-image" src="<%= project.main_image || '/images/default-project.png' %>" alt="Image principale du projet <%= project.title %>">
+        <div class="small-images">
+            <% if (project.secondary_images) { %>
+                <% project.secondary_images.split(',').forEach(image => { %>
+                    <img src="<%= image %>" alt="Image secondaire du projet <%= project.title %>">
+                <% }); %>
+            <% } %>
+        </div>
+        <div class="expandable-text">
+            <span class="short-text"><%= project.description.substring(0, 200) %>...</span>
+            <span class="full-text"><%= project.description %></span>
+            <button class="expand-button">Voir plus</button>
+        </div>
+        <p><strong>Participants :</strong> <%= project.authorName %></p>
+        <form action="/projects/<%= project.id %>/upvote" method="POST" style="display: inline;">
+            <button type="submit">Upvote (<%= project.upvotes %>)</button>
+        </form>
+    </div>
+<% }); %>
+
+<%- include('partials/footer') %>

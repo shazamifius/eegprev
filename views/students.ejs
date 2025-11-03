@@ -1,0 +1,18 @@
+<%- include('partials/header', { title: "Liste des élèves", user: typeof user !== 'undefined' ? user : undefined }) %>
+
+<h1>Liste des élèves</h1>
+
+<% users.forEach(student => { %>
+    <div class="student-card">
+        <img src="<%= student.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= student.name %>" style="float: left; margin-right: 20px; border-radius: 50%; width: 100px; height: 100px;">
+        <h2><%= student.name %></h2>
+        <div class="expandable-text">
+            <span class="short-text"><%= (student.bio || '').substring(0, 150) %>...</span>
+            <span class="full-text"><%= student.bio %></span>
+            <button class="expand-button">Voir plus</button>
+        </div>
+        <a href="/students/<%= student.id %>" class="button" style="margin-top: 10px; display: inline-block;">Voir le profil complet</a>
+    </div>
+<% }); %>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,15 @@
+<%- include('partials/header', { title: "Accueil", user: typeof user !== 'undefined' ? user : undefined }) %>
+
+<div class="welcome-message">
+    <h1>Bienvenue sur le portail des élèves de l'EEGP !</h1>
+    <p>Cet espace est exclusivement réservé aux étudiants de notre école. C'est un lieu de partage, de collaboration et d'inspiration.</p>
+    <p>Pour garantir un environnement sûr et respectueux, nous vous demandons d'utiliser une photo de profil qui permette de vous identifier (un selfie ou un logo personnel reconnaissable).</p>
+    <% if (typeof user === 'undefined') { %>
+        <div class="welcome-buttons">
+            <a href="/login" class="button">Se connecter</a>
+            <a href="/register" class="button">S'inscrire</a>
+        </div>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

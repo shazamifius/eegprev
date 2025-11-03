@@ -1,0 +1,24 @@
+<%- include('partials/header', { title: "Nouveau projet", user: user }) %>
+
+<h1>Nouveau projet</h1>
+<form action="/projects/new" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="title">Titre :</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+    <div>
+        <label for="description">Description :</label>
+        <textarea id="description" name="description" required></textarea>
+    </div>
+    <div>
+        <label for="main_image">Image principale :</label>
+        <input type="file" id="main_image" name="main_image" required>
+    </div>
+    <div>
+        <label for="secondary_images">Images secondaires (jusqu'à 3) :</label>
+        <input type="file" id="secondary_images" name="secondary_images" multiple>
+    </div>
+    <button type="submit">Créer le projet</button>
+</form>
+
+<%- include('partials/footer') %>
