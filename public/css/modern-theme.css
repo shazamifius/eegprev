@@ -1,0 +1,406 @@
+/* Modern & Futuristic Theme for EEGP Social Network */
+
+/* Import a modern, artistic font - I'll use Poppins for its clean and elegant look */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  /* Color Palette */
+  --primary-color: #d95e4f; /* Orangey Red - For main actions, buttons */
+  --secondary-color: #41435e; /* Dark Blue/Purple - For secondary elements */
+  --accent-color: #adc0ec; /* Light Blue/Lavender - For highlights, accents */
+  --dark-accent-color: #1f344e; /* Deep Blue - For text, titles */
+
+  /* Background Colors */
+  --background-dark: #23272A; /* Discord-like dark background */
+  --background-light: #2C2F33; /* Slightly lighter for cards, containers */
+
+  /* Text Colors */
+  --text-primary: #ffffff; /* White for primary text */
+  --text-secondary: #b9bbbe; /* Lighter gray for secondary text */
+
+  /* Other variables */
+  --border-radius: 8px;
+  --transition-speed: 0.3s;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Publications Feed & Post Cards */
+
+.posts-feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.post-card {
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+}
+
+.post-author img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  border: 2px solid var(--accent-color);
+}
+
+.post-author a {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+.post-author a:hover {
+  color: var(--accent-color);
+}
+
+.post-content {
+  padding: 0 15px 15px;
+  flex-grow: 1;
+}
+
+.post-content p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.post-content img,
+.post-content video {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-top: 15px;
+}
+
+.post-footer {
+  padding: 15px;
+  border-top: 1px solid var(--secondary-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-footer span {
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
+/* Profile Page */
+
+.profile-banner {
+  height: 250px;
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  margin-bottom: -100px; /* Overlap with header */
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--secondary-color);
+}
+
+.profile-header {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 20px;
+  position: relative;
+}
+
+.profile-avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 5px solid var(--background-dark);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+.profile-header-info {
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.profile-header-info h1 {
+  font-size: 2.5em;
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.profile-header-info .user-class {
+  font-size: 1.2em;
+  color: var(--text-secondary);
+  margin: 5px 0 0;
+}
+
+.edit-profile-button {
+  margin-left: auto;
+  margin-bottom: 20px;
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color var(--transition-speed);
+}
+
+.edit-profile-button:hover {
+  background-color: var(--primary-color);
+}
+
+.profile-content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.profile-sidebar {
+  background-color: var(--background-light);
+  padding: 20px;
+  border-radius: var(--border-radius);
+}
+
+.profile-sidebar h2 {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+.social-links {
+  margin-top: 20px;
+}
+
+.social-links a {
+  display: inline-block;
+  margin-right: 15px;
+  font-size: 24px; /* Icon size */
+  color: var(--text-secondary);
+  transition: color var(--transition-speed), transform var(--transition-speed);
+}
+
+.social-links a:hover {
+  color: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.portfolio-link a {
+    display: block;
+    margin-top: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.portfolio-link a:hover {
+    background-color: #c0392b; /* A darker shade of primary */
+}
+
+.profile-main h2 {
+    color: var(--accent-color);
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.project-card {
+    background-color: var(--background-light);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform var(--transition-speed);
+    text-decoration: none;
+}
+.project-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.project-card h3 {
+    margin: 15px;
+    color: var(--text-primary);
+}
+.project-card p {
+    margin: 0 15px 15px;
+    color: var(--text-secondary);
+}
+
+
+/* General UI Harmonization: Forms & Buttons */
+
+/* Buttons */
+button, .button {
+  background-color: var(--primary-color);
+  color: var(--text-primary);
+  border: none;
+  padding: 12px 25px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+  display: inline-block; /* For <a> tags styled as buttons */
+  text-decoration: none; /* For <a> tags styled as buttons */
+}
+
+button:hover, .button:hover {
+  background-color: #c0392b; /* A darker shade of primary */
+  transform: translateY(-2px);
+}
+
+/* Forms */
+form {
+  background-color: var(--background-light);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+form h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    text-align: center;
+}
+
+/* Form Inputs */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="file"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  background-color: var(--background-dark);
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box; /* Important for width calculation */
+  transition: border-color var(--transition-speed);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+
+/* Header & Navigation */
+
+header {
+  background-color: var(--background-light);
+  padding: 15px 0;
+  border-bottom: 1px solid var(--secondary-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    max-width: 1400px;
+}
+
+#branding h1 a {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.8em;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+#branding h1 a:hover {
+    color: var(--accent-color);
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-left: 25px;
+}
+
+nav ul li a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: color var(--transition-speed), border-color var(--transition-speed);
+}
+
+nav ul li a:hover,
+nav ul li a.active { /* You might want to add an 'active' class via JS later */
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+}

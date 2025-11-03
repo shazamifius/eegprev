@@ -37,9 +37,9 @@
             <p class="user-bio"><%= user.bio || 'Aucune biographie.' %></p>
 
             <div class="social-links">
-                <% if (user.discord) { %><a href="https://discordapp.com/users/<%= user.discord %>" target="_blank">[D] Discord</a><% } %>
-                <% if (user.instagram) { %><a href="https://instagram.com/<%= user.instagram %>" target="_blank">[I] Instagram</a><% } %>
-                <% if (user.snapchat) { %><a href="https://snapchat.com/add/<%= user.snapchat %>" target="_blank">[S] Snapchat</a><% } %>
+                <% if (user.discord) { %><a href="https://discordapp.com/users/<%= user.discord %>" target="_blank"><i class="fab fa-discord"></i></a><% } %>
+                <% if (user.instagram) { %><a href="https://instagram.com/<%= user.instagram %>" target="_blank"><i class="fab fa-instagram"></i></a><% } %>
+                <% if (user.snapchat) { %><a href="https://snapchat.com/add/<%= user.snapchat %>" target="_blank"><i class="fab fa-snapchat"></i></a><% } %>
             </div>
              <div class="portfolio-link">
                 <% if (user.portfolio) { %><a href="<%= user.portfolio %>" target="_blank">Portfolio Externe</a><% } %>
