@@ -41,12 +41,9 @@
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message');
 
-        if (data.name === currentUser.name) {
-            messageElement.classList.add('own-message');
-        }
-
         const avatarElement = document.createElement('img');
         avatarElement.src = data.avatar || '/images/default-avatar.png';
+        avatarElement.alt = `Avatar de ${data.name}`;
         avatarElement.classList.add('chat-avatar');
 
         const contentElement = document.createElement('div');
@@ -60,6 +57,7 @@
 
         contentElement.appendChild(nameElement);
         contentElement.appendChild(textElement);
+
         messageElement.appendChild(avatarElement);
         messageElement.appendChild(contentElement);
 

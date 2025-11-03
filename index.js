@@ -24,6 +24,7 @@ uploadDirs.forEach(dir => {
 });
 
 const session = require('express-session');
+const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
@@ -68,6 +69,7 @@ const sessionMiddleware = session({
     saveUninitialized: true
 });
 app.use(sessionMiddleware);
+app.use(flash());
 io.engine.use(sessionMiddleware);
 
 // Middleware de gestion d'erreurs
@@ -138,7 +140,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    res.render('login', { user: undefined });
+    res.render('login', { user: undefined, error: req.flash('error') });
 });
 
 app.post('/login', (req, res) => {
@@ -539,7 +541,25 @@ app.get('/profile/showcase/delete/:id', (req, res) => {
 
 
 app.get('/students', (req, res) => {
-    db.all('SELECT id, name, email, classe, bio, avatar FROM users', [], (err, users) => {
+    const { search_name, search_class } = req.query;
+    let query = 'SELECT id, name, email, classe, bio, avatar FROM users';
+    const params = [];
+
+    let conditions = [];
+    if (search_name) {
+        conditions.push('name LIKE ?');
+        params.push(`%${search_name}%`);
+    }
+    if (search_class) {
+        conditions.push('classe = ?');
+        params.push(search_class);
+    }
+
+    if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    db.all(query, params, (err, users) => {
         if (err) return handleDbError(err, res);
 
         const promises = users.map(user =>
@@ -554,7 +574,16 @@ app.get('/students', (req, res) => {
 
         Promise.all(promises)
             .then(usersWithShowcases => {
-                res.render('students', { users: usersWithShowcases, user: req.session.user });
+                db.all('SELECT DISTINCT classe FROM users WHERE classe IS NOT NULL ORDER BY classe', [], (err, classes) => {
+                    if (err) return handleDbError(err, res);
+                    res.render('students', {
+                        users: usersWithShowcases,
+                        user: req.session.user,
+                        classes: classes.map(c => c.classe),
+                        search_name: search_name,
+                        search_class: search_class
+                    });
+                });
             })
             .catch(err => handleDbError(err, res));
     });
@@ -637,6 +666,7 @@ app.get('/projects/new', (req, res) => {
             res.render('new-project', { user: req.session.user, users: users });
         });
     } else {
+        req.flash('error', 'Vous devez être connecté pour créer un projet.');
         res.redirect('/login');
     }
 });
@@ -646,30 +676,54 @@ app.post('/projects/new', upload.fields([{ name: 'main_image', maxCount: 1 }, { 
         const { title, description, collaborators } = req.body;
         db.run('INSERT INTO projects (title, description, author_id) VALUES (?, ?, ?)',
             [title, description, req.session.user.id],
-            function(err) {
+            async function(err) {
                 if (err) return handleDbError(err, res);
                 const projectId = this.lastID;
 
-                if (collaborators) {
-                    const collaboratorIds = Array.isArray(collaborators) ? collaborators : [collaborators];
-                    collaboratorIds.forEach(userId => {
-                        db.run('INSERT INTO project_collaborators (project_id, user_id) VALUES (?, ?)', [projectId, userId]);
-                    });
-                }
+                try {
+                    const promises = [];
 
-                if (req.files['main_image']) {
-                    const imagePath = '/images/projects/' + req.files['main_image'][0].filename;
-                    db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 1)', [projectId, imagePath]);
+                    if (collaborators) {
+                        const collaboratorIds = Array.isArray(collaborators) ? collaborators : [collaborators];
+                        collaboratorIds.forEach(userId => {
+                            promises.push(new Promise((resolve, reject) => {
+                                db.run('INSERT INTO project_collaborators (project_id, user_id) VALUES (?, ?)', [projectId, userId], (err) => {
+                                    if (err) reject(err);
+                                    else resolve();
+                                });
+                            }));
+                        });
+                    }
+
+                    if (req.files && req.files['main_image']) {
+                        const imagePath = '/images/projects/' + req.files['main_image'][0].filename;
+                        promises.push(new Promise((resolve, reject) => {
+                            db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 1)', [projectId, imagePath], (err) => {
+                                if (err) reject(err);
+                                else resolve();
+                            });
+                        }));
+                    }
+                    if (req.files && req.files['secondary_images']) {
+                        req.files['secondary_images'].forEach(file => {
+                            const imagePath = '/images/projects/' + file.filename;
+                            promises.push(new Promise((resolve, reject) => {
+                                db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 0)', [projectId, imagePath], (err) => {
+                                    if (err) reject(err);
+                                    else resolve();
+                                });
+                            }));
+                        });
+                    }
+
+                    await Promise.all(promises);
+                    res.redirect('/projects');
+                } catch (dbErr) {
+                    handleDbError(dbErr, res);
                 }
-                if (req.files['secondary_images']) {
-                    req.files['secondary_images'].forEach(file => {
-                        const imagePath = '/images/projects/' + file.filename;
-                        db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 0)', [projectId, imagePath]);
-                    });
-                }
-                res.redirect('/projects');
             });
     } else {
+        req.flash('error', 'Votre session a expiré. Veuillez vous reconnecter pour créer un projet.');
         res.redirect('/login');
     }
 });
