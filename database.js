@@ -1,12 +1,16 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./database.db', (err) => {
+const dbPath = process.env.NODE_ENV === 'test' ? ':memory:' : './database.db';
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error(err.message);
     }
-    console.log('Connecté à la base de données SQLite.');
+    if (process.env.NODE_ENV !== 'test') {
+        console.log('Connecté à la base de données SQLite.');
+    }
 });
 
-const setupDatabase = () => {
+const createSchema = (callback) => {
     db.serialize(() => {
         // Table des utilisateurs
         db.run(`CREATE TABLE IF NOT EXISTS users (
@@ -33,7 +37,7 @@ const setupDatabase = () => {
             description TEXT NOT NULL,
             author_id INTEGER,
             upvotes INTEGER DEFAULT 0,
-            FOREIGN KEY (author_id) REFERENCES users (id)
+            FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
         // Table des images showcase
@@ -41,7 +45,7 @@ const setupDatabase = () => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             image_path TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users (id)
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
         // Table des images de projet
@@ -50,7 +54,7 @@ const setupDatabase = () => {
             project_id INTEGER,
             image_path TEXT NOT NULL,
             is_main BOOLEAN,
-            FOREIGN KEY (project_id) REFERENCES projects (id)
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
         )`);
 
         // Table des votes de projet
@@ -58,8 +62,8 @@ const setupDatabase = () => {
             user_id INTEGER,
             project_id INTEGER,
             PRIMARY KEY (user_id, project_id),
-            FOREIGN KEY (user_id) REFERENCES users (id),
-            FOREIGN KEY (project_id) REFERENCES projects (id)
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
         )`);
 
         // Table des publications (posts)
@@ -72,7 +76,7 @@ const setupDatabase = () => {
             author_id INTEGER,
             upvotes INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (author_id) REFERENCES users (id)
+            FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
         // Table des votes de publication
@@ -80,8 +84,8 @@ const setupDatabase = () => {
             user_id INTEGER,
             post_id INTEGER,
             PRIMARY KEY (user_id, post_id),
-            FOREIGN KEY (user_id) REFERENCES users (id),
-            FOREIGN KEY (post_id) REFERENCES posts (id)
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE
         )`);
 
         // Table des actualités (news)
@@ -93,7 +97,7 @@ const setupDatabase = () => {
             video_url TEXT,
             author_id INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (author_id) REFERENCES users (id)
+            FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
         // Table des demandes d'aide
@@ -105,7 +109,7 @@ const setupDatabase = () => {
             status TEXT DEFAULT 'ouverte',
             author_id INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (author_id) REFERENCES users (id)
+            FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
         // Table des commentaires sur les demandes d'aide
@@ -116,8 +120,8 @@ const setupDatabase = () => {
             author_id INTEGER,
             request_id INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (author_id) REFERENCES users (id),
-            FOREIGN KEY (request_id) REFERENCES help_requests (id)
+            FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (request_id) REFERENCES help_requests (id) ON DELETE CASCADE
         )`);
 
         // Table des commentaires de publication
@@ -127,8 +131,8 @@ const setupDatabase = () => {
             user_id INTEGER,
             comment TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (post_id) REFERENCES posts (id),
-            FOREIGN KEY (user_id) REFERENCES users (id)
+            FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
         // Table des collaborateurs de projet
@@ -136,12 +140,39 @@ const setupDatabase = () => {
             project_id INTEGER,
             user_id INTEGER,
             PRIMARY KEY (project_id, user_id),
-            FOREIGN KEY (project_id) REFERENCES projects (id),
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )`);
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )`, callback);
+    });
+}
+
+const setupDatabase = (callback) => {
+    const tables = [
+        'project_collaborators',
+        'post_comments',
+        'help_request_comments',
+        'help_requests',
+        'news',
+        'post_upvotes',
+        'posts',
+        'project_upvotes',
+        'project_images',
+        'showcase_images',
+        'projects',
+        'users',
+    ];
+
+    db.serialize(() => {
+        // Drop tables in reverse order of creation to respect foreign key constraints
+        tables.forEach(table => {
+            db.run(`DROP TABLE IF EXISTS ${table}`);
+        });
+        createSchema(callback);
     });
 };
 
-setupDatabase();
+if (process.env.NODE_ENV !== 'test') {
+    createSchema();
+}
 
-module.exports = db;
+module.exports = { db, setupDatabase };

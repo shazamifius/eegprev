@@ -28,7 +28,7 @@ const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
-const db = require('./database');
+const { db } = require('./database');
 
 const port = 3000;
 
@@ -792,6 +792,10 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(port, () => {
-    console.log(`Serveur en écoute sur http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    server.listen(port, () => {
+        console.log(`Serveur en écoute sur http://localhost:${port}`);
+    });
+}
+
+module.exports = { app, server };
