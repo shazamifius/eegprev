@@ -1,0 +1,56 @@
+<%- include('partials/header', { title: "Publication", user: user }) %>
+
+<div class="publication-detail-container">
+    <div class="post-card">
+        <div class="post-author">
+            <img src="<%= post.authorAvatar %>" alt="<%= post.authorName %>" class="avatar-small">
+            <a href="/students/<%= post.author_id %>"><%= post.authorName %></a>
+        </div>
+        <p><%= post.content %></p>
+        <% if (post.media_path) { %>
+            <% if (post.media_type && post.media_type.startsWith('video')) { %>
+                <video controls src="<%= post.media_path %>"></video>
+            <% } else { %>
+                <img src="<%= post.media_path %>" alt="Média de la publication">
+            <% } %>
+        <% } %>
+        <div class="post-actions">
+            <form action="/publications/<%= post.id %>/upvote" method="POST" style="display: inline;">
+                <button type="submit" class="upvote-button">Upvote (<%= post.upvotes %>)</button>
+            </form>
+            <button class="share-button" onclick="copyToClipboard()">Partager</button>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Lien copié dans le presse-papiers !');
+            });
+        }
+    </script>
+
+    <div class="comments-section">
+        <h2>Commentaires</h2>
+        <% if (user) { %>
+            <form action="/publications/<%= post.id %>/comment" method="POST" class="comment-form">
+                <textarea name="comment" placeholder="Ajoutez un commentaire..." required></textarea>
+                <button type="submit">Envoyer</button>
+            </form>
+        <% } %>
+        <div class="comments-list">
+            <% comments.forEach(comment => { %>
+                <div class="comment">
+                    <div class="comment-author">
+                        <img src="<%= comment.authorAvatar %>" alt="<%= comment.authorName %>" class="avatar-small">
+                        <strong><a href="/students/<%= comment.user_id %>"><%= comment.authorName %></a></strong>
+                    </div>
+                    <p><%= comment.comment %></p>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -190,6 +190,34 @@ app.get('/profile', (req, res) => {
     }
 });
 
+app.get('/publications/:id', (req, res) => {
+    const postId = req.params.id;
+    db.get('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id WHERE p.id = ?', [postId], (err, post) => {
+        if (err || !post) {
+            return res.redirect('/publications');
+        }
+        db.all('SELECT c.*, u.name as authorName, u.avatar as authorAvatar FROM post_comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ? ORDER BY c.created_at ASC', [postId], (err, comments) => {
+            if (err) return handleDbError(err, res);
+            res.render('publication-detail', { post: post, comments: comments, user: req.session.user });
+        });
+    });
+});
+
+app.post('/publications/:id/comment', (req, res) => {
+    if (req.session.user) {
+        const postId = req.params.id;
+        const { comment } = req.body;
+        db.run('INSERT INTO post_comments (post_id, user_id, comment) VALUES (?, ?, ?)',
+            [postId, req.session.user.id, comment],
+            (err) => {
+                if (err) return handleDbError(err, res);
+                res.redirect('/publications/' + postId);
+            });
+    } else {
+        res.redirect('/login');
+    }
+});
+
 // Routes pour les actualités
 app.get('/news', (req, res) => {
     db.all('SELECT * FROM news ORDER BY created_at DESC', [], (err, news) => {
@@ -409,7 +437,10 @@ app.get('/projects/:id', (req, res) => {
                 if (err) return handleDbError(err, res);
                 project.secondary_images = secondaryImages.map(img => img.image_path);
 
-                res.render('project-detail', { project: project, user: req.session.user });
+                db.all('SELECT u.id, u.name FROM users u JOIN project_collaborators pc ON u.id = pc.user_id WHERE pc.project_id = ?', [projectId], (err, collaborators) => {
+                    if (err) return handleDbError(err, res);
+                    res.render('project-detail', { project: project, collaborators: collaborators, user: req.session.user });
+                });
             });
         });
     });
@@ -560,7 +591,10 @@ app.get('/projects', (req, res) => {
 
 app.get('/projects/new', (req, res) => {
     if (req.session.user) {
-        res.render('new-project', { user: req.session.user });
+        db.all('SELECT id, name FROM users', [], (err, users) => {
+            if (err) return handleDbError(err, res);
+            res.render('new-project', { user: req.session.user, users: users });
+        });
     } else {
         res.redirect('/login');
     }
@@ -568,12 +602,20 @@ app.get('/projects/new', (req, res) => {
 
 app.post('/projects/new', upload.fields([{ name: 'main_image', maxCount: 1 }, { name: 'secondary_images', maxCount: 3 }]), (req, res) => {
     if (req.session.user) {
-        const { title, description } = req.body;
+        const { title, description, collaborators } = req.body;
         db.run('INSERT INTO projects (title, description, author_id) VALUES (?, ?, ?)',
             [title, description, req.session.user.id],
             function(err) {
                 if (err) return handleDbError(err, res);
                 const projectId = this.lastID;
+
+                if (collaborators) {
+                    const collaboratorIds = Array.isArray(collaborators) ? collaborators : [collaborators];
+                    collaboratorIds.forEach(userId => {
+                        db.run('INSERT INTO project_collaborators (project_id, user_id) VALUES (?, ?)', [projectId, userId]);
+                    });
+                }
+
                 if (req.files['main_image']) {
                     const imagePath = '/images/projects/' + req.files['main_image'][0].filename;
                     db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 1)', [projectId, imagePath]);

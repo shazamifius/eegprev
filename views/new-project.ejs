@@ -18,6 +18,16 @@
         <label for="secondary_images">Images secondaires (jusqu'à 3) :</label>
         <input type="file" id="secondary_images" name="secondary_images" multiple>
     </div>
+    <div>
+        <label for="collaborators">Collaborateurs :</label>
+        <select id="collaborators" name="collaborators" multiple>
+            <% users.forEach(u => { %>
+                <% if (u.id !== user.id) { %>
+                    <option value="<%= u.id %>"><%= u.name %></option>
+                <% } %>
+            <% }); %>
+        </select>
+    </div>
     <button type="submit">Créer le projet</button>
 </form>
 

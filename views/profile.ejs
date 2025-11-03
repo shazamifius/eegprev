@@ -70,12 +70,24 @@
             <div class="posts-feed">
                 <% if (posts && posts.length > 0) { %>
                     <% posts.forEach(post => { %>
-                        <div class="post-card-minimal">
-                            <p><%= post.content %></p>
-                            <% if (post.media_path) { %>
-                                <img src="<%= post.media_path %>" alt="Média de la publication" style="max-width: 100%; border-radius: 8px;">
-                            <% } %>
-                            <span class="post-date"><%= new Date(post.created_at).toLocaleString() %></span>
+                        <div class="post-card">
+                            <div class="post-content">
+                                <p><%= post.content %></p>
+                                <% if (post.media_path) { %>
+                                    <% if (post.media_type && post.media_type.startsWith('video')) { %>
+                                        <video controls src="<%= post.media_path %>"></video>
+                                    <% } else { %>
+                                        <img src="<%= post.media_path %>" alt="Média de la publication">
+                                    <% } %>
+                                <% } %>
+                            </div>
+                            <div class="post-footer">
+                                <form action="/publications/<%= post.id %>/upvote" method="POST" style="display: inline;">
+                                    <button type="submit">▲ Upvote (<%= post.upvotes %>)</button>
+                                </form>
+                                <a href="/publications/<%= post.id %>" class="button">Commentaire</a>
+                                <span><%= new Date(post.created_at).toLocaleString() %></span>
+                            </div>
                         </div>
                     <% }); %>
                 <% } else { %>

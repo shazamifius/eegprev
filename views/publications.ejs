@@ -48,9 +48,10 @@
                 <% } %>
             </div>
             <div class="post-footer">
-                <form action="/publications/<%= post.id %>/upvote" method="POST">
+                <form action="/publications/<%= post.id %>/upvote" method="POST" style="display: inline;">
                     <button type="submit">▲ Upvote (<%= post.upvotes %>)</button>
                 </form>
+                <a href="/publications/<%= post.id %>" class="button">Commentaire</a>
                 <span><%= new Date(post.created_at).toLocaleString() %></span>
             </div>
         </div>
