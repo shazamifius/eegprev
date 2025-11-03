@@ -1,0 +1,41 @@
+<%- include('partials/header', { title: request.title, user: user }) %>
+
+<div class="help-detail-container">
+    <h1><%= request.title %></h1>
+    <p><strong>Auteur :</strong> <a href="/students/<%= request.author_id %>"><%= request.authorName %></a></p>
+    <p><strong>Catégorie :</strong> <%= request.category %></p>
+    <p><strong>Statut :</strong> <%= request.status %></p>
+    <p><strong>Description :</strong> <%= request.description %></p>
+
+    <% if (user && user.id === request.author_id && request.status === 'ouverte') { %>
+        <form action="/help/<%= request.id %>/resolve" method="POST">
+            <button type="submit">Marquer comme résolue</button>
+        </form>
+    <% } %>
+
+    <hr>
+    <h2>Réponses</h2>
+    <% if (user) { %>
+        <form action="/help/<%= request.id %>/comment" method="POST">
+            <textarea name="comment" placeholder="Proposer votre aide..." required></textarea>
+            <button type="submit">Répondre</button>
+        </form>
+    <% } %>
+    <div class="comments-section">
+        <% if (comments && comments.length > 0) { %>
+            <% comments.forEach(comment => { %>
+                <div class="comment">
+                    <div class="comment-author">
+                        <img src="<%= comment.authorAvatar || '/images/default-avatar.png' %>" alt="Avatar de <%= comment.authorName %>">
+                        <strong><a href="/students/<%= comment.author_id %>"><%= comment.authorName %></a></strong>
+                    </div>
+                    <p><%= comment.content %></p>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>Il n'y a pas encore de réponse.</p>
+        <% } %>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

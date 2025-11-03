@@ -1,0 +1,24 @@
+<%- include('partials/header', { title: "Nouvelle Actualité", user: user }) %>
+
+<h1>Créer une nouvelle actualité</h1>
+<form action="/news/new" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="title">Titre :</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+    <div>
+        <label for="content">Contenu :</label>
+        <textarea id="content" name="content" required></textarea>
+    </div>
+    <div>
+        <label for="image">Image :</label>
+        <input type="file" id="image" name="image">
+    </div>
+    <div>
+        <label for="video_url">URL de la vidéo (embed) :</label>
+        <input type="url" id="video_url" name="video_url">
+    </div>
+    <button type="submit">Publier</button>
+</form>
+
+<%- include('partials/footer') %>

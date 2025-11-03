@@ -1,13 +1,86 @@
-<%- include('partials/header', { title: "Accueil", user: typeof user !== 'undefined' ? user : undefined }) %>
+<%- include('partials/header', { title: "Accueil", user: user }) %>
 
-<div class="welcome-message">
-    <h1>Bienvenue sur le portail des élèves de l'EEGP !</h1>
-    <p>Cet espace est exclusivement réservé aux étudiants de notre école. C'est un lieu de partage, de collaboration et d'inspiration.</p>
-    <p>Pour garantir un environnement sûr et respectueux, nous vous demandons d'utiliser une photo de profil qui permette de vous identifier (un selfie ou un logo personnel reconnaissable).</p>
-    <% if (typeof user === 'undefined') { %>
-        <div class="welcome-buttons">
-            <a href="/login" class="button">Se connecter</a>
-            <a href="/register" class="button">S'inscrire</a>
+<div class="homepage-container">
+    <% if (user) { %>
+        <!-- Vue pour l'utilisateur connecté -->
+        <div class="welcome-header">
+            <h1>Bienvenue, <%= user.name %> !</h1>
+            <p>Voici les dernières activités sur la plateforme.</p>
+        </div>
+        <div class="quick-actions">
+            <a href="/projects/new" class="button">Créer un projet</a>
+            <a href="/publications" class="button">Faire un post</a>
+            <a href="/help" class="button">Demander de l'aide</a>
+        </div>
+
+        <div class="home-content">
+            <div class="home-news">
+                <h2>Actualités de l'école</h2>
+                <% news.forEach(article => { %>
+                    <div class="news-summary">
+                        <h3><a href="/news#<%= article.id %>"><%= article.title %></a></h3>
+                        <p><%= article.content.substring(0, 150) %>...</p>
+                    </div>
+                <% }); %>
+            </div>
+            <div class="home-posts">
+                <h2>Publications récentes</h2>
+                <% posts.forEach(post => { %>
+                    <div class="post-summary">
+                        <p><a href="/students/<%= post.author_id %>"><strong><%= post.authorName %></strong></a> a posté :</p>
+                        <p><%= post.content.substring(0, 100) %>...</p>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+    <% } else { %>
+        <!-- Vue pour l'utilisateur déconnecté -->
+        <div class="public-welcome">
+            <h1>Plateforme Communautaire EEGP</h1>
+            <p>Le réseau social interne pour les artistes et créateurs de l'école.</p>
+            <div class="welcome-buttons">
+                <a href="/login" class="button">Se connecter</a>
+                <a href="/register" class="button">S'inscrire</a>
+            </div>
+        </div>
+
+        <div class="public-preview">
+            <div class="preview-section">
+                <h2>Projets à la une</h2>
+                <div class="projects-preview-grid">
+                    <% projects.forEach(project => { %>
+                        <div class="project-preview-card">
+                            <img src="<%= project.main_image || '/images/default-project.png' %>" alt="<%= project.title %>">
+                            <h3><%= project.title %></h3>
+                            <p>par <%= project.authorName %></p>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2>Dernières Publications</h2>
+                <% posts.forEach(post => { %>
+                    <div class="post-preview-card">
+                        <p>"<%= post.content.substring(0, 80) %>..."</p>
+                        <p><strong>- <%= post.authorName %></strong></p>
+                    </div>
+                <% }); %>
+            </div>
+
+            <div class="preview-section">
+                <h2>News de l'école</h2>
+                <% news.forEach(article => { %>
+                    <div class="news-preview-card">
+                        <h3><%= article.title %></h3>
+                        <p><%= article.content.substring(0, 200) %>...</p>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+        <div class="footer-note">
+            <p>Ce site est réservé aux élèves de l’EEGP. Merci de rester respectueux et reconnaissables sur votre profil.</p>
         </div>
     <% } %>
 </div>

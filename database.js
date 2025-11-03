@@ -22,7 +22,8 @@ const setupDatabase = () => {
             snapchat TEXT,
             portfolio TEXT,
             bio TEXT,
-            avatar TEXT
+            avatar TEXT,
+            is_admin BOOLEAN DEFAULT 0
         )`);
 
         // Table des projets
@@ -59,6 +60,63 @@ const setupDatabase = () => {
             PRIMARY KEY (user_id, project_id),
             FOREIGN KEY (user_id) REFERENCES users (id),
             FOREIGN KEY (project_id) REFERENCES projects (id)
+        )`);
+
+        // Table des publications (posts)
+        db.run(`CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL,
+            media_path TEXT,
+            media_type TEXT,
+            category TEXT,
+            author_id INTEGER,
+            upvotes INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (author_id) REFERENCES users (id)
+        )`);
+
+        // Table des votes de publication
+        db.run(`CREATE TABLE IF NOT EXISTS post_upvotes (
+            user_id INTEGER,
+            post_id INTEGER,
+            PRIMARY KEY (user_id, post_id),
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            FOREIGN KEY (post_id) REFERENCES posts (id)
+        )`);
+
+        // Table des actualités (news)
+        db.run(`CREATE TABLE IF NOT EXISTS news (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            image_path TEXT,
+            video_url TEXT,
+            author_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (author_id) REFERENCES users (id)
+        )`);
+
+        // Table des demandes d'aide
+        db.run(`CREATE TABLE IF NOT EXISTS help_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            category TEXT NOT NULL,
+            status TEXT DEFAULT 'ouverte',
+            author_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (author_id) REFERENCES users (id)
+        )`);
+
+        // Table des commentaires sur les demandes d'aide
+        db.run(`CREATE TABLE IF NOT EXISTS help_request_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL,
+            author_id INTEGER,
+            request_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (author_id) REFERENCES users (id),
+            FOREIGN KEY (request_id) REFERENCES help_requests (id)
         )`);
     });
 };

@@ -1,0 +1,25 @@
+<%- include('partials/header', { title: "Modifier l'Actualité", user: user }) %>
+
+<h1>Modifier l'actualité</h1>
+<form action="/news/edit/<%= article.id %>" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="title">Titre :</label>
+        <input type="text" id="title" name="title" value="<%= article.title %>" required>
+    </div>
+    <div>
+        <label for="content">Contenu :</label>
+        <textarea id="content" name="content" required><%= article.content %></textarea>
+    </div>
+    <div>
+        <label for="image">Image :</label>
+        <input type="file" id="image" name="image">
+        <p>Laissez vide pour conserver l'image actuelle.</p>
+    </div>
+    <div>
+        <label for="video_url">URL de la vidéo (embed) :</label>
+        <input type="url" id="video_url" name="video_url" value="<%= article.video_url %>">
+    </div>
+    <button type="submit">Enregistrer les modifications</button>
+</form>
+
+<%- include('partials/footer') %>
