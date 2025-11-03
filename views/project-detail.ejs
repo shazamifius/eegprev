@@ -20,6 +20,16 @@
     </div>
 
     <div class="project-detail-info">
+        <h2>Participants</h2>
+        <p><strong>Auteur :</strong> <a href="/students/<%= project.author_id %>"><%= project.authorName %></a></p>
+        <% if (collaborators && collaborators.length > 0) { %>
+            <p><strong>Collaborateurs :</strong>
+                <% collaborators.forEach((collaborator, index) => { %>
+                    <a href="/students/<%= collaborator.id %>"><%= collaborator.name %></a><%= index < collaborators.length - 1 ? ', ' : '' %>
+                <% }); %>
+            </p>
+        <% } %>
+
         <h2>Description</h2>
         <p><%= project.description %></p>
 

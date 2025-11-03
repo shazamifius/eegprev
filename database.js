@@ -118,6 +118,26 @@ const setupDatabase = () => {
             FOREIGN KEY (author_id) REFERENCES users (id),
             FOREIGN KEY (request_id) REFERENCES help_requests (id)
         )`);
+
+        // Table des commentaires de publication
+        db.run(`CREATE TABLE IF NOT EXISTS post_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id INTEGER,
+            user_id INTEGER,
+            comment TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (post_id) REFERENCES posts (id),
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )`);
+
+        // Table des collaborateurs de projet
+        db.run(`CREATE TABLE IF NOT EXISTS project_collaborators (
+            project_id INTEGER,
+            user_id INTEGER,
+            PRIMARY KEY (project_id, user_id),
+            FOREIGN KEY (project_id) REFERENCES projects (id),
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )`);
     });
 };
 
