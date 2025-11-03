@@ -1,29 +1,37 @@
-<%- include('partials/header', { title: "Tous les Élèves", user: user }) %>
+<%- include('partials/header', { title: "Étudiants", user: user }) %>
 
 <div class="students-container">
-    <h1>Découvrez les artistes de l'EEGP</h1>
-    <div class="students-grid">
+    <h1>Annuaire des Étudiants</h1>
+
+    <form action="/students" method="GET" class="search-form">
+        <input type="text" name="search_name" placeholder="Rechercher par nom..." value="<%= typeof search_name !== 'undefined' ? search_name : '' %>">
+        <select name="search_class">
+            <option value="">Toutes les classes</option>
+            <% classes.forEach(classe => { %>
+                <option value="<%= classe %>" <%= (typeof search_class !== 'undefined' && search_class === classe) ? 'selected' : '' %>><%= classe %></option>
+            <% }); %>
+        </select>
+        <button type="submit">Rechercher</button>
+    </form>
+
+    <div class="student-cards-grid">
         <% users.forEach(student => { %>
             <div class="student-card">
-                <!-- Bannière showcase de l'élève -->
                 <div class="student-card-banner">
                     <% if (student.showcaseImages && student.showcaseImages.length > 0) { %>
-                        <% for (let i = 0; i < 4; i++) { %>
-                            <div class="student-showcase-thumb">
-                                <% if (student.showcaseImages[i]) { %>
-                                    <img src="<%= student.showcaseImages[i].image_path %>" alt="Showcase image">
-                                <% } %>
-                            </div>
-                        <% } %>
+                        <% student.showcaseImages.forEach(image => { %>
+                            <img src="<%= image.image_path %>" alt="Image de vitrine">
+                        <% }); %>
+                    <% } else { %>
+                        <div class="placeholder-banner"></div>
                     <% } %>
                 </div>
-
-                <!-- Infos de l'élève -->
-                <div class="student-card-info">
-                    <img class="student-avatar" src="<%= student.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= student.name %>">
+                <div class="student-card-content">
+                    <img src="<%= student.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= student.name %>" class="student-card-avatar">
                     <h2><%= student.name %></h2>
-                    <p class="student-bio-excerpt"><%= (student.bio || 'Aucune biographie.').substring(0, 80) %>...</p>
-                    <a href="/students/<%= student.id %>" class="view-profile-button">Voir le profil complet</a>
+                    <p class="student-card-class"><%= student.classe %></p>
+                    <p class="student-card-bio"><%= student.bio ? student.bio.substring(0, 100) + '...' : 'Aucune biographie.' %></p>
+                    <a href="/students/<%= student.id %>" class="button">Voir le profil</a>
                 </div>
             </div>
         <% }); %>

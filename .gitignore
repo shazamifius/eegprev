@@ -1,4 +1,18 @@
+# Dépendances
 node_modules/
+
+# Données et logs
 database.db
 server.log
-database.db
+
+# Fichiers d'upload des utilisateurs
+/public/images/avatars/
+/public/images/showcase/
+/public/images/projects/
+/public/images/publications/
+/public/images/news/
+/public/images/help/
+
+# Fichiers temporaires de développement
+cookies.txt
+/home/swebot/jules-scratch/

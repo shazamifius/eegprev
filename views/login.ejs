@@ -1,6 +1,13 @@
 <%- include('partials/header', { title: "Connexion", user: undefined }) %>
 
 <h1>Connexion</h1>
+
+<% if (error && error.length > 0) { %>
+    <div class="flash-error" style="color: red; margin-bottom: 15px; text-align: center; background-color: #ffdddd; padding: 10px; border-radius: 5px;">
+        <%= error %>
+    </div>
+<% } %>
+
 <form action="/login" method="POST">
     <div>
         <label for="email">Email :</label>
