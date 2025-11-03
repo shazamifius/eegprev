@@ -14,11 +14,15 @@
             </div>
             <nav>
                 <ul>
-                    <% if (typeof user !== 'undefined') { %>
-                        <li><a href="/profile">Profil</a></li>
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <li><a href="/">Accueil</a></li>
                         <li><a href="/students">Élèves</a></li>
                         <li><a href="/projects">Projets</a></li>
+                        <li><a href="/publications">Publications</a></li>
+                        <li><a href="/news">Actualités</a></li>
+                        <li><a href="/help">Aide</a></li>
                         <li><a href="/chat">Chat</a></li>
+                        <li><a href="/profile">Profil</a></li>
                         <li><a href="/logout">Déconnexion</a></li>
                     <% } else { %>
                         <li><a href="/login">Connexion</a></li>

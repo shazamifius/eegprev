@@ -1,10 +1,21 @@
-<%- include('partials/header', { title: "Chat", user: user }) %>
+<%- include('partials/header', { title: "Chat Général", user: user }) %>
 
-<h1>Chat en direct</h1>
-<ul id="messages"></ul>
-<form id="form" action="">
-    <input id="input" autocomplete="off" /><button>Envoyer</button>
-</form>
+<div class="chat-container">
+    <div class="user-list-panel">
+        <h2>En ligne</h2>
+        <ul id="user-list">
+            <!-- Les utilisateurs connectés apparaîtront ici -->
+        </ul>
+    </div>
+    <div class="chat-panel">
+        <div id="messages" class="chat-messages">
+            <!-- Les messages du chat apparaîtront ici -->
+        </div>
+        <form id="form" class="chat-form" action="">
+            <input id="input" autocomplete="off" placeholder="Écrivez votre message..." /><button>Envoyer</button>
+        </form>
+    </div>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -12,21 +23,57 @@
     const form = document.getElementById('form');
     const input = document.getElementById('input');
     const messages = document.getElementById('messages');
-    const user = <%- JSON.stringify(user) %>;
+    const userList = document.getElementById('user-list');
+    const currentUser = <%- JSON.stringify(user) %>;
+
+    // Émettre un événement pour annoncer la connexion de l'utilisateur
+    socket.emit('user connected', currentUser);
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
-            socket.emit('chat message', input.value);
+            socket.emit('chat message', { name: currentUser.name, avatar: currentUser.avatar, msg: input.value });
             input.value = '';
         }
     });
 
     socket.on('chat message', (data) => {
-        const item = document.createElement('li');
-        item.textContent = `${data.name}: ${data.msg}`;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message');
+
+        if (data.name === currentUser.name) {
+            messageElement.classList.add('own-message');
+        }
+
+        const avatarElement = document.createElement('img');
+        avatarElement.src = data.avatar || '/images/default-avatar.png';
+        avatarElement.classList.add('chat-avatar');
+
+        const contentElement = document.createElement('div');
+        contentElement.classList.add('chat-message-content');
+
+        const nameElement = document.createElement('strong');
+        nameElement.textContent = data.name;
+
+        const textElement = document.createElement('p');
+        textElement.textContent = data.msg;
+
+        contentElement.appendChild(nameElement);
+        contentElement.appendChild(textElement);
+        messageElement.appendChild(avatarElement);
+        messageElement.appendChild(contentElement);
+
+        messages.appendChild(messageElement);
+        messages.scrollTop = messages.scrollHeight;
+    });
+
+    socket.on('update user list', (users) => {
+        userList.innerHTML = '';
+        for (const id in users) {
+            const userItem = document.createElement('li');
+            userItem.textContent = users[id].name;
+            userList.appendChild(userItem);
+        }
     });
 </script>
 

@@ -1,0 +1,56 @@
+<%- include('partials/header', { title: "Aide et Assistance", user: user }) %>
+
+<div class="help-container">
+    <h1>Aide et Demandes d'Assistance</h1>
+
+    <% if (user) { %>
+    <div class="new-request-form">
+        <h2>Créer une demande d'aide</h2>
+        <form action="/help/new" method="POST">
+            <input type="text" name="title" placeholder="Titre de votre demande" required>
+            <textarea name="description" placeholder="Décrivez votre problème ou besoin" required></textarea>
+            <select name="category" required>
+                <option value="Dessin">Dessin</option>
+                <option value="3D">3D</option>
+                <option value="Vidéo">Vidéo</option>
+                <option value="Montage">Montage</option>
+                <option value="Autre">Autre</option>
+            </select>
+            <button type="submit">Poster la demande</button>
+        </form>
+    </div>
+    <% } %>
+
+    <div class="feed-filters">
+        <form action="/help" method="GET">
+            <select name="category">
+                <option value="">Toutes les catégories</option>
+                <option value="Dessin">Dessin</option>
+                <option value="3D">3D</option>
+                <option value="Vidéo">Vidéo</option>
+                <option value="Montage">Montage</option>
+                <option value="Autre">Autre</option>
+            </select>
+            <select name="status">
+                <option value="">Tous les statuts</option>
+                <option value="ouverte">Ouverte</option>
+                <option value="résolue">Résolue</option>
+            </select>
+            <button type="submit">Filtrer</button>
+        </form>
+    </div>
+
+    <div class="requests-feed">
+        <% requests.forEach(request => { %>
+        <div class="request-card">
+            <h3><%= request.title %></h3>
+            <p><strong>Auteur :</strong> <a href="/students/<%= request.author_id %>"><%= request.authorName %></a></p>
+            <p><strong>Catégorie :</strong> <%= request.category %></p>
+            <p><strong>Statut :</strong> <%= request.status %></p>
+            <a href="/help/<%= request.id %>" class="button">Voir les détails</a>
+        </div>
+        <% }); %>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

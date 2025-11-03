@@ -1,18 +1,33 @@
-<%- include('partials/header', { title: "Liste des élèves", user: typeof user !== 'undefined' ? user : undefined }) %>
+<%- include('partials/header', { title: "Tous les Élèves", user: user }) %>
 
-<h1>Liste des élèves</h1>
+<div class="students-container">
+    <h1>Découvrez les artistes de l'EEGP</h1>
+    <div class="students-grid">
+        <% users.forEach(student => { %>
+            <div class="student-card">
+                <!-- Bannière showcase de l'élève -->
+                <div class="student-card-banner">
+                    <% if (student.showcaseImages && student.showcaseImages.length > 0) { %>
+                        <% for (let i = 0; i < 4; i++) { %>
+                            <div class="student-showcase-thumb">
+                                <% if (student.showcaseImages[i]) { %>
+                                    <img src="<%= student.showcaseImages[i].image_path %>" alt="Showcase image">
+                                <% } %>
+                            </div>
+                        <% } %>
+                    <% } %>
+                </div>
 
-<% users.forEach(student => { %>
-    <div class="student-card">
-        <img src="<%= student.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= student.name %>" style="float: left; margin-right: 20px; border-radius: 50%; width: 100px; height: 100px;">
-        <h2><%= student.name %></h2>
-        <div class="expandable-text">
-            <span class="short-text"><%= (student.bio || '').substring(0, 150) %>...</span>
-            <span class="full-text"><%= student.bio %></span>
-            <button class="expand-button">Voir plus</button>
-        </div>
-        <a href="/students/<%= student.id %>" class="button" style="margin-top: 10px; display: inline-block;">Voir le profil complet</a>
+                <!-- Infos de l'élève -->
+                <div class="student-card-info">
+                    <img class="student-avatar" src="<%= student.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= student.name %>">
+                    <h2><%= student.name %></h2>
+                    <p class="student-bio-excerpt"><%= (student.bio || 'Aucune biographie.').substring(0, 80) %>...</p>
+                    <a href="/students/<%= student.id %>" class="view-profile-button">Voir le profil complet</a>
+                </div>
+            </div>
+        <% }); %>
     </div>
-<% }); %>
+</div>
 
 <%- include('partials/footer') %>
