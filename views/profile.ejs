@@ -3,18 +3,14 @@
 <div class="profile-container">
     <!-- Bannière Showcase -->
     <div class="profile-banner">
-        <% if (showcaseImages && showcaseImages.length > 0) { %>
-            <% for (let i = 0; i < 4; i++) { %>
-                <div class="showcase-image-container">
-                    <% if (showcaseImages[i]) { %>
-                        <img src="<%= showcaseImages[i].image_path %>" alt="Image Showcase <%= i + 1 %>">
-                    <% } else { %>
-                        <div class="showcase-placeholder"></div>
-                    <% } %>
-                </div>
-            <% } %>
-        <% } else { %>
-            <div class="showcase-placeholder-full">Bannière vide</div>
+        <% for (let i = 0; i < 4; i++) { %>
+            <div class="showcase-image-container">
+                <% if (showcaseImages && showcaseImages[i]) { %>
+                    <img src="<%= showcaseImages[i].image_path %>" alt="Image Showcase <%= i + 1 %>">
+                <% } else { %>
+                    <div class="showcase-placeholder"></div>
+                <% } %>
+            </div>
         <% } %>
     </div>
 
