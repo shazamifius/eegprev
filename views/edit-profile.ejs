@@ -1,0 +1,75 @@
+<%- include('partials/header', { title: "Modifier le profil", user: user }) %>
+
+<h1>Modifier le profil</h1>
+<form action="/profile/edit" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="name">Nom :</label>
+        <input type="text" id="name" name="name" value="<%= user.name %>" required>
+    </div>
+    <div>
+        <label for="avatar">Photo de profil :</label>
+        <input type="file" id="avatar" name="avatar">
+        <p>Laissez vide pour conserver l'image actuelle.</p>
+    </div>
+    <h2>Images "Showcase"</h2>
+    <div class="showcase-edit">
+        <% showcaseImages.forEach(image => { %>
+            <div class="showcase-image-edit">
+                <img src="<%= image.image_path %>" alt="Image Showcase">
+                <a href="/profile/showcase/delete/<%= image.id %>" class="button">Supprimer</a>
+            </div>
+        <% }); %>
+    </div>
+    <p>Téléversez jusqu'à 4 images pour votre bannière.</p>
+    <div>
+        <label for="showcase1">Image 1 :</label>
+        <input type="file" id="showcase1" name="showcase">
+    </div>
+    <div>
+        <label for="showcase2">Image 2 :</label>
+        <input type="file" id="showcase2" name="showcase">
+    </div>
+    <div>
+        <label for="showcase3">Image 3 :</label>
+        <input type="file" id="showcase3" name="showcase">
+    </div>
+    <div>
+        <label for="showcase4">Image 4 :</label>
+        <input type="file" id="showcase4" name="showcase">
+    </div>
+    <div>
+        <label for="classe">Classe :</label>
+        <input type="text" id="classe" name="classe" value="<%= user.classe %>">
+    </div>
+    <div>
+        <label for="age">Âge :</label>
+        <input type="number" id="age" name="age" value="<%= user.age %>">
+    </div>
+    <div>
+        <label for="birthdate">Date d'anniversaire :</label>
+        <input type="date" id="birthdate" name="birthdate" value="<%= user.birthdate %>">
+    </div>
+    <div>
+        <label for="discord">Discord :</label>
+        <input type="text" id="discord" name="discord" value="<%= user.discord %>">
+    </div>
+    <div>
+        <label for="instagram">Instagram :</label>
+        <input type="text" id="instagram" name="instagram" value="<%= user.instagram %>">
+    </div>
+    <div>
+        <label for="snapchat">Snapchat :</label>
+        <input type="text" id="snapchat" name="snapchat" value="<%= user.snapchat %>">
+    </div>
+    <div>
+        <label for="portfolio">Portfolio :</label>
+        <input type="url" id="portfolio" name="portfolio" value="<%= user.portfolio %>">
+    </div>
+    <div>
+        <label for="bio">Biographie :</label>
+        <textarea id="bio" name="bio"><%= user.bio %></textarea>
+    </div>
+    <button type="submit">Enregistrer les modifications</button>
+</form>
+
+<%- include('partials/footer') %>

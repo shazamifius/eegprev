@@ -1,0 +1,45 @@
+<%- include('partials/header', { title: "Profil", user: user }) %>
+
+<div class="profile-header">
+    <div class="showcase-banner">
+        <% showcaseImages.forEach(image => { %>
+            <img src="<%= image.image_path %>" alt="Image Showcase">
+        <% }); %>
+    </div>
+    <img class="profile-avatar" src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= user.name %>">
+    <h1><%= user.name %></h1>
+</div>
+
+
+<div class="profile-details">
+    <p><strong>Email :</strong> <%= user.email %></p>
+    <p><strong>Classe :</strong> <%= user.classe %></p>
+    <p><strong>Âge :</strong> <%= user.age %></p>
+    <p><strong>Date d'anniversaire :</strong> <%= user.birthdate %></p>
+    <p><strong>Biographie :</strong> <%= user.bio %></p>
+
+    <h2>Réseaux sociaux</h2>
+    <ul>
+        <li><strong>Discord :</strong> <%= user.discord %></li>
+        <li><strong>Instagram :</strong> <%= user.instagram %></li>
+        <li><strong>Snapchat :</strong> <%= user.snapchat %></li>
+    </ul>
+
+    <p><strong>Portfolio :</strong> <a href="<%= user.portfolio %>"><%= user.portfolio %></a></p>
+</div>
+
+<% if (typeof sessionUser !== 'undefined' && sessionUser.id === user.id) { %>
+    <a href="/profile/edit">Modifier mon profil</a>
+<% } %>
+
+<h2>Projets de <%= user.name %></h2>
+<div class="projects-grid">
+    <% projects.forEach(project => { %>
+        <div class="project-card">
+            <h3><%= project.title %></h3>
+            <p><%= project.description.substring(0, 100) %>...</p>
+        </div>
+    <% }); %>
+</div>
+
+<%- include('partials/footer') %>
