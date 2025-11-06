@@ -35,6 +35,7 @@ const createSchema = (callback) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             description TEXT NOT NULL,
+            readme TEXT,
             author_id INTEGER,
             upvotes INTEGER DEFAULT 0,
             FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
@@ -142,12 +143,22 @@ const createSchema = (callback) => {
             PRIMARY KEY (project_id, user_id),
             FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )`);
+
+        // Table des fichiers de projet
+        db.run(`CREATE TABLE IF NOT EXISTS project_files (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            file_name TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
         )`, callback);
     });
 }
 
 const setupDatabase = (callback) => {
     const tables = [
+        'project_files',
         'project_collaborators',
         'post_comments',
         'help_request_comments',
