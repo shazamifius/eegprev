@@ -61,4 +61,28 @@ describe('Routes d authentification', () => {
     const res = await agent.get('/logout').expect(302);
     expect(res.header.location).toBe('/');
   });
+
+  // Test de la connexion échouée
+  it('devrait afficher un message d\'erreur en cas de mot de passe incorrect', async () => {
+    const agent = request.agent(app);
+    // Crée un utilisateur pour le test
+    await agent
+      .post('/register')
+      .field('name', 'Fail User')
+      .field('email', 'fail@example.com')
+      .field('password', 'password123');
+
+    // Tente de se connecter avec un mot de passe incorrect
+    const res = await agent
+      .post('/login')
+      .type('form')
+      .send({ email: 'fail@example.com', password: 'wrongpassword' })
+      .expect(302);
+
+    expect(res.header.location).toBe('/login');
+
+    // Suit la redirection et vérifie la présence du message d'erreur
+    const loginPage = await agent.get('/login');
+    expect(loginPage.text).toContain('Mot de passe incorrect.');
+  });
 });
