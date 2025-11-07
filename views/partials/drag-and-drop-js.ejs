@@ -1,0 +1,94 @@
+<style>
+    .drop-zone {
+        border: 2px dashed #ccc;
+        border-radius: 5px;
+        padding: 25px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .drop-zone--over {
+        border-style: solid;
+    }
+    .drop-zone__input {
+        display: none;
+    }
+    .drop-zone__thumb {
+        width: 100px;
+        height: 100px;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #ccc;
+        background-size: cover;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 5px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    function createDropZone(targetInput) {
+        const inputElement = document.getElementById(targetInput);
+        if (!inputElement) return;
+
+        const dropZoneElement = document.createElement('div');
+        dropZoneElement.classList.add('drop-zone');
+        inputElement.parentNode.insertBefore(dropZoneElement, inputElement.nextSibling);
+        dropZoneElement.appendChild(inputElement);
+
+        dropZoneElement.addEventListener("dragover", e => {
+            e.preventDefault();
+            dropZoneElement.classList.add("drop-zone--over");
+        });
+
+        ["dragleave", "dragend"].forEach(type => {
+            dropZoneElement.addEventListener(type, () => {
+                dropZoneElement.classList.remove("drop-zone--over");
+            });
+        });
+
+        dropZoneElement.addEventListener("drop", e => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length) {
+                inputElement.files = e.dataTransfer.files;
+                updateThumbnail(dropZoneElement, inputElement.files);
+            }
+            dropZoneElement.classList.remove("drop-zone--over");
+        });
+
+        inputElement.addEventListener("change", () => {
+            updateThumbnail(dropZoneElement, inputElement.files);
+        });
+
+        dropZoneElement.addEventListener('click', () => {
+            inputElement.click();
+        });
+    }
+
+    function updateThumbnail(dropZoneElement, files) {
+        let thumbContainer = dropZoneElement.querySelector(".thumbnails");
+        if (!thumbContainer) {
+            thumbContainer = document.createElement('div');
+            thumbContainer.classList.add('thumbnails');
+            dropZoneElement.appendChild(thumbContainer);
+        }
+        thumbContainer.innerHTML = "";
+
+        for (const file of files) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const thumbElement = document.createElement('div');
+                thumbElement.classList.add('drop-zone__thumb');
+                thumbElement.style.backgroundImage = `url('${reader.result}')`;
+                thumbContainer.appendChild(thumbElement);
+            };
+        }
+    }
+
+    createDropZone('showcase');
+    createDropZone('project_files');
+});
+</script>

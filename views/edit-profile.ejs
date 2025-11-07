@@ -21,22 +21,10 @@
             </div>
         <% }); %>
     </div>
-    <p>Téléversez jusqu'à 4 images pour votre bannière.</p>
+    <p>Téléversez de nouvelles images pour votre bannière (jusqu'à 4). Les nouvelles images s'ajouteront aux anciennes.</p>
     <div>
-        <label for="showcase1">Image 1 :</label>
-        <input type="file" id="showcase1" name="showcase">
-    </div>
-    <div>
-        <label for="showcase2">Image 2 :</label>
-        <input type="file" id="showcase2" name="showcase">
-    </div>
-    <div>
-        <label for="showcase3">Image 3 :</label>
-        <input type="file" id="showcase3" name="showcase">
-    </div>
-    <div>
-        <label for="showcase4">Image 4 :</label>
-        <input type="file" id="showcase4" name="showcase">
+        <label for="showcase">Nouvelles images :</label>
+        <input type="file" id="showcase" name="showcase" multiple accept="image/*">
     </div>
     <div>
         <label for="classe">Classe :</label>
@@ -47,8 +35,8 @@
         <input type="number" id="age" name="age" value="<%= user.age %>">
     </div>
     <div>
-        <label for="birthdate">Date d'anniversaire :</label>
-        <input type="date" id="birthdate" name="birthdate" value="<%= user.birthdate %>">
+        <label for="birthdate_day">Date d'anniversaire :</label>
+        <%- include('partials/birthdate-fields', { birthdate: user.birthdate }) %>
     </div>
     <div>
         <label for="discord">Discord :</label>
@@ -73,4 +61,5 @@
     <button type="submit">Enregistrer les modifications</button>
 </form>
 
+<%- include('partials/drag-and-drop-js') %>
 <%- include('partials/footer') %>

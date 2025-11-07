@@ -20,6 +20,10 @@
         <input type="file" id="avatar" name="avatar" required>
     </div>
     <div>
+        <label for="showcase">Images de bannière (jusqu'à 4) :</label>
+        <input type="file" id="showcase" name="showcase" multiple accept="image/*">
+    </div>
+    <div>
         <label for="classe">Classe :</label>
         <input type="text" id="classe" name="classe">
     </div>
@@ -28,8 +32,8 @@
         <input type="number" id="age" name="age">
     </div>
     <div>
-        <label for="birthdate">Date d'anniversaire :</label>
-        <input type="date" id="birthdate" name="birthdate">
+        <label for="birthdate_day">Date d'anniversaire :</label>
+        <%- include('partials/birthdate-fields') %>
     </div>
     <div>
         <label for="discord">Discord :</label>
@@ -54,4 +58,5 @@
     <button type="submit">S'inscrire</button>
 </form>
 
+<%- include('partials/drag-and-drop-js') %>
 <%- include('partials/footer') %>
