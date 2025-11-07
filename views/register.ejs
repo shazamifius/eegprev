@@ -16,12 +16,18 @@
         <input type="password" id="password" name="password" required>
     </div>
     <div>
-        <label for="avatar">Photo de profil :</label>
-        <input type="file" id="avatar" name="avatar" required>
+        <label>Photo de profil :</label>
+        <div class="file-input-wrapper">
+            <span class="file-input-label">Cliquez ou glissez-déposez un fichier</span>
+            <input type="file" id="avatar" name="avatar" required>
+        </div>
     </div>
     <div>
-        <label for="showcase">Images de bannière (jusqu'à 4) :</label>
-        <input type="file" id="showcase" name="showcase" multiple accept="image/*">
+        <label>Images de bannière (jusqu'à 4) :</label>
+        <div class="file-input-wrapper">
+            <span class="file-input-label">Cliquez ou glissez-déposez jusqu'à 4 fichiers</span>
+            <input type="file" id="showcase" name="showcase" multiple accept="image/*">
+        </div>
     </div>
     <div>
         <label for="classe">Classe :</label>
@@ -60,5 +66,5 @@
     <button type="submit">S'inscrire</button>
 </form>
 
-<%- include('partials/drag-and-drop-js') %>
+<%- include('partials/drag-and-drop-fix') %>
 <%- include('partials/footer') %>

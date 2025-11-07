@@ -171,15 +171,23 @@ app.get('/register', (req, res) => {
     res.render('register', { user: undefined });
 });
 
-app.post('/register', upload.single('avatar'), async (req, res) => {
+app.post('/register', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 4 }]), async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         const { name, email, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
-        const avatar = req.file ? '/images/avatars/' + req.file.filename : null;
+        const avatar = req.files['avatar'] ? '/images/avatars/' + req.files['avatar'][0].filename : null;
+
         db.run('INSERT INTO users (name, email, password, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [name, email, hashedPassword, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio],
-            (err) => {
+            function(err) {
                 if (err) return handleDbError(err, res);
+                const userId = this.lastID;
+                if (req.files['showcase']) {
+                    req.files['showcase'].forEach(file => {
+                        const imagePath = '/images/showcase/' + file.filename;
+                        db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [userId, imagePath]);
+                    });
+                }
                 res.redirect('/login');
             });
     } catch (err) {
@@ -501,7 +509,7 @@ app.get('/profile/edit', (req, res) => {
     }
 });
 
-app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 15 }]), (req, res) => {
+app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 4 }]), (req, res) => {
     if (req.session.user) {
         const { name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
         let avatar = req.session.user.avatar;
@@ -516,23 +524,12 @@ app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name
                 req.session.user = { ...req.session.user, name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar };
 
                 if (req.files['showcase']) {
-                    const showcaseLimit = 15;
-                    db.all('SELECT COUNT(*) as count FROM showcase_images WHERE user_id = ?', [req.session.user.id], (err, rows) => {
-                        if (err) return handleDbError(err, res);
-                        let currentImageCount = rows[0].count;
-
-                        req.files['showcase'].forEach(file => {
-                            if (currentImageCount < showcaseLimit) {
-                                const imagePath = '/images/showcase/' + file.filename;
-                                db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [req.session.user.id, imagePath]);
-                                currentImageCount++;
-                            }
-                        });
-                        res.redirect('/profile');
+                    req.files['showcase'].forEach(file => {
+                        const imagePath = '/images/showcase/' + file.filename;
+                        db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [req.session.user.id, imagePath]);
                     });
-                } else {
-                    res.redirect('/profile');
                 }
+                res.redirect('/profile');
             });
     } else {
         res.redirect('/login');
@@ -729,10 +726,6 @@ app.post('/projects/new', upload.fields([
                                 else resolve();
                             });
                         }));
-                    } else {
-                        // Handle case where main image is not uploaded but is required
-                        // For now, let's just resolve to avoid breaking the chain
-                        promises.push(Promise.resolve());
                     }
                     if (req.files && req.files['secondary_images']) {
                         req.files['secondary_images'].forEach(file => {

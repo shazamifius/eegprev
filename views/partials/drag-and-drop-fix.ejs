@@ -1,0 +1,65 @@
+<style>
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+        border: 2px dashed var(--secondary-color);
+        border-radius: var(--border-radius);
+        padding: 25px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-style var(--transition-speed), background-color var(--transition-speed);
+    }
+    .file-input-wrapper:hover, .file-input-wrapper.drag-over {
+        border-style: solid;
+        background-color: var(--secondary-color);
+    }
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    .file-input-label {
+        color: var(--text-secondary);
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.file-input-wrapper').forEach(wrapper => {
+        const input = wrapper.querySelector('input[type=file]');
+        const label = wrapper.querySelector('.file-input-label');
+        const defaultLabelText = label.innerText;
+
+        input.addEventListener('change', () => {
+            if (input.files.length > 0) {
+                label.innerText = `${input.files.length} fichier(s) sélectionné(s)`;
+            } else {
+                label.innerText = defaultLabelText;
+            }
+        });
+
+        wrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            wrapper.classList.add('drag-over');
+        });
+
+        wrapper.addEventListener('dragleave', () => {
+            wrapper.classList.remove('drag-over');
+        });
+
+        wrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            wrapper.classList.remove('drag-over');
+            input.files = e.dataTransfer.files;
+
+            const changeEvent = new Event('change', { bubbles: true });
+            input.dispatchEvent(changeEvent);
+        });
+    });
+});
+</script>
