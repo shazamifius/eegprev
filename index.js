@@ -150,13 +150,17 @@ app.post('/login', (req, res) => {
     const { email, password } = req.body;
     db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
         if (err) return handleDbError(err, res);
-        if (!user) return res.redirect('/login');
+        if (!user) {
+            req.flash('error', 'Aucun utilisateur trouvé avec cet email.');
+            return res.redirect('/login');
+        }
 
         bcrypt.compare(password, user.password, (err, result) => {
             if (result) {
                 req.session.user = user;
                 res.redirect('/profile');
             } else {
+                req.flash('error', 'Mot de passe incorrect.');
                 res.redirect('/login');
             }
         });
