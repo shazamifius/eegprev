@@ -37,8 +37,17 @@
                 <% if (user.instagram) { %><a href="https://instagram.com/<%= user.instagram %>" target="_blank"><i class="fab fa-instagram"></i></a><% } %>
                 <% if (user.snapchat) { %><a href="https://snapchat.com/add/<%= user.snapchat %>" target="_blank"><i class="fab fa-snapchat"></i></a><% } %>
             </div>
-             <div class="portfolio-link">
-                <% if (user.portfolio) { %><a href="<%= user.portfolio %>" target="_blank">Portfolio Externe</a><% } %>
+            <div class="portfolio-links">
+                <% if (portfolioLinks && portfolioLinks.length > 0) { %>
+                    <% portfolioLinks.forEach(link => { %>
+                        <a href="<%= link.url %>" class="portfolio-button" target="_blank" rel="noopener noreferrer">
+                            <img src="<%= link.icon %>" alt="" class="portfolio-icon">
+                            <span><%= link.name %></span>
+                        </a>
+                    <% }); %>
+                <% } else { %>
+                    <p>Aucun portfolio externe ajouté.</p>
+                <% } %>
             </div>
         </div>
 

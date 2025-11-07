@@ -2,69 +2,7 @@
 
 <h1>Inscription</h1>
 <p>Ce site est réservé aux élèves de l'EEGP. Soyez respectueux et reconnaissable (photo de vous ou logo).</p>
-<form action="/register" method="POST" enctype="multipart/form-data">
-    <div>
-        <label for="name">Nom :</label>
-        <input type="text" id="name" name="name" required>
-    </div>
-    <div>
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-    <div>
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" required>
-    </div>
-    <div>
-        <label>Photo de profil :</label>
-        <div class="file-input-wrapper">
-            <span class="file-input-label">Cliquez ou glissez-déposez un fichier</span>
-            <input type="file" id="avatar" name="avatar" required>
-        </div>
-    </div>
-    <div>
-        <label>Images de bannière (jusqu'à 4) :</label>
-        <div class="file-input-wrapper">
-            <span class="file-input-label">Cliquez ou glissez-déposez jusqu'à 4 fichiers</span>
-            <input type="file" id="showcase" name="showcase" multiple accept="image/*">
-        </div>
-    </div>
-    <div>
-        <label for="classe">Classe :</label>
-        <input type="text" id="classe" name="classe">
-    </div>
-    <div class="form-row">
-        <div class="form-group" style="flex: 1;">
-            <label for="age">Âge :</label>
-            <input type="number" id="age" name="age">
-        </div>
-        <div class="form-group" style="flex: 2;">
-            <label for="birthdate">Date d'anniversaire :</label>
-            <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA">
-        </div>
-    </div>
-    <div>
-        <label for="discord">Discord :</label>
-        <input type="text" id="discord" name="discord">
-    </div>
-    <div>
-        <label for="instagram">Instagram :</label>
-        <input type="text" id="instagram" name="instagram">
-    </div>
-    <div>
-        <label for="snapchat">Snapchat :</label>
-        <input type="text" id="snapchat" name="snapchat">
-    </div>
-    <div>
-        <label for="portfolio">Portfolio :</label>
-        <textarea id="portfolio" name="portfolio" rows="3" placeholder="Collez ici des liens vers vos travaux..."></textarea>
-    </div>
-    <div>
-        <label for="bio">Biographie :</label>
-        <textarea id="bio" name="bio"></textarea>
-    </div>
-    <button type="submit">S'inscrire</button>
-</form>
 
-<%- include('partials/drag-and-drop-fix') %>
+<%- include('partials/user-form', { user: null, showcaseImages: [] }) %>
+
 <%- include('partials/footer') %>
