@@ -1,0 +1,98 @@
+<%# views/partials/user-form.ejs %>
+<%
+    const isEdit = typeof user !== 'undefined' && user !== null;
+    const formAction = isEdit ? '/profile/edit' : '/register';
+    const submitText = isEdit ? 'Enregistrer les modifications' : 'S\'inscrire';
+%>
+
+<form action="<%= formAction %>" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="name">Nom :</label>
+        <input type="text" id="name" name="name" value="<%= isEdit ? user.name : '' %>" required>
+    </div>
+
+    <% if (!isEdit) { %>
+    <div>
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <% } %>
+
+    <div>
+        <label for="avatar">Photo de profil :</label>
+        <% if (isEdit && user.avatar) { %>
+            <img src="<%= user.avatar %>" alt="Aperçu de l'avatar" class="avatar-preview">
+        <% } %>
+        <%- include('file-uploader', {
+            fieldName: 'avatar',
+            labelText: 'Cliquez ou glissez-déposez un fichier',
+            isMultiple: false,
+            isRequired: !isEdit
+        }) %>
+        <% if (isEdit) { %>
+            <p>Laissez vide pour conserver l'image actuelle.</p>
+        <% } %>
+    </div>
+
+    <% if (isEdit) { %>
+        <h2>Images "Showcase"</h2>
+        <div class="showcase-edit">
+            <% showcaseImages.forEach(image => { %>
+                <div class="showcase-image-edit">
+                    <img src="<%= image.image_path %>" alt="Image Showcase">
+                    <a href="/profile/showcase/delete/<%= image.id %>" class="button">Supprimer</a>
+                </div>
+            <% }); %>
+        </div>
+    <% } %>
+
+    <div>
+        <label>Images de bannière (<%= isEdit ? "Ajouter de nouvelles" : "jusqu'à 4" %>) :</label>
+        <%- include('file-uploader', {
+            fieldName: 'showcase',
+            labelText: 'Cliquez ou glissez-déposez jusqu\'à 4 fichiers',
+            isMultiple: true,
+            isRequired: false
+        }) %>
+    </div>
+
+    <div>
+        <label for="classe">Classe :</label>
+        <input type="text" id="classe" name="classe" value="<%= isEdit ? user.classe : '' %>">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label for="age">Âge :</label>
+            <input type="number" id="age" name="age" value="<%= isEdit ? user.age : '' %>">
+        </div>
+        <div class="form-group" style="flex: 2;">
+            <label for="birthdate">Date d'anniversaire :</label>
+            <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA" value="<%= isEdit ? user.birthdate : '' %>">
+        </div>
+    </div>
+    <div>
+        <label for="discord">Discord :</label>
+        <input type="text" id="discord" name="discord" value="<%= isEdit ? user.discord : '' %>">
+    </div>
+    <div>
+        <label for="instagram">Instagram :</label>
+        <input type="text" id="instagram" name="instagram" value="<%= isEdit ? user.instagram : '' %>">
+    </div>
+    <div>
+        <label for="snapchat">Snapchat :</label>
+        <input type="text" id="snapchat" name="snapchat" value="<%= isEdit ? user.snapchat : '' %>">
+    </div>
+    <div>
+        <label for="portfolio">Portfolio :</label>
+        <textarea id="portfolio" name="portfolio" rows="3" placeholder="Collez ici des liens vers vos travaux..."><%= isEdit ? user.portfolio : '' %></textarea>
+    </div>
+    <div>
+        <label for="bio">Biographie :</label>
+        <textarea id="bio" name="bio"><%= isEdit ? user.bio : '' %></textarea>
+    </div>
+    <button type="submit"><%= submitText %></button>
+</form>

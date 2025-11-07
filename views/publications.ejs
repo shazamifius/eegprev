@@ -8,8 +8,12 @@
         <h2>Créer une publication</h2>
         <form action="/publications/new" method="POST" enctype="multipart/form-data">
             <textarea name="content" placeholder="Quoi de neuf ?" required></textarea>
-            <label for="media">Ajouter une image/vidéo :</label>
-            <input type="file" name="media">
+            <%- include('partials/file-uploader', {
+                fieldName: 'media',
+                labelText: 'Cliquez ou glissez-déposez une image ou une vidéo',
+                isMultiple: false,
+                isRequired: false
+            }) %>
             <label for="category">Catégorie :</label>
             <select name="category">
                 <option value="Texte">Texte</option>
@@ -48,11 +52,13 @@
                 <% } %>
             </div>
             <div class="post-footer">
-                <form action="/publications/<%= post.id %>/upvote" method="POST" style="display: inline;">
-                    <button type="submit">▲ Upvote (<%= post.upvotes %>)</button>
-                </form>
-                <a href="/publications/<%= post.id %>" class="button">Commentaire</a>
-                <span><%= new Date(post.created_at).toLocaleString() %></span>
+                <div class="post-actions">
+                    <form action="/publications/<%= post.id %>/upvote" method="POST">
+                        <button type="submit" class="upvote-button">▲ <%= post.upvotes %></button>
+                    </form>
+                    <a href="/publications/<%= post.id %>" class="comment-button">💬</a>
+                </div>
+                <span class="post-date"><%= new Date(post.created_at).toLocaleDateString() %></span>
             </div>
         </div>
         <% }); %>

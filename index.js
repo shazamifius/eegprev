@@ -90,6 +90,33 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+const parsePortfolioLinks = (portfolioString) => {
+    if (!portfolioString) {
+        return [];
+    }
+    const urls = portfolioString.split(/[\n\r]+/).filter(line => line.trim() !== '');
+    return urls.map(url => {
+        try {
+            // Ensure URL has a protocol
+            let fullUrl = url;
+            if (!/^https?:\/\//i.test(url)) {
+                fullUrl = 'https://' + url;
+            }
+            const urlObject = new URL(fullUrl);
+            let domain = urlObject.hostname.replace('www.', '');
+            const name = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
+            const icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            return {
+                url: fullUrl,
+                name: name,
+                icon: icon
+            };
+        } catch (e) {
+            return null;
+        }
+    }).filter(item => item !== null);
+};
+
 app.get('/', (req, res) => {
     if (req.session.user) {
         // Logged-in view: Fetch latest news and publications
@@ -229,7 +256,8 @@ app.get('/profile', (req, res) => {
 
         Promise.all([projectsPromise, showcasePromise, postsPromise])
             .then(([projects, showcaseImages, posts]) => {
-                res.render('profile', { user: req.session.user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts });
+                const portfolioLinks = parsePortfolioLinks(req.session.user.portfolio);
+                res.render('profile', { user: req.session.user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks });
             })
             .catch(err => handleDbError(err, res));
     } else {
@@ -646,7 +674,8 @@ app.get('/students/:id', (req, res) => {
 
         Promise.all([projectsPromise, showcasePromise, postsPromise])
             .then(([projects, showcaseImages, posts]) => {
-                res.render('profile', { user: user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts });
+                const portfolioLinks = parsePortfolioLinks(user.portfolio);
+                res.render('profile', { user: user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks });
             })
             .catch(err => handleDbError(err, res));
     });

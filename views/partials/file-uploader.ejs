@@ -1,0 +1,166 @@
+<%# views/partials/file-uploader.ejs %>
+<%
+    const fieldName = locals.fieldName || 'file';
+    const labelText = locals.labelText || 'Cliquez ou glissez-déposez un fichier';
+    const isMultiple = locals.isMultiple || false;
+    const isRequired = locals.isRequired || false;
+%>
+
+<div class="file-uploader-wrapper">
+    <div class="file-input-wrapper">
+        <span class="file-input-label"><%= labelText %></span>
+        <input type="file" name="<%= fieldName %>" <%= isMultiple ? 'multiple' : '' %> <%= isRequired ? 'required' : '' %> accept="image/*,video/*">
+    </div>
+    <div class="progress-bar-container" style="display: none;">
+        <div class="progress-bar"></div>
+    </div>
+    <div class="upload-status" style="display: none;"></div>
+</div>
+
+<%# Le CSS et le JS sont directement dans ce partiel pour l'encapsulation %>
+<style>
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+        border: 2px dashed var(--secondary-color);
+        border-radius: var(--border-radius);
+        padding: 25px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-style var(--transition-speed), background-color var(--transition-speed);
+    }
+    .file-input-wrapper:hover, .file-input-wrapper.drag-over {
+        border-style: solid;
+        background-color: var(--secondary-color);
+    }
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    .file-input-label {
+        color: var(--text-secondary);
+    }
+    .progress-bar-container {
+        width: 100%;
+        background-color: var(--secondary-color);
+        border-radius: var(--border-radius);
+        margin-top: 10px;
+    }
+    .progress-bar {
+        width: 0;
+        height: 10px;
+        background-color: var(--primary-color);
+        border-radius: var(--border-radius);
+        transition: width 0.3s ease;
+    }
+    .upload-status {
+        margin-top: 10px;
+        font-weight: 600;
+    }
+    .upload-status.success {
+        color: #2ecc71; /* Green */
+    }
+    .upload-status.error {
+        color: #e74c3c; /* Red */
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // We need a flag to ensure we only attach one form submit listener
+    if (!window.hasAttachedFormSubmitListener) {
+        const form = document.querySelector('.file-uploader-wrapper')?.closest('form');
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Check if there are files selected in any of our uploaders
+                const uploaderInputs = form.querySelectorAll('.file-uploader-wrapper input[type=file]');
+                let hasFilesToUpload = false;
+                uploaderInputs.forEach(input => {
+                    if (input.files.length > 0) {
+                        hasFilesToUpload = true;
+                    }
+                });
+
+                if (!hasFilesToUpload) {
+                    return; // Allow normal form submission if no files
+                }
+
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const xhr = new XMLHttpRequest();
+                const progressBar = form.querySelector('.progress-bar');
+                const progressBarContainer = form.querySelector('.progress-bar-container');
+                const uploadStatus = form.querySelector('.upload-status');
+
+                xhr.open(form.method, form.action, true);
+
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                        progressBarContainer.style.display = 'block';
+                    }
+                });
+
+                xhr.addEventListener('load', function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // On success, the server redirects, so the response URL will be the new page
+                        window.location.href = xhr.responseURL;
+                    } else {
+                        uploadStatus.innerText = 'Erreur lors de l\'upload.';
+                        uploadStatus.className = 'upload-status error';
+                        uploadStatus.style.display = 'block';
+                    }
+                });
+
+                xhr.addEventListener('error', function() {
+                     uploadStatus.innerText = 'Erreur réseau.';
+                     uploadStatus.className = 'upload-status error';
+                     uploadStatus.style.display = 'block';
+                });
+
+                xhr.send(formData);
+            });
+            window.hasAttachedFormSubmitListener = true;
+        }
+    }
+
+    document.querySelectorAll('.file-uploader-wrapper').forEach(uploader => {
+        const wrapper = uploader.querySelector('.file-input-wrapper');
+        const input = wrapper.querySelector('input[type=file]');
+        const label = wrapper.querySelector('.file-input-label');
+        const defaultLabelText = label.innerText;
+
+        const handleFiles = (files) => {
+            if (files.length > 0) {
+                let fileNames = Array.from(files).map(f => f.name).join(', ');
+                if(fileNames.length > 40) fileNames = `${files.length} fichier(s) sélectionné(s)`;
+                label.innerText = fileNames;
+            } else {
+                label.innerText = defaultLabelText;
+            }
+        };
+
+        input.addEventListener('change', () => handleFiles(input.files));
+        wrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            wrapper.classList.add('drag-over');
+        });
+        wrapper.addEventListener('dragleave', () => wrapper.classList.remove('drag-over'));
+        wrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            wrapper.classList.remove('drag-over');
+            input.files = e.dataTransfer.files;
+            handleFiles(input.files);
+        });
+    });
+});
+</script>
