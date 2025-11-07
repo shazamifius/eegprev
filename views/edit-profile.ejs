@@ -8,6 +8,7 @@
     </div>
     <div>
         <label for="avatar">Photo de profil :</label>
+        <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Aperçu de l'avatar" class="avatar-preview">
         <input type="file" id="avatar" name="avatar">
         <p>Laissez vide pour conserver l'image actuelle.</p>
     </div>
