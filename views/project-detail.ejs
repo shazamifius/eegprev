@@ -33,6 +33,24 @@
         <h2>Description</h2>
         <p><%= project.description %></p>
 
+        <% if (project.readme) { %>
+            <div class="project-readme">
+                <h2>README</h2>
+                <pre><code><%= project.readme %></code></pre>
+            </div>
+        <% } %>
+
+        <% if (projectFiles && projectFiles.length > 0) { %>
+            <div class="project-files">
+                <h2>Fichiers du projet</h2>
+                <ul>
+                    <% projectFiles.forEach(file => { %>
+                        <li><a href="<%= file.file_path %>" download><%= file.file_name %></a></li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+
         <div class="project-detail-footer">
             <form action="/projects/<%= project.id %>/upvote" method="POST">
                 <button type="submit" class="upvote-button">▲ Upvote (<%= project.upvotes %>)</button>

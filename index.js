@@ -12,6 +12,7 @@ const uploadDirs = [
     './public/images/avatars',
     './public/images/showcase',
     './public/images/projects',
+    './public/files/projects',
     './public/images/publications',
     './public/images/news',
     './public/images/help'
@@ -42,6 +43,8 @@ const storage = multer.diskStorage({
             dest += 'showcase';
         } else if (file.fieldname === "main_image" || file.fieldname === "secondary_images") {
             dest += 'projects';
+        } else if (file.fieldname === "project_files") {
+            dest = './public/files/projects';
         } else if (file.fieldname === "media") {
             dest += 'publications';
         } else if (file.fieldname === "image") {
@@ -472,7 +475,11 @@ app.get('/projects/:id', (req, res) => {
 
                 db.all('SELECT u.id, u.name FROM users u JOIN project_collaborators pc ON u.id = pc.user_id WHERE pc.project_id = ?', [projectId], (err, collaborators) => {
                     if (err) return handleDbError(err, res);
-                    res.render('project-detail', { project: project, collaborators: collaborators, user: req.session.user });
+
+                    db.all('SELECT * FROM project_files WHERE project_id = ?', [projectId], (err, projectFiles) => {
+                        if (err) return handleDbError(err, res);
+                        res.render('project-detail', { project: project, collaborators: collaborators, projectFiles: projectFiles, user: req.session.user });
+                    });
                 });
             });
         });
@@ -671,11 +678,15 @@ app.get('/projects/new', (req, res) => {
     }
 });
 
-app.post('/projects/new', upload.fields([{ name: 'main_image', maxCount: 1 }, { name: 'secondary_images', maxCount: 3 }]), (req, res) => {
+app.post('/projects/new', upload.fields([
+    { name: 'main_image', maxCount: 1 },
+    { name: 'secondary_images', maxCount: 3 },
+    { name: 'project_files', maxCount: 10 }
+]), (req, res) => {
     if (req.session.user) {
-        const { title, description, collaborators } = req.body;
-        db.run('INSERT INTO projects (title, description, author_id) VALUES (?, ?, ?)',
-            [title, description, req.session.user.id],
+        const { title, description, readme, collaborators } = req.body;
+        db.run('INSERT INTO projects (title, description, readme, author_id) VALUES (?, ?, ?, ?)',
+            [title, description, readme, req.session.user.id],
             async function(err) {
                 if (err) return handleDbError(err, res);
                 const projectId = this.lastID;
@@ -709,6 +720,17 @@ app.post('/projects/new', upload.fields([{ name: 'main_image', maxCount: 1 }, { 
                             const imagePath = '/images/projects/' + file.filename;
                             promises.push(new Promise((resolve, reject) => {
                                 db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 0)', [projectId, imagePath], (err) => {
+                                    if (err) reject(err);
+                                    else resolve();
+                                });
+                            }));
+                        });
+                    }
+                    if (req.files && req.files['project_files']) {
+                        req.files['project_files'].forEach(file => {
+                            const filePath = '/files/projects/' + file.filename;
+                            promises.push(new Promise((resolve, reject) => {
+                                db.run('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)', [projectId, file.originalname, filePath], (err) => {
                                     if (err) reject(err);
                                     else resolve();
                                 });
