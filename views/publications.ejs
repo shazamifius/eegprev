@@ -37,16 +37,18 @@
                 <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>" alt="Avatar de <%= post.authorName %>">
                 <a href="/students/<%= post.author_id %>"><%= post.authorName %></a>
             </div>
-            <div class="post-content">
-                <p><%= post.content %></p>
-                <% if (post.media_path) { %>
-                    <% if (post.media_type.startsWith('image')) { %>
-                        <img src="<%= post.media_path %>" alt="Média de la publication">
-                    <% } else if (post.media_type.startsWith('video')) { %>
-                        <video controls src="<%= post.media_path %>"></video>
+            <a href="/publications/<%= post.id %>" class="post-link">
+                <div class="post-content">
+                    <p><%= post.content %></p>
+                    <% if (post.media_path) { %>
+                        <% if (post.media_type.startsWith('image')) { %>
+                            <img src="<%= post.media_path %>" alt="Média de la publication">
+                        <% } else if (post.media_type.startsWith('video')) { %>
+                            <video controls src="<%= post.media_path %>"></video>
+                        <% } %>
                     <% } %>
-                <% } %>
-            </div>
+                </div>
+            </a>
             <div class="post-footer">
                 <form action="/publications/<%= post.id %>/upvote" method="POST" style="display: inline;">
                     <button type="submit">▲ Upvote (<%= post.upvotes %>)</button>

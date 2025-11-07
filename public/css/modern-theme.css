@@ -103,17 +103,35 @@ body {
   margin-top: 15px;
 }
 
+.post-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .post-footer {
   padding: 15px;
   border-top: 1px solid var(--secondary-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px; /* Add some space between footer items */
+}
+
+.post-footer form {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.post-footer .button, .post-footer button {
+    padding: 8px 15px; /* Smaller buttons */
+    min-width: auto;
 }
 
 .post-footer span {
   font-size: 0.8em;
   color: var(--text-secondary);
+  margin-left: auto; /* Push the date to the right */
 }
 
 /* Profile Page */
@@ -464,7 +482,7 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
 /* Chat Styles */
 .chat-container {
   display: flex;
-  height: calc(100vh - 75px); /* Header height + some padding */
+  height: calc(100vh - 120px); /* Adjust based on header and footer */
   overflow: hidden;
 }
 
@@ -499,12 +517,15 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
   display: flex;
   flex-direction: column;
   background-color: var(--background-light);
+  /* The height will be constrained by .chat-container */
 }
 
 .chat-messages {
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
+  /* Add smooth scrolling */
+  scroll-behavior: smooth;
 }
 
 .chat-message {
