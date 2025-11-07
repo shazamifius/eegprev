@@ -739,6 +739,15 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
   border: 3px solid var(--secondary-color);
 }
 
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
 /* General Image Styling */
 img {
   max-width: 100%;

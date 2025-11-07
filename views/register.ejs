@@ -27,13 +27,15 @@
         <label for="classe">Classe :</label>
         <input type="text" id="classe" name="classe">
     </div>
-    <div>
-        <label for="age">Âge :</label>
-        <input type="number" id="age" name="age">
-    </div>
-    <div>
-        <label for="birthdate_day">Date d'anniversaire :</label>
-        <%- include('partials/birthdate-fields') %>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label for="age">Âge :</label>
+            <input type="number" id="age" name="age">
+        </div>
+        <div class="form-group" style="flex: 2;">
+            <label for="birthdate">Date d'anniversaire :</label>
+            <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA">
+        </div>
     </div>
     <div>
         <label for="discord">Discord :</label>
@@ -49,7 +51,7 @@
     </div>
     <div>
         <label for="portfolio">Portfolio :</label>
-        <input type="url" id="portfolio" name="portfolio">
+        <textarea id="portfolio" name="portfolio" rows="3" placeholder="Collez ici des liens vers vos travaux..."></textarea>
     </div>
     <div>
         <label for="bio">Biographie :</label>

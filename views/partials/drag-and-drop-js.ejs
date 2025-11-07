@@ -1,13 +1,15 @@
 <style>
     .drop-zone {
-        border: 2px dashed #ccc;
-        border-radius: 5px;
+        border: 2px dashed var(--secondary-color);
+        border-radius: var(--border-radius);
         padding: 25px;
         text-align: center;
         cursor: pointer;
+        transition: border-style var(--transition-speed), background-color var(--transition-speed);
     }
     .drop-zone--over {
         border-style: solid;
+        background-color: var(--secondary-color);
     }
     .drop-zone__input {
         display: none;
@@ -31,7 +33,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     function createDropZone(targetInput) {
         const inputElement = document.getElementById(targetInput);
-        if (!inputElement) return;
+        if (!inputElement || !inputElement.hasAttribute('multiple')) return;
 
         const dropZoneElement = document.createElement('div');
         dropZoneElement.classList.add('drop-zone');
