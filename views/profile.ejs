@@ -53,7 +53,12 @@
 
         <div class="profile-main">
             <!-- Section des Projets -->
-            <h2>Projets de <%= user.name %></h2>
+            <div class="section-header">
+                <h2>Projets de <%= user.name %></h2>
+                <% if (sessionUser && sessionUser.id === user.id) { %>
+                    <a href="/projects/my-projects" class="btn">Gérer mes projets</a>
+                <% } %>
+            </div>
             <div class="projects-grid">
                 <% if (projects && projects.length > 0) { %>
                     <% projects.forEach(project => { %>

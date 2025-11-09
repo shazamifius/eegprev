@@ -30,6 +30,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const { db } = require('./database');
+const projectsRouter = require('./routes/projects');
 
 const port = 3000;
 
@@ -64,6 +65,7 @@ const upload = multer({ storage: storage });
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const sessionMiddleware = session({
@@ -522,33 +524,6 @@ app.post('/publications/:id/upvote', (req, res) => {
     }
 });
 
-app.get('/projects/:id', (req, res) => {
-    const projectId = req.params.id;
-    db.get('SELECT p.*, u.name as authorName FROM projects p JOIN users u ON p.author_id = u.id WHERE p.id = ?', [projectId], (err, project) => {
-        if (err || !project) {
-            return res.redirect('/projects');
-        }
-
-        db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [projectId], (err, mainImage) => {
-            if (err) return handleDbError(err, res);
-            project.main_image = mainImage ? mainImage.image_path : null;
-
-            db.all('SELECT image_path FROM project_images WHERE project_id = ? AND (is_main = 0 OR is_main IS NULL)', [projectId], (err, secondaryImages) => {
-                if (err) return handleDbError(err, res);
-                project.secondary_images = secondaryImages.map(img => img.image_path);
-
-                db.all('SELECT u.id, u.name FROM users u JOIN project_collaborators pc ON u.id = pc.user_id WHERE pc.project_id = ?', [projectId], (err, collaborators) => {
-                    if (err) return handleDbError(err, res);
-
-                    db.all('SELECT * FROM project_files WHERE project_id = ?', [projectId], (err, projectFiles) => {
-                        if (err) return handleDbError(err, res);
-                        res.render('project-detail', { project: project, collaborators: collaborators, projectFiles: projectFiles, user: req.session.user });
-                    });
-                });
-            });
-        });
-    });
-});
 
 app.get('/profile/edit', (req, res) => {
     if (req.session.user) {
@@ -705,115 +680,6 @@ app.get('/students/:id', (req, res) => {
     });
 });
 
-app.get('/projects', (req, res) => {
-    db.all('SELECT p.*, u.name as authorName FROM projects p JOIN users u ON p.author_id = u.id', [], (err, projects) => {
-        if (err) return handleDbError(err, res);
-
-        const promises = projects.map(project =>
-            new Promise((resolve, reject) => {
-                db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
-                    if (err) return reject(err);
-                    project.main_image = mainImage ? mainImage.image_path : null;
-                    db.all('SELECT image_path FROM project_images WHERE project_id = ? AND (is_main = 0 OR is_main IS NULL)', [project.id], (err, secondaryImages) => {
-                        if (err) return reject(err);
-                        project.secondary_images = secondaryImages.map(img => img.image_path);
-                        resolve(project);
-                    });
-                });
-            })
-        );
-
-        Promise.all(promises)
-            .then(detailedProjects => {
-                res.render('projects', { projects: detailedProjects, user: req.session.user });
-            })
-            .catch(err => handleDbError(err, res));
-    });
-});
-
-app.get('/projects/new', (req, res) => {
-    if (req.session.user) {
-        db.all('SELECT id, name FROM users', [], (err, users) => {
-            if (err) return handleDbError(err, res);
-            res.render('new-project', { user: req.session.user, users: users });
-        });
-    } else {
-        req.flash('error', 'Vous devez être connecté pour créer un projet.');
-        res.redirect('/login');
-    }
-});
-
-app.post('/projects/new', upload.fields([
-    { name: 'main_image', maxCount: 1 },
-    { name: 'secondary_images', maxCount: 3 },
-    { name: 'project_files', maxCount: 10 }
-]), (req, res) => {
-    if (req.session.user) {
-        const { title, description, readme, collaborators } = req.body;
-        db.run('INSERT INTO projects (title, description, readme, author_id) VALUES (?, ?, ?, ?)',
-            [title, description, readme, req.session.user.id],
-            async function(err) {
-                if (err) return handleDbError(err, res);
-                const projectId = this.lastID;
-
-                try {
-                    const promises = [];
-
-                    if (collaborators) {
-                        const collaboratorIds = Array.isArray(collaborators) ? collaborators : [collaborators];
-                        collaboratorIds.forEach(userId => {
-                            promises.push(new Promise((resolve, reject) => {
-                                db.run('INSERT INTO project_collaborators (project_id, user_id) VALUES (?, ?)', [projectId, userId], (err) => {
-                                    if (err) reject(err);
-                                    else resolve();
-                                });
-                            }));
-                        });
-                    }
-
-                    if (req.files && req.files['main_image']) {
-                        const imagePath = '/images/projects/' + req.files['main_image'][0].filename;
-                        promises.push(new Promise((resolve, reject) => {
-                            db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 1)', [projectId, imagePath], (err) => {
-                                if (err) reject(err);
-                                else resolve();
-                            });
-                        }));
-                    }
-                    if (req.files && req.files['secondary_images']) {
-                        req.files['secondary_images'].forEach(file => {
-                            const imagePath = '/images/projects/' + file.filename;
-                            promises.push(new Promise((resolve, reject) => {
-                                db.run('INSERT INTO project_images (project_id, image_path, is_main) VALUES (?, ?, 0)', [projectId, imagePath], (err) => {
-                                    if (err) reject(err);
-                                    else resolve();
-                                });
-                            }));
-                        });
-                    }
-                    if (req.files && req.files['project_files']) {
-                        req.files['project_files'].forEach(file => {
-                            const filePath = '/files/projects/' + file.filename;
-                            promises.push(new Promise((resolve, reject) => {
-                                db.run('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)', [projectId, file.originalname, filePath], (err) => {
-                                    if (err) reject(err);
-                                    else resolve();
-                                });
-                            }));
-                        });
-                    }
-
-                    await Promise.all(promises);
-                    res.redirect('/projects');
-                } catch (dbErr) {
-                    handleDbError(dbErr, res);
-                }
-            });
-    } else {
-        req.flash('error', 'Votre session a expiré. Veuillez vous reconnecter pour créer un projet.');
-        res.redirect('/login');
-    }
-});
 
 app.post('/projects/:id/upvote', (req, res) => {
     if (req.session.user) {
@@ -850,6 +716,9 @@ app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
+
+// Mount the projects router
+app.use('/projects', projectsRouter);
 
 const connectedUsers = {};
 
