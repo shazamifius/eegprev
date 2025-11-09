@@ -195,31 +195,55 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.render('register', { user: undefined });
+    res.render('register', { user: undefined, error: req.flash('error') });
 });
 
-app.post('/register', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 4 }]), async (req, res) => {
-    try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const { name, email, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
-        const avatar = req.files['avatar'] ? '/images/avatars/' + req.files['avatar'][0].filename : null;
+app.post('/register', (req, res) => {
+    const uploader = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 15 }]);
 
-        db.run('INSERT INTO users (name, email, password, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, email, hashedPassword, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio],
-            function(err) {
-                if (err) return handleDbError(err, res);
-                const userId = this.lastID;
-                if (req.files['showcase']) {
-                    req.files['showcase'].forEach(file => {
-                        const imagePath = '/images/showcase/' + file.filename;
-                        db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [userId, imagePath]);
-                    });
-                }
-                res.redirect('/login');
-            });
-    } catch (err) {
-        handleDbError(err, res);
-    }
+    uploader(req, res, async function (err) {
+        if (err instanceof multer.MulterError) {
+            let message = "Une erreur est survenue lors du téléversement.";
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                message = "Un des fichiers est trop volumineux.";
+            } else if (err.code === 'LIMIT_FILE_COUNT') {
+                message = "Vous avez envoyé trop de fichiers.";
+            }
+            req.flash('error', message);
+            return res.redirect('/register');
+        } else if (err) {
+            req.flash('error', "Une erreur inconnue est survenue lors du téléversement.");
+            return res.redirect('/register');
+        }
+
+        try {
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            const { name, email, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
+            const avatar = req.files['avatar'] ? '/images/avatars/' + req.files['avatar'][0].filename : null;
+
+            db.run('INSERT INTO users (name, email, password, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [name, email, hashedPassword, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio],
+                function(err) {
+                    if (err) {
+                        if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE constraint failed: users.email')) {
+                            req.flash('error', 'Cet email est déjà utilisé. Veuillez en choisir un autre.');
+                            return res.redirect('/register');
+                        }
+                        return handleDbError(err, res);
+                    }
+                    const userId = this.lastID;
+                    if (req.files['showcase']) {
+                        req.files['showcase'].forEach(file => {
+                            const imagePath = '/images/showcase/' + file.filename;
+                            db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [userId, imagePath]);
+                        });
+                    }
+                    res.redirect('/login');
+                });
+        } catch (err) {
+            handleDbError(err, res);
+        }
+    });
 });
 
 app.get('/profile', (req, res) => {
@@ -248,7 +272,7 @@ app.get('/profile', (req, res) => {
             });
         });
         const postsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM posts WHERE author_id = ? ORDER BY created_at DESC', [userId], (err, posts) => {
+            db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id WHERE p.author_id = ? ORDER BY p.created_at DESC', [userId], (err, posts) => {
                 if (err) return reject(err);
                 resolve(posts);
             });
@@ -666,7 +690,7 @@ app.get('/students/:id', (req, res) => {
             });
         });
         const postsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM posts WHERE author_id = ? ORDER BY created_at DESC', [userId], (err, posts) => {
+            db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id WHERE p.author_id = ? ORDER BY p.created_at DESC', [userId], (err, posts) => {
                 if (err) return reject(err);
                 resolve(posts);
             });
