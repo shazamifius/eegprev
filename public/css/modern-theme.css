@@ -536,8 +536,8 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
 /* Chat Styles */
 .chat-container {
   display: flex;
-  height: calc(100vh - 70px); /* Adjust to header height */
-  max-height: calc(100vh - 70px);
+  height: calc(80vh - 70px); /* Hauteur réduite de 20vh */
+  max-height: calc(80vh - 70px);
   overflow: hidden; /* Prevent body scroll */
 }
 
@@ -812,4 +812,34 @@ img {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* --- Style unifié pour les liens textuels (pseudos, filtres, etc.) --- */
+/* Cible les liens qui ne sont pas explicitement stylés comme des boutons ou des éléments spéciaux */
+a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-button),
+.post-author a,
+.comment-author a,
+.filter-nav a {
+    color: var(--text-primary) !important;
+    font-weight: bold !important;
+    text-decoration: none !important;
+    background-color: transparent !important; /* Annule tout fond */
+    border: none !important; /* Annule toute bordure */
+    transition: none !important; /* Annule les transitions pour garder le style constant */
+}
+
+/* Assure que le style reste constant au survol, à la visite, etc. */
+a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-button):hover,
+a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-button):visited,
+a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-button):active,
+a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-button):focus,
+.post-author a:hover,
+.comment-author a:hover,
+.filter-nav a:hover {
+    color: var(--text-primary) !important;
+    font-weight: bold !important;
+    text-decoration: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    transform: none !important; /* Annule tout effet de transformation */
 }
