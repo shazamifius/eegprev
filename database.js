@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const dbPath = process.env.NODE_ENV === 'test' ? ':memory:' : './database.db';
+const bcrypt = require('bcrypt');
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -34,9 +35,11 @@ const createSchema = (callback) => {
         db.run(`CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            description TEXT NOT NULL,
-            readme TEXT,
+            description TEXT,
             author_id INTEGER,
+            is_public BOOLEAN DEFAULT 0,
+            allow_download BOOLEAN DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             upvotes INTEGER DEFAULT 0,
             FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
         )`);

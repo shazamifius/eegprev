@@ -1,0 +1,22 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+    <h1>Galerie des Projets</h1>
+    <p>Découvrez les projets publics de la communauté.</p>
+
+    <div class="project-gallery">
+        <% if (projects.length > 0) { %>
+            <% projects.forEach(project => { %>
+                <div class="project-card">
+                    <h2><a href="/projects/<%= project.id %>"><%= project.title %></a></h2>
+                    <p>Par <%= project.author_name %></p>
+                    <p>Publié le <%= new Date(project.created_at).toLocaleDateString() %></p>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>Aucun projet public pour le moment.</p>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

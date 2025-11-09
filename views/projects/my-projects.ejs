@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+    <h1>Mes Projets</h1>
+    <a href="/projects/new" class="btn">Créer un nouveau projet</a>
+
+    <div class="project-list">
+        <% if (projects.length > 0) { %>
+            <% projects.forEach(project => { %>
+                <div class="project-item">
+                    <h2><a href="/projects/<%= project.id %>"><%= project.title %></a></h2>
+                    <p>Statut : <%= project.is_public ? 'Public' : 'Privé' %></p>
+                    <p>Créé le <%= new Date(project.created_at).toLocaleDateString() %></p>
+                    <div>
+                        <a href="/projects/<%= project.id %>/edit" class="btn">Modifier</a>
+                        <form action="/projects/<%= project.id %>/delete" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>Vous n'avez encore aucun projet.</p>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
