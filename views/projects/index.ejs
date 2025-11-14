@@ -1,22 +1,74 @@
-<%- include('../partials/header') %>
+<%- include('../partials/header', { title: 'Projets', user: user }) %>
+
+<style>
+    .project-card {
+        background-color: var(--card-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .project-banner {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .project-card-body {
+        padding: 1.5rem;
+    }
+    .project-card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .project-card-author {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+    .project-card-summary {
+        color: var(--text-primary);
+        height: 80px; /* Approx 3-4 lines */
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+</style>
 
 <div class="container">
-    <h1>Galerie des Projets</h1>
-    <p>Découvrez les projets publics de la communauté.</p>
-
-    <div class="project-gallery">
-        <% if (projects.length > 0) { %>
-            <% projects.forEach(project => { %>
-                <div class="project-card">
-                    <h2><a href="/projects/<%= project.id %>"><%= project.title %></a></h2>
-                    <p>Par <%= project.author_name %></p>
-                    <p>Publié le <%= new Date(project.created_at).toLocaleDateString() %></p>
-                </div>
-            <% }); %>
-        <% } else { %>
-            <p>Aucun projet public pour le moment.</p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Découvrez les projets</h1>
+        <% if (user) { %>
+            <a href="/projects/new" class="btn btn-primary">Nouveau Projet</a>
         <% } %>
     </div>
+
+    <% if (projects && projects.length > 0) { %>
+        <div class="row">
+            <% projects.forEach(project => { %>
+                <div class="col-md-6 col-lg-4">
+                    <div class="project-card">
+                        <img src="<%= project.banner_image %>" class="project-banner" alt="Bannière du projet <%= project.title %>">
+                        <div class="project-card-body">
+                            <h5 class="project-card-title"><%= project.title %></h5>
+                            <h6 class="project-card-author">par <%= project.author_name %></h6>
+                            <p class="project-card-summary"><%= project.summary %></p>
+                            <a href="/projects/<%= project.id %>" class="btn btn-outline-light w-100">Voir le projet</a>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="text-center">
+            <p>Aucun projet public n'a été trouvé.</p>
+            <p>Soyez le premier à en créer un !</p>
+        </div>
+    <% } %>
 </div>
 
 <%- include('../partials/footer') %>

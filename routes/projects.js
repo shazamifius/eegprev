@@ -41,7 +41,48 @@ router.get('/', (req, res) => {
             console.error(err);
             return res.status(500).send("Erreur serveur");
         }
-        res.render('projects/index', { projects, user: req.session.user, title: 'Projets' });
+
+        const processedProjects = projects.map(project => {
+            let bannerImage = '/images/default-banner.jpg'; // Default image
+            let summary = project.description || 'Pas de description.';
+
+            if (project.readme_content) {
+                // Extract first image from README
+                const imageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
+                if (imageMatch && imageMatch[1]) {
+                    bannerImage = imageMatch[1];
+                }
+
+                // Create a summary from the first 3 sentences of the README
+                // Improved stripping of Markdown and HTML tags, and trimming whitespace
+                const textOnlyReadme = project.readme_content
+                    .replace(/!\[.*?\]\(.*?\)/g, '')  // Remove Markdown images
+                    .replace(/<[^>]+>/g, '')         // Strip HTML tags
+                    .replace(/[#*`~-]/g, '')         // Remove common Markdown characters
+                    .trim();
+
+                if (textOnlyReadme) {
+                    const sentences = textOnlyReadme.split('. ').slice(0, 3);
+                    summary = sentences.join('. ').trim();
+                    if (summary) {
+                         summary += (sentences.length < 3 ? '' : '...');
+                    }
+                }
+            }
+
+            // Fallback summary if still empty
+            if (!summary || summary.trim() === '...' || summary.trim() === '') {
+                summary = project.description || 'Ce projet n\'a pas encore de description.';
+            }
+
+            return {
+                ...project,
+                banner_image: bannerImage,
+                summary: summary
+            };
+        });
+
+        res.render('projects/index', { projects: processedProjects, user: req.session.user, title: 'Projets' });
     });
 });
 
@@ -57,40 +98,99 @@ router.get('/my-projects', isAuthenticated, (req, res) => {
     });
 });
 
-// GET /projects/new - Display project creation form
+// GET /projects/new - Display project creation choice page
 router.get('/new', isAuthenticated, (req, res) => {
-    res.render('projects/create', { user: req.session.user, title: 'Nouveau Projet' });
+    res.render('projects/create-project-choice', { user: req.session.user, title: 'Nouveau Projet' });
 });
 
-// POST /projects/new - Handle project creation
-router.post('/new', isAuthenticated, upload.array('files', 10), (req, res) => {
-    const { title, description, is_public, allow_download } = req.body;
-    const author_id = req.session.user.id;
-    const isPublic = is_public === 'on' ? 1 : 0;
-    const allowDownload = allow_download === 'on' ? 1 : 0;
+// GET /projects/new/internal - Display internal project creation form
+router.get('/new/internal', isAuthenticated, (req, res) => {
+    res.render('projects/create-internal', { user: req.session.user, title: 'Nouveau Projet Interne' });
+});
 
-    db.run('INSERT INTO projects (title, description, author_id, is_public, allow_download) VALUES (?, ?, ?, ?, ?)',
-        [title, description, author_id, isPublic, allowDownload], function(err) {
+// GET /projects/new/github - Display GitHub project creation form
+router.get('/new/github', isAuthenticated, (req, res) => {
+    res.render('projects/create-github', { user: req.session.user, title: 'Lier un Dépôt GitHub' });
+});
+
+// POST /projects/new/internal - Handle internal project creation
+router.post('/new/internal', isAuthenticated, upload.array('project_files', 10), (req, res) => {
+    const { title, readme_content, is_public, allow_download } = req.body;
+    const author_id = req.session.user.id;
+
+    const isPublicFinal = is_public === 'on' ? 1 : 0;
+    const allowDownloadFinal = allow_download === 'on' ? 1 : 0;
+
+    db.run(`INSERT INTO projects (title, readme_content, author_id, project_type, is_public, allow_download)
+            VALUES (?, ?, ?, 'internal', ?, ?)`,
+        [title, readme_content, author_id, isPublicFinal, allowDownloadFinal], function(err) {
         if (err) {
             console.error(err);
-            return res.status(500).send("Erreur serveur");
+            return res.status(500).send("Erreur serveur lors de la création du projet.");
         }
         const projectId = this.lastID;
-        if (req.files) {
-            const files = req.files.map(file => ({
-                project_id: projectId,
-                file_name: file.originalname,
-                file_path: file.filename
-            }));
+        if (req.files && req.files.length > 0) {
             const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
-            files.forEach(file => {
-                stmt.run(file.project_id, file.file_name, file.file_path);
+            req.files.forEach(file => {
+                stmt.run(projectId, file.originalname, file.filename, (err) => {
+                    if (err) {
+                        console.error("Erreur lors de l'insertion du fichier :", err);
+                    }
+                });
             });
-            stmt.finalize();
+            stmt.finalize((err) => {
+                if(err) {
+                    console.error("Erreur lors de la finalisation de l'insertion des fichiers :", err);
+                }
+                res.redirect('/projects/my-projects');
+            });
+        } else {
+            res.redirect('/projects/my-projects');
         }
-        res.redirect('/projects/my-projects');
     });
 });
+
+// POST /projects/new/github - Handle GitHub project linking
+const axios = require('axios');
+
+router.post('/new/github', isAuthenticated, async (req, res) => {
+    const { github_url, is_public, allow_download } = req.body;
+    const author_id = req.session.user.id;
+    const githubApiUrl = github_url.replace('github.com', 'api.github.com/repos');
+
+    try {
+        const repoResponse = await axios.get(githubApiUrl);
+        const readmeResponse = await axios.get(`${githubApiUrl}/readme`);
+
+        const title = repoResponse.data.name;
+        const description = repoResponse.data.description;
+        const readmeContent = Buffer.from(readmeResponse.data.content, 'base64').toString('utf-8');
+
+        const isPublicFinal = is_public === 'on' ? 1 : 0;
+        const allowDownloadFinal = allow_download === 'on' ? 1 : 0;
+
+        db.run(`INSERT INTO projects (title, description, readme_content, author_id, project_type, github_url, is_public, allow_download)
+                VALUES (?, ?, ?, ?, 'github', ?, ?, ?)`,
+            [title, description, readmeContent, author_id, github_url, isPublicFinal, allowDownloadFinal], function(err) {
+            if (err) {
+                console.error(err);
+                return res.render('projects/create-github', { user: req.session.user, title: 'Lier un Dépôt GitHub', error: 'Erreur lors de la sauvegarde du projet.' });
+            }
+            res.redirect('/projects/my-projects');
+        });
+
+    } catch (error) {
+        console.error(error);
+        let errorMessage = "Erreur lors de la récupération des informations du dépôt GitHub. Assurez-vous que l'URL est correcte et que le dépôt est public.";
+        if (error.response && error.response.status === 404) {
+            errorMessage = "Dépôt non trouvé. Veuillez vérifier l'URL.";
+        }
+        res.render('projects/create-github', { user: req.session.user, title: 'Lier un Dépôt GitHub', error: errorMessage });
+    }
+});
+
+const showdown = require('showdown');
+const converter = new showdown.Converter();
 
 // GET /projects/:id - Display a single project
 router.get('/:id', (req, res) => {
@@ -107,14 +207,27 @@ router.get('/:id', (req, res) => {
         if (!project) {
             return res.status(404).send("Projet non trouvé");
         }
+
+        // Convert README from Markdown to HTML
+        if (project.readme_content) {
+            project.readme_content = converter.makeHtml(project.readme_content);
+        }
+
         db.all('SELECT * FROM project_files WHERE project_id = ?', [projectId], (err, files) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send("Erreur serveur");
             }
             project.files = files;
-            const isAuthor = req.session.user && req.session.user.id === project.author_id;
-            res.render('projects/view', { project, user: req.session.user, isAuthor, title: project.title });
+
+            db.all('SELECT pc.*, u.name as author_name, u.avatar as author_avatar FROM project_comments pc JOIN users u ON pc.user_id = u.id WHERE pc.project_id = ? ORDER BY pc.created_at DESC', [projectId], (err, comments) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send("Erreur serveur");
+                }
+                const isAuthor = req.session.user && req.session.user.id === project.author_id;
+                res.render('projects/view', { project, comments, user: req.session.user, isAuthor, title: project.title });
+            });
         });
     });
 });
@@ -131,42 +244,74 @@ router.get('/:id/edit', isAuthenticated, (req, res) => {
         if (!project) {
             return res.status(404).send("Projet non trouvé ou vous n'avez pas la permission de le modifier.");
         }
-        db.all('SELECT * FROM project_files WHERE project_id = ?', [projectId], (err, files) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send("Erreur serveur");
-            }
-            project.files = files;
-            res.render('projects/edit', { project, user: req.session.user, title: 'Modifier le Projet' });
-        });
+
+        if (project.project_type === 'github') {
+            res.render('projects/edit-github', { project, user: req.session.user, title: 'Modifier le Projet GitHub' });
+        } else {
+            db.all('SELECT * FROM project_files WHERE project_id = ?', [projectId], (err, files) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send("Erreur serveur");
+                }
+                project.files = files;
+                res.render('projects/edit-internal', { project, user: req.session.user, title: 'Modifier le Projet Interne' });
+            });
+        }
     });
 });
 
 // POST /projects/:id/edit - Handle project edit
-router.post('/:id/edit', isAuthenticated, upload.array('files', 10), (req, res) => {
+router.post('/:id/edit', isAuthenticated, upload.array('project_files', 10), (req, res) => {
     const projectId = req.params.id;
     const userId = req.session.user.id;
-    const { title, description, is_public, allow_download } = req.body;
-    const isPublic = is_public === 'on' ? 1 : 0;
-    const allowDownload = allow_download === 'on' ? 1 : 0;
+    const { project_type, title, readme_content, is_public, allow_download } = req.body;
 
-    db.run('UPDATE projects SET title = ?, description = ?, is_public = ?, allow_download = ? WHERE id = ? AND author_id = ?',
-        [title, description, isPublic, allowDownload, projectId, userId], function(err) {
+    const isPublicFinal = is_public === 'on' ? 1 : 0;
+    const allowDownloadFinal = allow_download === 'on' ? 1 : 0;
+
+    if (project_type === 'github') {
+        // GitHub projects: only update visibility settings
+        db.run('UPDATE projects SET is_public = ?, allow_download = ? WHERE id = ? AND author_id = ?',
+            [isPublicFinal, allowDownloadFinal, projectId, userId], function(err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Erreur serveur");
+            }
+            res.redirect('/projects/' + projectId);
+        });
+    } else {
+        // Internal projects: update content and visibility
+        db.run('UPDATE projects SET title = ?, readme_content = ?, is_public = ?, allow_download = ? WHERE id = ? AND author_id = ?',
+            [title, readme_content, isPublicFinal, allowDownloadFinal, projectId, userId], function(err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Erreur serveur");
+            }
+
+            // Handle new file uploads
+            if (req.files && req.files.length > 0) {
+                const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
+                req.files.forEach(file => {
+                    stmt.run(projectId, file.originalname, file.filename);
+                });
+                stmt.finalize();
+            }
+            res.redirect('/projects/' + projectId);
+        });
+    }
+});
+
+// POST /projects/:id/comment - Handle new comment
+router.post('/:id/comment', isAuthenticated, (req, res) => {
+    const projectId = req.params.id;
+    const userId = req.session.user.id;
+    const { comment } = req.body;
+
+    db.run('INSERT INTO project_comments (project_id, user_id, comment) VALUES (?, ?, ?)',
+        [projectId, userId, comment], function(err) {
         if (err) {
             console.error(err);
             return res.status(500).send("Erreur serveur");
-        }
-        if (req.files) {
-            const files = req.files.map(file => ({
-                project_id: projectId,
-                file_name: file.originalname,
-                file_path: file.filename
-            }));
-            const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
-            files.forEach(file => {
-                stmt.run(file.project_id, file.file_name, file.file_path);
-            });
-            stmt.finalize();
         }
         res.redirect('/projects/' + projectId);
     });

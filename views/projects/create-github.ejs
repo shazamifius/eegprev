@@ -1,0 +1,33 @@
+<%- include('../partials/header', { title: 'Lier un Dépôt GitHub', user: user }) %>
+
+<div class="container">
+    <h1>Lier un Dépôt GitHub</h1>
+    <p class="text-secondary mb-4">Collez l'URL de votre dépôt GitHub pour l'importer comme projet.</p>
+
+    <% if (error) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/projects/new/github" method="POST">
+        <div class="form-group mb-3">
+            <label for="github_url">URL du Dépôt GitHub</label>
+            <input type="url" class="form-control" id="github_url" name="github_url" placeholder="https://github.com/utilisateur/nom-du-depot" required>
+        </div>
+
+        <div class="form-group form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
+            <label class="form-check-label" for="is_public">Rendre ce projet public (visible par tous sur notre site)</label>
+        </div>
+
+        <div class="form-group form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" checked>
+            <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers depuis notre site</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lier le Dépôt</button>
+    </form>
+</div>
+
+<%- include('../partials/footer') %>
