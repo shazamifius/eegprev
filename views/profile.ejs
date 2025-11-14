@@ -66,7 +66,11 @@
                             <a href="/projects/<%= project.id %>">
                                 <img src="<%= project.main_image || '/images/default-project.png' %>" alt="Image de <%= project.title %>">
                                 <h3><%= project.title %></h3>
-                                <p><%= project.description.substring(0, 100) %>...</p>
+                                <% if (project.description) { %>
+                                    <p><%= project.description.substring(0, 100) %>...</p>
+                                <% } else { %>
+                                    <p>Pas de description.</p>
+                                <% } %>
                             </a>
                         </div>
                     <% }); %>

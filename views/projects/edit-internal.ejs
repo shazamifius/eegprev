@@ -1,0 +1,70 @@
+<%- include('../partials/header', { title: 'Modifier le Projet', user: user }) %>
+
+<div class="container">
+    <h1>Modifier le Projet Interne</h1>
+    <p class="text-secondary mb-4">Mettez à jour les informations de votre projet ci-dessous.</p>
+
+    <form action="/projects/<%= project.id %>/edit" method="POST" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label for="title">Titre du projet</label>
+            <input type="text" class="form-control" id="title" name="title" value="<%= project.title %>" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="readme_content">README</label>
+            <textarea id="readme_content" name="readme_content" class="form-control" rows="15"><%= project.readme_content %></textarea>
+        </div>
+
+        <div class="form-group mb-3">
+            <h5>Fichiers Actuels</h5>
+            <% if (project.files && project.files.length > 0) { %>
+                <ul class="list-group mb-3">
+                    <% project.files.forEach(file => { %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <%= file.file_name %>
+                            <a href="/projects/<%= project.id %>/files/<%= file.id %>/delete" class="btn btn-sm btn-danger">Supprimer</a>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>Aucun fichier n'est actuellement associé à ce projet.</p>
+            <% } %>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Ajouter de nouveaux fichiers</label>
+            <%- include('../partials/file-uploader', {
+                fieldName: 'project_files',
+                labelText: 'Cliquez ou glissez-déposez pour ajouter des fichiers',
+                isMultiple: true
+            }) %>
+        </div>
+
+        <div class="form-group form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="is_public" name="is_public" <%= project.is_public ? 'checked' : '' %>>
+            <label class="form-check-label" for="is_public">Rendre ce projet public</label>
+        </div>
+
+        <div class="form-group form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" <%= project.allow_download ? 'checked' : '' %>>
+            <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+    </form>
+</div>
+
+<!-- TinyMCE -->
+<script src="/js/tinymce/tinymce.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        tinymce.init({
+            selector: '#readme_content',
+            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+            toolbar_mode: 'floating',
+            height: 500
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %>

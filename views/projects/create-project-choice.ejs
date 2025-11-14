@@ -1,0 +1,27 @@
+<%- include('../partials/header', { title: 'Créer un nouveau projet', user: user }) %>
+
+<div class="container text-center">
+    <h1>Comment voulez-vous créer votre projet ?</h1>
+    <p class="text-secondary mb-4">Choisissez de stocker vos fichiers directement sur notre site ou de les synchroniser depuis un dépôt GitHub.</p>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <i class="fas fa-server fa-3x mb-3"></i>
+                <h3>Projet Interne</h3>
+                <p>Hébergez vos fichiers directement sur la plateforme de l'école. Idéal pour les projets qui ne sont pas sur GitHub.</p>
+                <a href="/projects/new/internal" class="btn btn-primary">Commencer</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <i class="fab fa-github fa-3x mb-3"></i>
+                <h3>Lier un Dépôt GitHub</h3>
+                <p>Importez un projet directement depuis votre compte GitHub en fournissant l'URL de votre dépôt.</p>
+                <a href="/projects/new/github" class="btn btn-secondary">Lier un dépôt</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

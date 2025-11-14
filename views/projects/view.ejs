@@ -1,39 +1,116 @@
-<%- include('../partials/header') %>
+<%- include('../partials/header', { title: project.title, user: user }) %>
 
-<div class="container project-view">
-    <h1><%= project.title %></h1>
-    <p>Par <%= project.author_name %></p>
-    <p>Publié le <%= new Date(project.created_at).toLocaleDateString() %></p>
+<style>
+    .project-header {
+        background-color: var(--card-bg-color);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+    }
+    .project-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    .project-meta {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+    .project-actions .btn {
+        margin-right: 10px;
+    }
+    .readme-content {
+        background-color: var(--card-bg-color);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+    }
+    .file-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .file-list-item:last-child {
+        border-bottom: none;
+    }
+</style>
 
-    <div class="project-description">
-        <%- project.description %>
-    </div>
-
-    <h3>Fichiers du projet</h3>
-    <div class="project-files">
-        <% if (project.files && project.files.length > 0) { %>
-            <ul>
-                <% project.files.forEach(file => { %>
-                    <li>
-                        <% if (project.allow_download) { %>
-                            <a href="/uploads/projects/<%= file.file_path %>" download="<%= file.file_name %>"><%= file.file_name %></a>
-                        <% } else { %>
-                            <span><%= file.file_name %> (téléchargement non autorisé)</span>
-                        <% } %>
-                    </li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>Ce projet n'a pas de fichiers.</p>
-        <% } %>
-    </div>
-
-    <% if (isAuthor) { %>
+<div class="container">
+    <div class="project-header">
+        <h1 class="project-title"><%= project.title %></h1>
+        <p class="project-meta">par <%= project.author_name %> | Créé le <%= new Date(project.created_at).toLocaleDateString() %></p>
         <div class="project-actions">
-            <a href="/projects/<%= project.id %>/edit" class="btn">Modifier</a>
-            <form action="/projects/<%= project.id %>/delete" method="POST" style="display: inline;">
-                <button type="submit" class="btn btn-danger">Supprimer</button>
+            <% if (project.project_type === 'github') { %>
+                <a href="<%= project.github_url %>" class="btn btn-secondary" target="_blank"><i class="fab fa-github"></i> Voir sur GitHub</a>
+                <% if (project.is_public) { %>
+                    <a href="<%= project.github_url %>/issues" class="btn btn-info" target="_blank">Issues</a>
+                <% } %>
+            <% } %>
+            <% if (isAuthor) { %>
+                <a href="/projects/<%= project.id %>/edit" class="btn btn-warning">Modifier</a>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="readme-content">
+        <h2>README</h2>
+        <%- project.readme_content %>
+    </div>
+
+    <% if (project.project_type === 'internal' && project.files && project.files.length > 0) { %>
+        <% if (project.allow_download) { %>
+            <div class="file-list bg-dark-2 rounded p-3">
+                <h2>Fichiers du Projet</h2>
+                <ul class="list-unstyled">
+                    <% project.files.forEach(file => { %>
+                        <li class="file-list-item">
+                            <span><i class="fas fa-file-alt mr-2"></i><%= file.file_name %></span>
+                            <a href="/uploads/projects/<%= file.file_path %>" class="btn btn-sm btn-success" download>Télécharger</a>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } else if (!project.is_public) { %>
+            <!-- Pour les projets privés sans téléchargement, on n'affiche rien, comme demandé -->
+        <% } else { %>
+            <div class="text-center p-3">
+                 <p>Le créateur a désactivé le téléchargement pour ce projet.</p>
+            </div>
+        <% } %>
+    <% } %>
+
+
+    <!-- Section Commentaires -->
+    <% if (user && !project.is_public && project.project_type === 'internal') { %>
+        <div class="comments-section mt-4 p-4 bg-dark-2 rounded">
+            <h3>Commentaires</h3>
+
+            <!-- Formulaire pour poster un commentaire -->
+            <form action="/projects/<%= project.id %>/comment" method="POST" class="mb-4">
+                <div class="form-group">
+                    <textarea name="comment" class="form-control" rows="3" placeholder="Laissez un commentaire..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Envoyer</button>
             </form>
+
+            <!-- Liste des commentaires -->
+            <div class="comment-list">
+                <% if (comments && comments.length > 0) { %>
+                    <% comments.forEach(comment => { %>
+                        <div class="comment d-flex mb-3">
+                            <img src="<%= comment.author_avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= comment.author_name %>" class="rounded-circle" style="width: 50px; height: 50px; margin-right: 15px;">
+                            <div class="comment-content">
+                                <strong><%= comment.author_name %></strong>
+                                <small class="text-muted"><%= new Date(comment.created_at).toLocaleString() %></small>
+                                <p><%= comment.comment %></p>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p>Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
+                <% } %>
+            </div>
         </div>
     <% } %>
 </div>

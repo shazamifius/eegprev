@@ -36,7 +36,10 @@ const createSchema = (callback) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             description TEXT,
+            readme_content TEXT,
             author_id INTEGER,
+            project_type TEXT NOT NULL DEFAULT 'internal',
+            github_url TEXT,
             is_public BOOLEAN DEFAULT 0,
             allow_download BOOLEAN DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -148,6 +151,17 @@ const createSchema = (callback) => {
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
         )`);
 
+        // Table des commentaires de projet
+        db.run(`CREATE TABLE IF NOT EXISTS project_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            user_id INTEGER,
+            comment TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )`);
+
         // Table des fichiers de projet
         db.run(`CREATE TABLE IF NOT EXISTS project_files (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -162,6 +176,7 @@ const createSchema = (callback) => {
 const setupDatabase = (callback) => {
     const tables = [
         'project_files',
+        'project_comments',
         'project_collaborators',
         'post_comments',
         'help_request_comments',

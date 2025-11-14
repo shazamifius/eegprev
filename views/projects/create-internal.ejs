@@ -1,0 +1,58 @@
+<%- include('../partials/header', { title: 'Nouveau Projet Interne', user: user }) %>
+
+<div class="container">
+    <h1>Nouveau Projet Interne</h1>
+    <p class="text-secondary mb-4">Remplissez les informations ci-dessous pour créer votre projet.</p>
+
+    <form action="/projects/new/internal" method="POST" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label for="title">Titre du projet</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="readme_content">README</label>
+            <textarea id="readme_content" name="readme_content" class="form-control" rows="15"></textarea>
+            <small class="form-text text-muted">Décrivez votre projet en détail. La première image que vous insérez ici servira de bannière pour votre projet.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Fichiers du projet</label>
+            <%- include('../partials/file-uploader', {
+                fieldName: 'project_files',
+                labelText: 'Cliquez ou glissez-déposez vos fichiers ici (max 10)',
+                isMultiple: true,
+                isRequired: false
+            }) %>
+        </div>
+
+        <div class="form-group form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
+            <label class="form-check-label" for="is_public">Rendre ce projet public (visible par tous)</label>
+        </div>
+
+        <div class="form-group form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" checked>
+            <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Créer le projet</button>
+    </form>
+</div>
+
+<!-- TinyMCE -->
+<script src="/js/tinymce/tinymce.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        tinymce.init({
+            selector: '#readme_content',
+            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+            toolbar_mode: 'floating',
+            height: 500,
+            // Configuration supplémentaire au besoin
+        });
+    });
+</script>
+
+
+<%- include('../partials/footer') %>
