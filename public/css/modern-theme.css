@@ -376,6 +376,20 @@ button:hover, .button:hover {
   transform: translateY(-2px);
 }
 
+.btn-new-project {
+  background-color: #2da44e;
+  color: white;
+  padding: 10px 16px;
+  font-weight: 600;
+  border: 1px solid rgba(27, 31, 35, 0.15);
+  border-radius: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-new-project:hover {
+  background-color: #2c974b;
+}
+
 /* Forms */
 form {
   background-color: var(--background-light);

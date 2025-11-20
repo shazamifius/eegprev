@@ -1,25 +1,121 @@
 <%- include('../partials/header', { title: 'Créer un nouveau projet', user: user }) %>
 
-<div class="container text-center">
-    <h1>Comment voulez-vous créer votre projet ?</h1>
-    <p class="text-secondary mb-4">Choisissez de stocker vos fichiers directement sur notre site ou de les synchroniser depuis un dépôt GitHub.</p>
+<style>
+    .choice-container {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+    .choice-card {
+        background-color: var(--background-light);
+        border: 1px solid var(--secondary-color);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 450px;
+        text-align: left;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .choice-card.disabled {
+        opacity: 0.6;
+        filter: grayscale(80%);
+    }
+    .choice-card:not(.disabled) {
+        cursor: pointer;
+    }
+    .choice-card:not(.disabled):hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-color);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+    .choice-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-primary);
+        font-size: 1.8rem;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    .choice-card .icon {
+        font-size: 1.5em;
+        color: var(--accent-color);
+    }
+    .choice-card-content {
+        flex-grow: 1;
+    }
+    .choice-card-content p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        min-height: 40px;
+    }
+    .choice-card ul {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 2.5rem;
+    }
+    .choice-card ul li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+    .choice-card .fa-check-circle, .choice-card .fa-times-circle {
+        margin-top: 4px;
+    }
+    .choice-card .fa-check-circle {
+        color: #2da44e;
+    }
+    .choice-card .fa-times-circle {
+        color: #d95e4f;
+    }
+    .choice-card .btn {
+        width: 100%;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        margin-top: auto;
+    }
+    .choice-card.disabled .btn {
+        cursor: not-allowed;
+        background-color: var(--secondary-color);
+    }
+</style>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card card-body h-100">
-                <i class="fas fa-server fa-3x mb-3"></i>
-                <h3>Projet Interne</h3>
-                <p>Hébergez vos fichiers directement sur la plateforme de l'école. Idéal pour les projets qui ne sont pas sur GitHub.</p>
-                <a href="/projects/new/internal" class="btn btn-primary">Commencer</a>
+<div class="container text-center">
+    <h1>Choisissez votre type de projet</h1>
+    <p class="text-secondary mb-4">Sélectionnez la méthode d'hébergement qui correspond le mieux à vos besoins.</p>
+
+    <div class="choice-container">
+        <!-- Local Project Card -->
+        <a href="/projects/new/internal" class="choice-card" style="text-decoration: none;">
+            <h3><i class="fas fa-server icon"></i> Projet Local</h3>
+            <div class="choice-card-content">
+                <p>Hébergez vos fichiers directement sur notre plateforme. Simple, sécurisé et parfaitement intégré.</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i><div><strong>Avantage :</strong> Vos projets sont sécurisés et privés par défaut sur les serveurs de l'école.</div></li>
+                    <li><i class="fas fa-times-circle"></i><div><strong>Inconvénient :</strong> La durée de vie des projets est liée à votre scolarité (3-4 ans).</div></li>
+                </ul>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card card-body h-100">
-                <i class="fab fa-github fa-3x mb-3"></i>
-                <h3>Lier un Dépôt GitHub</h3>
-                <p>Importez un projet directement depuis votre compte GitHub en fournissant l'URL de votre dépôt.</p>
-                <a href="/projects/new/github" class="btn btn-secondary">Lier un dépôt</a>
+            <div class="btn btn-primary">Démarrer le projet</div>
+        </a>
+
+        <!-- GitHub Project Card (Disabled) -->
+        <div class="choice-card disabled">
+            <h3><i class="fab fa-github icon"></i> Projet GitHub</h3>
+            <div class="choice-card-content">
+                <p>Synchronisez votre projet depuis un dépôt GitHub pour une visibilité maximale et une gestion simplifiée.</p>
+                <ul>
+                     <li><i class="fas fa-check-circle"></i><div><strong>Avantage :</strong> Rapide, public et disponible à vie sur votre profil GitHub.</div></li>
+                     <li><i class="fas fa-times-circle"></i><div><strong>Inconvénient :</strong> Cette fonctionnalité est actuellement en cours de développement.</div></li>
+                </ul>
             </div>
+            <div class="btn btn-secondary">Bientôt disponible</div>
         </div>
     </div>
 </div>
