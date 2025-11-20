@@ -376,19 +376,6 @@ button:hover, .button:hover {
   transform: translateY(-2px);
 }
 
-.button-cta {
-  background: linear-gradient(45deg, var(--primary-color), #ff7f72);
-  border: 1px solid var(--primary-color);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 5px var(--primary-color);
-  font-size: 1.1em;
-  padding: 15px 30px;
-}
-
-.button-cta:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 10px var(--primary-color);
-  transform: translateY(-3px);
-}
-
 /* Forms */
 form {
   background-color: var(--background-light);

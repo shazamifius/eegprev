@@ -1,69 +1,25 @@
 <%- include('../partials/header', { title: 'Créer un nouveau projet', user: user }) %>
 
-<style>
-    .choice-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 40px;
-        min-height: 70vh;
-        padding: 40px;
-    }
-    .choice-card {
-        background-color: var(--background-light);
-        border-radius: var(--border-radius);
-        padding: 40px;
-        width: 350px;
-        text-align: center;
-        border: 1px solid var(--secondary-color);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--text-primary);
-    }
-    .choice-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-    .choice-card i {
-        font-size: 4em;
-        margin-bottom: 20px;
-        color: var(--accent-color);
-    }
-    .choice-card h2 {
-        margin-bottom: 15px;
-        font-size: 1.8em;
-    }
-    .choice-card p {
-        color: var(--text-secondary);
-        line-height: 1.6;
-    }
-    .choice-card.disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-        background-color: #2c2f33a4;
-    }
-    .choice-card.disabled:hover {
-        transform: none;
-        box-shadow: none;
-    }
-</style>
-
 <div class="container text-center">
     <h1>Comment voulez-vous créer votre projet ?</h1>
-    <p style="color: var(--text-secondary); margin-bottom: 40px;">Choisissez de stocker vos fichiers directement sur notre site ou de les synchroniser depuis un dépôt GitHub.</p>
+    <p class="text-secondary mb-4">Choisissez de stocker vos fichiers directement sur notre site ou de les synchroniser depuis un dépôt GitHub.</p>
 
-    <div class="choice-container">
-        <a href="/projects/new/internal" class="choice-card">
-            <i class="fas fa-server"></i>
-            <h2>Hébergement Local</h2>
-            <p>Hébergez vos fichiers directement sur la plateforme. Idéal pour les projets qui ne sont pas sur GitHub.</p>
-        </a>
-
-        <div class="choice-card disabled">
-            <i class="fab fa-github"></i>
-            <h2>Via GitHub</h2>
-            <p>Cette fonctionnalité est en cours de développement. Bientôt disponible !</p>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <i class="fas fa-server fa-3x mb-3"></i>
+                <h3>Projet Interne</h3>
+                <p>Hébergez vos fichiers directement sur la plateforme de l'école. Idéal pour les projets qui ne sont pas sur GitHub.</p>
+                <a href="/projects/new/internal" class="btn btn-primary">Commencer</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <i class="fab fa-github fa-3x mb-3"></i>
+                <h3>Lier un Dépôt GitHub</h3>
+                <p>Importez un projet directement depuis votre compte GitHub en fournissant l'URL de votre dépôt.</p>
+                <a href="/projects/new/github" class="btn btn-secondary">Lier un dépôt</a>
+            </div>
         </div>
     </div>
 </div>

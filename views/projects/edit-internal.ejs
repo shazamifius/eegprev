@@ -1,71 +1,33 @@
 <%- include('../partials/header', { title: 'Modifier le Projet', user: user }) %>
 
-<style>
-    .form-container {
-        max-width: 900px;
-        margin: 40px auto;
-    }
-    .form-container h1 {
-        text-align: center;
-        color: var(--accent-color);
-    }
-    .form-container .form-check {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    .form-container .form-check-input {
-       width: auto;
-       margin-bottom: 0;
-    }
-    .tox-tinymce {
-        border-radius: var(--border-radius) !important;
-    }
-    .current-files-list {
-        list-style: none;
-        padding: 0;
-    }
-    .current-files-list li {
-        background-color: var(--background-dark);
-        padding: 10px 15px;
-        border-radius: var(--border-radius);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-</style>
+<div class="container">
+    <h1>Modifier le Projet Interne</h1>
+    <p class="text-secondary mb-4">Mettez à jour les informations de votre projet ci-dessous.</p>
 
-<div class="form-container">
-    <form action="/projects/<%= project.id %>/edit" method="POST" enctype="multipart/form-data" novalidate>
-        <h1>Modifier le Projet</h1>
-        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">Mettez à jour les informations de votre projet ci-dessous.</p>
-
+    <form action="/projects/<%= project.id %>/edit" method="POST" enctype="multipart/form-data">
         <div class="form-group mb-3">
             <label for="title">Titre du projet</label>
-            <input type="text" id="title" name="title" value="<%= project.title %>" required>
+            <input type="text" class="form-control" id="title" name="title" value="<%= project.title %>" required>
         </div>
 
         <div class="form-group mb-3">
-            <label for="readme_content">Description (README)</label>
-            <textarea id="readme_content" name="readme_content" rows="20"><%= project.readme_content %></textarea>
-            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">La première image dans cette description sera utilisée comme bannière.</small>
+            <label for="readme_content">README</label>
+            <textarea id="readme_content" name="readme_content" class="form-control" rows="15"><%= project.readme_content %></textarea>
         </div>
 
         <div class="form-group mb-3">
             <h5>Fichiers Actuels</h5>
             <% if (project.files && project.files.length > 0) { %>
-                <ul class="current-files-list">
+                <ul class="list-group mb-3">
                     <% project.files.forEach(file => { %>
-                        <li>
-                            <span><%= file.file_name %></span>
-                            <a href="/projects/<%= project.id %>/files/<%= file.id %>/delete" class="button" style="background-color: #e74c3c; min-width: auto; padding: 5px 10px;">Supprimer</a>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <%= file.file_name %>
+                            <a href="/projects/<%= project.id %>/files/<%= file.id %>/delete" class="btn btn-sm btn-danger">Supprimer</a>
                         </li>
                     <% }); %>
                 </ul>
             <% } else { %>
-                <p style="color: var(--text-secondary);">Aucun fichier associé à ce projet.</p>
+                <p>Aucun fichier n'est actuellement associé à ce projet.</p>
             <% } %>
         </div>
 
@@ -78,17 +40,17 @@
             }) %>
         </div>
 
-        <div class="form-check">
+        <div class="form-group form-check mb-3">
             <input type="checkbox" class="form-check-input" id="is_public" name="is_public" <%= project.is_public ? 'checked' : '' %>>
             <label class="form-check-label" for="is_public">Rendre ce projet public</label>
         </div>
 
-        <div class="form-check">
+        <div class="form-group form-check mb-3">
             <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" <%= project.allow_download ? 'checked' : '' %>>
             <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
         </div>
 
-        <button type="submit" class="button" style="width: 100%; margin-top: 20px;">Enregistrer les modifications</button>
+        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
     </form>
 </div>
 
@@ -98,36 +60,9 @@
     document.addEventListener('DOMContentLoaded', function () {
         tinymce.init({
             selector: '#readme_content',
-            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak media table paste wordcount',
-            toolbar: 'undo redo | styleselect | bold italic underline | fontselect fontsizeselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | removeformat | help',
+            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
             toolbar_mode: 'floating',
-            height: 600,
-            skin: 'oxide-dark',
-            content_css: 'dark',
-            content_style: 'body { font-family:Poppins,sans-serif; font-size:14px; color: #fff; }',
-            images_upload_handler: (blobInfo, success, failure) => {
-                const formData = new FormData();
-                formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-                fetch('/projects/upload-image', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.location) {
-                        success(result.location);
-                    } else {
-                        failure('Upload failed: ' + result.error);
-                    }
-                })
-                .catch(() => {
-                    failure('HTTP Error');
-                });
-            }
+            height: 500
         });
     });
 </script>
