@@ -47,8 +47,8 @@ router.get('/', (req, res) => {
             let summary = project.description || 'Pas de description.';
 
             if (project.readme_content) {
-                // Extract first image from README
-                const imageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
+                // Extract first image from README HTML content
+                const imageMatch = project.readme_content.match(/<img src="(.*?)"/);
                 if (imageMatch && imageMatch[1]) {
                     bannerImage = imageMatch[1];
                 }
@@ -144,6 +144,18 @@ router.post('/new/internal', isAuthenticated, upload.array('project_files', 10),
         }
     });
 });
+
+// POST /projects/upload-image - Handle image uploads from TinyMCE
+router.post('/upload-image', isAuthenticated, upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'Aucun fichier na été téléversé.' });
+    }
+    // The file is uploaded to the /uploads/projects directory.
+    // TinyMCE expects a JSON response with a `location` key.
+    const location = `/uploads/projects/${req.file.filename}`;
+    res.json({ location: location });
+});
+
 
 const showdown = require('showdown');
 const converter = new showdown.Converter();

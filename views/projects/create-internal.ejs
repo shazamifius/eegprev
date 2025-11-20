@@ -25,7 +25,7 @@
 </style>
 
 <div class="form-container">
-    <form action="/projects/new/internal" method="POST" enctype="multipart/form-data">
+    <form id="create-project-form" action="/projects/new/internal" method="POST" enctype="multipart/form-data">
         <h1>Nouveau Projet Local</h1>
         <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">Remplissez les informations ci-dessous pour créer votre projet.</p>
 
@@ -71,12 +71,43 @@
         tinymce.init({
             selector: '#readme_content',
             plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak media table paste wordcount',
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+            toolbar: 'undo redo | styleselect | bold italic underline | fontselect fontsizeselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | removeformat | help',
             toolbar_mode: 'floating',
             height: 600,
             skin: 'oxide-dark',
             content_css: 'dark',
-            content_style: 'body { font-family:Poppins,sans-serif; font-size:14px; color: #fff; }'
+            content_style: 'body { font-family:Poppins,sans-serif; font-size:14px; color: #fff; }',
+            images_upload_handler: (blobInfo, success, failure) => {
+                const formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                fetch('/projects/upload-image', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.location) {
+                        success(result.location);
+                    } else {
+                        failure('Upload failed: ' + result.error);
+                    }
+                })
+                .catch(() => {
+                    failure('HTTP Error');
+                });
+            }
+        });
+
+        document.getElementById('create-project-form').addEventListener('submit', function(event) {
+            const content = tinymce.get('readme_content').getContent();
+            if (!content.includes('<img')) {
+                alert('Veuillez insérer au moins une image dans la description (README) pour servir de bannière à votre projet.');
+                event.preventDefault();
+            }
         });
     });
 </script>
