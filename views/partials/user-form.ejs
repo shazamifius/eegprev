@@ -64,15 +64,9 @@
         <label for="classe">Classe :</label>
         <input type="text" id="classe" name="classe" value="<%= isEdit ? user.classe : '' %>">
     </div>
-    <div class="form-row">
-        <div class="form-group" style="flex: 1;">
-            <label for="age">Âge :</label>
-            <input type="number" id="age" name="age" value="<%= isEdit ? user.age : '' %>">
-        </div>
-        <div class="form-group" style="flex: 2;">
-            <label for="birthdate">Date d'anniversaire :</label>
-            <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA" value="<%= isEdit ? user.birthdate : '' %>">
-        </div>
+    <div>
+        <label for="birthdate">Date d'anniversaire :</label>
+        <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA" value="<%= isEdit ? user.birthdate : '' %>">
     </div>
     <div>
         <label for="discord">Discord :</label>
