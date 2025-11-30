@@ -92,6 +92,19 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+const calculateAge = (birthdate) => {
+    if (!birthdate) return null;
+    const [day, month, year] = birthdate.split('/');
+    const birthDateObj = new Date(`${year}-${month}-${day}`);
+    const today = new Date();
+    let age = today.getFullYear() - birthDateObj.getFullYear();
+    const m = today.getMonth() - birthDateObj.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) {
+        age--;
+    }
+    return age;
+};
+
 const parsePortfolioLinks = (portfolioString) => {
     if (!portfolioString) {
         return [];
@@ -220,7 +233,8 @@ app.post('/register', (req, res) => {
 
         try {
             const hashedPassword = await bcrypt.hash(req.body.password, 10);
-            const { name, email, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
+            const { name, email, classe, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
+            const age = calculateAge(birthdate);
             const avatar = req.files['avatar'] ? '/images/avatars/' + req.files['avatar'][0].filename : null;
 
             db.run('INSERT INTO users (name, email, password, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -538,7 +552,8 @@ app.get('/profile/edit', (req, res) => {
 
 app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 4 }]), (req, res) => {
     if (req.session.user) {
-        const { name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
+        const { name, classe, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
+        const age = calculateAge(birthdate);
         let avatar = req.session.user.avatar;
         if (req.files['avatar']) {
             avatar = '/images/avatars/' + req.files['avatar'][0].filename;

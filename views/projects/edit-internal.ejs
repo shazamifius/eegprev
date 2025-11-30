@@ -11,8 +11,39 @@
         </div>
 
         <div class="form-group mb-3">
-            <label for="readme_content">README</label>
-            <textarea id="readme_content" name="readme_content" class="form-control" rows="15"><%= project.readme_content %></textarea>
+            <label for="banner">Mettre à jour la bannière (laisser vide pour conserver l'actuelle)</label>
+            <% if (project.banner_path) { %>
+                <div class="mb-2">
+                    <img src="/uploads/projects/<%= project.banner_path %>" alt="Bannière actuelle" style="max-width: 100%; height: auto; max-height: 200px; border-radius: 5px;">
+                </div>
+            <% } %>
+            <input type="file" id="banner" name="banner" accept="image/*" class="form-control" style="border: 1px solid var(--border-color); padding: 10px; border-radius: 5px; background: var(--card-bg-color); color: var(--text-color);">
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="readme_content">Description (README)</label>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 2;">
+                    <textarea id="readme_content" name="readme_content" rows="20" class="form-control" style="width: 100%; background: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; font-family: monospace;" placeholder="# Titre du projet&#10;&#10;## Description&#10;Votre description ici...&#10;&#10;![Texte alternatif](lien_image.jpg)"><%= project.readme_content %></textarea>
+                </div>
+                <div style="flex: 1; background: var(--card-bg-color); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--accent-color);">Aide Markdown</h3>
+                    <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong># Titre 1</strong> - Grand titre</li>
+                        <li><strong>## Titre 2</strong> - Sous-titre</li>
+                        <li><strong>### Titre 3</strong> - Petit titre</li>
+                        <li><strong>**Gras**</strong> - Texte en gras</li>
+                        <li><strong>*Italique*</strong> - Texte en italique</li>
+                        <li><strong>- Liste</strong> - Liste à puces</li>
+                        <li><strong>1. Liste</strong> - Liste numérotée</li>
+                        <li><strong>[Lien](url)</strong> - Lien hypertexte</li>
+                        <li><strong>![Alt](url)</strong> - Image</li>
+                        <li><strong>`Code`</strong> - Code en ligne</li>
+                        <li><strong>```Code```</strong> - Bloc de code</li>
+                    </ul>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Vous pouvez héberger vos images dans la section fichiers ci-dessous et copier leur lien.</p>
+                </div>
+            </div>
         </div>
 
         <div class="form-group mb-3">
@@ -54,17 +85,6 @@
     </form>
 </div>
 
-<!-- TinyMCE -->
-<script src="/js/tinymce/tinymce.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        tinymce.init({
-            selector: '#readme_content',
-            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
-            toolbar_mode: 'floating',
-            height: 500
-        });
-    });
-</script>
+<!-- No more TinyMCE, removed script -->
 
 <%- include('../partials/footer') %>
