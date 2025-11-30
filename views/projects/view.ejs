@@ -1,118 +1,393 @@
 <%- include('../partials/header', { title: project.title, user: user }) %>
 
 <style>
-    .project-header {
-        background-color: var(--card-bg-color);
-        padding: 2rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 2rem;
+    :root {
+        --github-bg: #0d1117;
+        --github-card-bg: #161b22;
+        --github-border: #30363d;
+        --github-text-primary: #c9d1d9;
+        --github-text-secondary: #8b949e;
+        --github-link: #58a6ff;
+        --github-btn-primary: #238636;
+        --github-btn-bg: #21262d;
     }
+
+    .project-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Header Section */
+    .project-header-container {
+        background-color: var(--github-card-bg);
+        border: 1px solid var(--github-border);
+        border-radius: 6px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .project-banner {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-bottom: 1px solid var(--github-border);
+    }
+
+    .project-header-content {
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
     .project-title {
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: var(--github-text-primary);
     }
+
     .project-meta {
-        font-size: 1rem;
-        color: var(--text-secondary);
+        color: var(--github-text-secondary);
+        font-size: 14px;
     }
-    .project-actions .btn {
-        margin-right: 10px;
+
+    .project-actions {
+        display: flex;
+        gap: 8px;
     }
-    .readme-content {
-        background-color: var(--card-bg-color);
-        padding: 2rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 2rem;
+
+    .btn-github {
+        background-color: var(--github-btn-bg);
+        color: var(--github-text-primary);
+        border: 1px solid var(--github-border);
+        padding: 5px 16px;
+        font-size: 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
-    .file-list-item {
+
+    .btn-github:hover {
+        background-color: #30363d;
+        border-color: #8b949e;
+        color: var(--github-text-primary);
+    }
+
+    .btn-github-primary {
+        background-color: var(--github-btn-primary);
+        color: white;
+        border: 1px solid rgba(27, 31, 35, 0.15);
+    }
+
+    .btn-github-primary:hover {
+        background-color: #2ea043;
+        color: white;
+    }
+
+    /* Grid Layout */
+    .project-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr; /* 2/3 and 1/3 */
+        gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .project-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cards */
+    .github-card {
+        background-color: var(--github-bg);
+        border: 1px solid var(--github-border);
+        border-radius: 6px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .github-card-header {
+        background-color: var(--github-card-bg);
+        padding: 16px;
+        border-bottom: 1px solid var(--github-border);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .github-card-body {
+        padding: 24px;
+    }
+
+    /* README Styling */
+    .readme-body {
+        color: var(--github-text-primary);
+        line-height: 1.6;
+    }
+    .readme-body h1, .readme-body h2, .readme-body h3 {
+        border-bottom: 1px solid var(--github-border);
+        padding-bottom: 0.3em;
+        margin-top: 24px;
+        margin-bottom: 16px;
+        color: var(--github-text-primary);
+    }
+    .readme-body h1 { font-size: 2em; }
+    .readme-body h2 { font-size: 1.5em; }
+    .readme-body code {
+        background-color: rgba(110, 118, 129, 0.4);
+        padding: 0.2em 0.4em;
+        border-radius: 6px;
+        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    }
+    .readme-body pre {
+        background-color: var(--github-card-bg);
+        padding: 16px;
+        border-radius: 6px;
+        overflow: auto;
+    }
+    .readme-body pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+    .readme-body img {
+        max-width: 100%;
+        border-radius: 6px;
+        background-color: white; /* For transparency visibility */
+    }
+    .readme-body a {
+        color: var(--github-link);
+        text-decoration: none;
+    }
+    .readme-body a:hover {
+        text-decoration: underline;
+    }
+    .readme-body ul, .readme-body ol {
+        padding-left: 2em;
+        margin-bottom: 16px;
+    }
+
+    /* File List */
+    .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .file-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid var(--border-color);
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--github-border);
+        color: var(--github-text-secondary);
+        font-size: 14px;
     }
-    .file-list-item:last-child {
+
+    .file-item:last-child {
         border-bottom: none;
     }
+
+    .file-item a.file-name {
+        color: var(--github-text-primary);
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .file-item a.file-name:hover {
+        color: var(--github-link);
+        text-decoration: underline;
+    }
+
+    .download-icon {
+        color: var(--github-text-secondary);
+        cursor: pointer;
+    }
+    .download-icon:hover {
+        color: var(--github-link);
+    }
+
+    /* About Section Sidebar */
+    .about-section h4 {
+        color: var(--github-text-primary);
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+    .about-section p {
+        color: var(--github-text-secondary);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+    .about-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--github-text-secondary);
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    .about-meta-item i {
+        width: 16px;
+        text-align: center;
+    }
+
 </style>
 
-<div class="container">
-    <div class="project-header">
-        <h1 class="project-title"><%= project.title %></h1>
-        <p class="project-meta">par <%= project.author_name %> | Créé le <%= new Date(project.created_at).toLocaleDateString() %></p>
-        <div class="project-actions">
-            <% if (project.project_type === 'github') { %>
-                <a href="<%= project.github_url %>" class="btn btn-secondary" target="_blank"><i class="fab fa-github"></i> Voir sur GitHub</a>
-                <% if (project.is_public) { %>
-                    <a href="<%= project.github_url %>/issues" class="btn btn-info" target="_blank">Issues</a>
-                <% } %>
-            <% } %>
-            <% if (isAuthor) { %>
-                <a href="/projects/<%= project.id %>/edit" class="btn btn-warning">Modifier</a>
-            <% } %>
-        </div>
-    </div>
+<div class="project-container">
 
-    <div class="readme-content">
-        <h2>README</h2>
-        <%- project.readme_content %>
-    </div>
-
-    <% if (project.project_type === 'internal' && project.files && project.files.length > 0) { %>
-        <% if (project.allow_download) { %>
-            <div class="file-list bg-dark-2 rounded p-3">
-                <h2>Fichiers du Projet</h2>
-                <ul class="list-unstyled">
-                    <% project.files.forEach(file => { %>
-                        <li class="file-list-item">
-                            <span><i class="fas fa-file-alt mr-2"></i><%= file.file_name %></span>
-                            <a href="/uploads/projects/<%= file.file_path %>" class="btn btn-sm btn-success" download>Télécharger</a>
-                        </li>
-                    <% }); %>
-                </ul>
-            </div>
-        <% } else if (!project.is_public) { %>
-            <!-- Pour les projets privés sans téléchargement, on n'affiche rien, comme demandé -->
-        <% } else { %>
-            <div class="text-center p-3">
-                 <p>Le créateur a désactivé le téléchargement pour ce projet.</p>
-            </div>
+    <!-- HEADER -->
+    <div class="project-header-container">
+        <% if (project.banner_path) { %>
+            <img src="/uploads/projects/<%= project.banner_path %>" alt="Bannière du projet" class="project-banner">
         <% } %>
-    <% } %>
-
-
-    <!-- Section Commentaires -->
-    <% if (user && !project.is_public && project.project_type === 'internal') { %>
-        <div class="comments-section mt-4 p-4 bg-dark-2 rounded">
-            <h3>Commentaires</h3>
-
-            <!-- Formulaire pour poster un commentaire -->
-            <form action="/projects/<%= project.id %>/comment" method="POST" class="mb-4">
-                <div class="form-group">
-                    <textarea name="comment" class="form-control" rows="3" placeholder="Laissez un commentaire..." required></textarea>
+        <div class="project-header-content">
+            <div>
+                <h1 class="project-title"><%= project.title %></h1>
+                <div class="project-meta">
+                    <span class="badge bg-secondary" style="margin-right: 8px;"><%= project.is_public ? 'Public' : 'Privé' %></span>
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Envoyer</button>
-            </form>
-
-            <!-- Liste des commentaires -->
-            <div class="comment-list">
-                <% if (comments && comments.length > 0) { %>
-                    <% comments.forEach(comment => { %>
-                        <div class="comment d-flex mb-3">
-                            <img src="<%= comment.author_avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= comment.author_name %>" class="rounded-circle" style="width: 50px; height: 50px; margin-right: 15px;">
-                            <div class="comment-content">
-                                <strong><%= comment.author_name %></strong>
-                                <small class="text-muted"><%= new Date(comment.created_at).toLocaleString() %></small>
-                                <p><%= comment.comment %></p>
-                            </div>
-                        </div>
-                    <% }); %>
-                <% } else { %>
-                    <p>Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
+            </div>
+            <div class="project-actions">
+                <% if (isAuthor) { %>
+                    <a href="/projects/<%= project.id %>/edit" class="btn-github"><i class="fas fa-edit"></i> Modifier</a>
+                    <form action="/projects/<%= project.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                        <button type="submit" class="btn-github" style="color: #f85149; border-color: rgba(248,81,73,0.5);"><i class="fas fa-trash"></i> Supprimer</button>
+                    </form>
                 <% } %>
+                <form action="/projects/<%= project.id %>/upvote" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-github"><i class="fas fa-heart"></i> J'aime (<%= project.upvotes || 0 %>)</button>
+                </form>
             </div>
         </div>
-    <% } %>
+    </div>
+
+    <div class="project-grid">
+
+        <!-- LEFT COLUMN (README) -->
+        <div class="project-main">
+            <div class="github-card">
+                <div class="github-card-header">
+                    <i class="fas fa-book-open"></i> README
+                </div>
+                <div class="github-card-body readme-body">
+                    <% if (project.readme_content) { %>
+                        <%- project.readme_content %>
+                    <% } else { %>
+                        <p style="color: var(--github-text-secondary); font-style: italic;">Aucune description disponible pour ce projet.</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- COMMENTAIRES -->
+            <% if (user && !project.is_public && project.project_type === 'internal') { %>
+                <div class="github-card">
+                    <div class="github-card-header">
+                        <i class="fas fa-comments"></i> Commentaires
+                    </div>
+                    <div class="github-card-body">
+                        <!-- Liste -->
+                        <% if (comments && comments.length > 0) { %>
+                            <% comments.forEach(comment => { %>
+                                <div class="d-flex mb-4" style="border-bottom: 1px solid var(--github-border); padding-bottom: 16px;">
+                                    <img src="<%= comment.author_avatar || '/images/default-avatar.png' %>" alt="Avatar" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 16px;">
+                                    <div style="width: 100%;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <strong style="color: var(--github-text-primary);"><%= comment.author_name %></strong>
+                                            <small style="color: var(--github-text-secondary);"><%= new Date(comment.created_at).toLocaleDateString() %></small>
+                                        </div>
+                                        <div style="color: var(--github-text-primary); font-size: 14px;">
+                                            <%= comment.comment %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p style="color: var(--github-text-secondary);">Aucun commentaire.</p>
+                        <% } %>
+
+                        <!-- Form -->
+                        <form action="/projects/<%= project.id %>/comment" method="POST" class="mt-4">
+                            <div class="form-group">
+                                <textarea name="comment" class="form-control" rows="3" placeholder="Laissez un commentaire..." style="background: var(--github-bg); border: 1px solid var(--github-border); color: white;" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-github btn-github-primary mt-2">Commenter</button>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- RIGHT COLUMN (SIDEBAR) -->
+        <div class="project-sidebar">
+
+            <!-- About Section -->
+            <div class="about-section mb-4">
+                <h4>À propos</h4>
+                <p>
+                    <%
+                    // Simple summary extraction from README for the About section if description is empty
+                    let summary = project.description || '';
+                    if (!summary && project.readme_content) {
+                       summary = project.readme_content.replace(/<[^>]+>/g, '').substring(0, 150) + '...';
+                    }
+                    %>
+                    <%= summary %>
+                </p>
+                <div class="about-meta-item">
+                    <i class="fas fa-user"></i>
+                    <span><%= project.author_name %></span>
+                </div>
+                <div class="about-meta-item">
+                    <i class="far fa-clock"></i>
+                    <span>Publié le <%= new Date(project.created_at).toLocaleDateString() %></span>
+                </div>
+                <% if (project.github_url) { %>
+                    <div class="about-meta-item">
+                        <i class="fab fa-github"></i>
+                        <a href="<%= project.github_url %>" target="_blank" style="color: var(--github-link);">Voir sur GitHub</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Files Section -->
+            <div class="github-card">
+                <div class="github-card-header">
+                    <i class="fas fa-file-code"></i> Fichiers
+                </div>
+                <% if (project.files && project.files.length > 0) { %>
+                    <ul class="file-list">
+                        <% project.files.forEach(file => { %>
+                            <li class="file-item">
+                                <a href="/uploads/projects/<%= file.file_path %>" class="file-name" target="_blank">
+                                    <i class="far fa-file"></i> <%= file.file_name %>
+                                </a>
+                                <% if (project.allow_download || isAuthor) { %>
+                                    <a href="/uploads/projects/<%= file.file_path %>" download class="download-icon" title="Télécharger">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                <% } %>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <div style="padding: 16px; color: var(--github-text-secondary); font-size: 14px; text-align: center;">
+                        Aucun fichier disponible.
+                    </div>
+                <% } %>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <%- include('../partials/footer') %>

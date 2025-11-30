@@ -37,6 +37,7 @@ const createSchema = (callback) => {
             title TEXT NOT NULL,
             description TEXT,
             readme_content TEXT,
+            banner_path TEXT,
             author_id INTEGER,
             project_type TEXT NOT NULL DEFAULT 'internal',
             github_url TEXT,
@@ -45,7 +46,20 @@ const createSchema = (callback) => {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             upvotes INTEGER DEFAULT 0,
             FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
-        )`);
+        )`, () => {
+            // Migration pour ajouter la colonne banner_path si elle n'existe pas (pour les installations existantes)
+            db.all("PRAGMA table_info(projects)", (err, columns) => {
+                if (!err) {
+                    const hasBannerPath = columns.some(col => col.name === 'banner_path');
+                    if (!hasBannerPath) {
+                        db.run("ALTER TABLE projects ADD COLUMN banner_path TEXT", (err) => {
+                            if (err) console.error("Erreur migration banner_path:", err);
+                            else console.log("Migration: Colonne banner_path ajoutée.");
+                        });
+                    }
+                }
+            });
+        });
 
         // Table des images showcase
         db.run(`CREATE TABLE IF NOT EXISTS showcase_images (
