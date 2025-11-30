@@ -35,9 +35,35 @@
         </div>
 
         <div class="form-group mb-3">
+            <label for="banner">Bannière du projet</label>
+            <input type="file" id="banner" name="banner" accept="image/*" class="form-control" style="border: 1px solid var(--border-color); padding: 10px; border-radius: 5px; background: var(--card-bg-color); color: var(--text-color);">
+            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">Choisissez une image représentative pour votre projet.</small>
+        </div>
+
+        <div class="form-group mb-3">
             <label for="readme_content">Description (README)</label>
-            <textarea id="readme_content" name="readme_content" rows="20"></textarea>
-            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">Décrivez votre projet en détail. La première image que vous insérez ici servira de bannière.</small>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 2;">
+                    <textarea id="readme_content" name="readme_content" rows="20" class="form-control" style="width: 100%; background: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; font-family: monospace;" placeholder="# Titre du projet&#10;&#10;## Description&#10;Votre description ici...&#10;&#10;![Texte alternatif](lien_image.jpg)"></textarea>
+                </div>
+                <div style="flex: 1; background: var(--card-bg-color); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--accent-color);">Aide Markdown</h3>
+                    <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong># Titre 1</strong> - Grand titre</li>
+                        <li><strong>## Titre 2</strong> - Sous-titre</li>
+                        <li><strong>### Titre 3</strong> - Petit titre</li>
+                        <li><strong>**Gras**</strong> - Texte en gras</li>
+                        <li><strong>*Italique*</strong> - Texte en italique</li>
+                        <li><strong>- Liste</strong> - Liste à puces</li>
+                        <li><strong>1. Liste</strong> - Liste numérotée</li>
+                        <li><strong>[Lien](url)</strong> - Lien hypertexte</li>
+                        <li><strong>![Alt](url)</strong> - Image</li>
+                        <li><strong>`Code`</strong> - Code en ligne</li>
+                        <li><strong>```Code```</strong> - Bloc de code</li>
+                    </ul>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Vous pouvez héberger vos images dans la section fichiers ci-dessous et copier leur lien.</p>
+                </div>
+            </div>
         </div>
 
         <div class="form-group mb-3">
@@ -64,52 +90,6 @@
     </form>
 </div>
 
-<!-- TinyMCE -->
-<script src="/js/tinymce/tinymce.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        tinymce.init({
-            selector: '#readme_content',
-            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak media table paste wordcount',
-            toolbar: 'undo redo | styleselect | bold italic underline | fontselect fontsizeselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | removeformat | help',
-            toolbar_mode: 'floating',
-            height: 600,
-            skin: 'oxide-dark',
-            content_css: 'dark',
-            content_style: 'body { font-family:Poppins,sans-serif; font-size:14px; color: #fff; }',
-            images_upload_handler: (blobInfo, success, failure) => {
-                const formData = new FormData();
-                formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-                fetch('/projects/upload-image', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.location) {
-                        success(result.location);
-                    } else {
-                        failure('Upload failed: ' + result.error);
-                    }
-                })
-                .catch(() => {
-                    failure('HTTP Error');
-                });
-            }
-        });
-
-        document.getElementById('create-project-form').addEventListener('submit', function(event) {
-            const content = tinymce.get('readme_content').getContent();
-            if (!content.includes('<img')) {
-                alert('Veuillez insérer au moins une image dans la description (README) pour servir de bannière à votre projet.');
-                event.preventDefault();
-            }
-        });
-    });
-</script>
+<!-- No more TinyMCE, removed script -->
 
 <%- include('../partials/footer') %>

@@ -109,24 +109,25 @@ router.get('/new/internal', isAuthenticated, (req, res) => {
 });
 
 // POST /projects/new/internal - Handle internal project creation
-router.post('/new/internal', isAuthenticated, upload.array('project_files', 10), (req, res) => {
+router.post('/new/internal', isAuthenticated, upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'project_files', maxCount: 10 }]), (req, res) => {
     const { title, readme_content, is_public, allow_download } = req.body;
     const author_id = req.session.user.id;
 
     const isPublicFinal = is_public === 'on' ? 1 : 0;
     const allowDownloadFinal = allow_download === 'on' ? 1 : 0;
+    const bannerPath = req.files['banner'] ? req.files['banner'][0].filename : null;
 
-    db.run(`INSERT INTO projects (title, readme_content, author_id, project_type, is_public, allow_download)
-            VALUES (?, ?, ?, 'internal', ?, ?)`,
-        [title, readme_content, author_id, isPublicFinal, allowDownloadFinal], function(err) {
+    db.run(`INSERT INTO projects (title, readme_content, banner_path, author_id, project_type, is_public, allow_download)
+            VALUES (?, ?, ?, ?, 'internal', ?, ?)`,
+        [title, readme_content, bannerPath, author_id, isPublicFinal, allowDownloadFinal], function(err) {
         if (err) {
             console.error(err);
             return res.status(500).send("Erreur serveur lors de la création du projet.");
         }
         const projectId = this.lastID;
-        if (req.files && req.files.length > 0) {
+        if (req.files['project_files'] && req.files['project_files'].length > 0) {
             const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
-            req.files.forEach(file => {
+            req.files['project_files'].forEach(file => {
                 stmt.run(projectId, file.originalname, file.filename, (err) => {
                     if (err) {
                         console.error("Erreur lors de l'insertion du fichier :", err);
@@ -225,7 +226,7 @@ router.get('/:id/edit', isAuthenticated, (req, res) => {
 });
 
 // POST /projects/:id/edit - Handle project edit
-router.post('/:id/edit', isAuthenticated, upload.array('project_files', 10), (req, res) => {
+router.post('/:id/edit', isAuthenticated, upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'project_files', maxCount: 10 }]), (req, res) => {
     const projectId = req.params.id;
     const userId = req.session.user.id;
     const { title, readme_content, is_public, allow_download } = req.body;
@@ -233,17 +234,27 @@ router.post('/:id/edit', isAuthenticated, upload.array('project_files', 10), (re
     const isPublicFinal = is_public === 'on' ? 1 : 0;
     const allowDownloadFinal = allow_download === 'on' ? 1 : 0;
 
-    db.run('UPDATE projects SET title = ?, readme_content = ?, is_public = ?, allow_download = ? WHERE id = ? AND author_id = ?',
-        [title, readme_content, isPublicFinal, allowDownloadFinal, projectId, userId], function(err) {
+    let updateQuery = 'UPDATE projects SET title = ?, readme_content = ?, is_public = ?, allow_download = ?';
+    let params = [title, readme_content, isPublicFinal, allowDownloadFinal];
+
+    if (req.files['banner']) {
+        updateQuery += ', banner_path = ?';
+        params.push(req.files['banner'][0].filename);
+    }
+
+    updateQuery += ' WHERE id = ? AND author_id = ?';
+    params.push(projectId, userId);
+
+    db.run(updateQuery, params, function(err) {
         if (err) {
             console.error(err);
             return res.status(500).send("Erreur serveur");
         }
 
         // Handle new file uploads
-        if (req.files && req.files.length > 0) {
+        if (req.files['project_files'] && req.files['project_files'].length > 0) {
             const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
-            req.files.forEach(file => {
+            req.files['project_files'].forEach(file => {
                 stmt.run(projectId, file.originalname, file.filename);
             });
             stmt.finalize();
