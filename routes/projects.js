@@ -46,13 +46,24 @@ router.get('/', (req, res) => {
             let bannerImage = '/images/default-banner.jpg'; // Default image
             let summary = project.description || 'Pas de description.';
 
-            if (project.readme_content) {
-                // Extract first image from README HTML content
+            // Prioritize dedicated banner_path
+            if (project.banner_path) {
+                bannerImage = '/uploads/projects/' + project.banner_path;
+            } else if (project.readme_content) {
+                // Fallback: Extract first image from README HTML content
                 const imageMatch = project.readme_content.match(/<img src="(.*?)"/);
                 if (imageMatch && imageMatch[1]) {
                     bannerImage = imageMatch[1];
+                } else {
+                    // Try markdown image regex
+                     const mdImageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
+                     if (mdImageMatch && mdImageMatch[1]) {
+                         bannerImage = mdImageMatch[1];
+                     }
                 }
+            }
 
+            if (project.readme_content) {
                 // Create a summary from the first 3 sentences of the README
                 // Improved stripping of Markdown and HTML tags, and trimming whitespace
                 const textOnlyReadme = project.readme_content
