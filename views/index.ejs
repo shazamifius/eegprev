@@ -1,5 +1,71 @@
 <%- include('partials/header', { title: "Accueil", user: user }) %>
 
+<style>
+    .daily-prompt-banner {
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .prompt-icon {
+        font-size: 2.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .prompt-content h3 {
+        margin: 0;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .prompt-content p {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .admin-prompt-form {
+        margin-top: 1rem;
+        background: rgba(0,0,0,0.2);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    .admin-prompt-form input {
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: none;
+        width: 70%;
+    }
+    .admin-prompt-form button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        background: white;
+        color: #3b82f6;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
 <div class="homepage-container">
     <% if (user) { %>
         <!-- Vue pour l'utilisateur connecté -->
@@ -7,6 +73,30 @@
             <h1>Bienvenue, <%= user.name %> !</h1>
             <p>Voici les dernières activités sur la plateforme.</p>
         </div>
+
+        <!-- DAILY PROMPT SECTION -->
+        <% if (dailyPrompt) { %>
+            <div class="daily-prompt-banner">
+                <div class="prompt-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="prompt-content">
+                    <h3>Sujet du Jour</h3>
+                    <p><%= dailyPrompt.content %></p>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (user.is_admin) { %>
+            <div style="margin-bottom: 2rem; border: 1px solid #334155; padding: 1rem; border-radius: 8px; background: #1e293b;">
+                <h3 style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-user-shield"></i> Admin : Définir le Sujet du Jour</h3>
+                <form action="/admin/daily-prompt" method="POST" style="display: flex; gap: 0.5rem;">
+                    <input type="text" name="content" placeholder="Ex: Quel est votre artiste préféré ?" required style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 4px;">
+                    <button type="submit" class="btn btn-sm btn-primary">Publier</button>
+                </form>
+            </div>
+        <% } %>
+
         <div class="quick-actions">
             <a href="/projects/new" class="button">Créer un projet</a>
             <a href="/publications" class="button">Faire un post</a>
@@ -27,8 +117,16 @@
                 <h2>Publications récentes</h2>
                 <% posts.forEach(post => { %>
                     <div class="post-summary">
-                        <p><a href="/students/<%= post.author_id %>"><strong><%= post.authorName %></strong></a> a posté :</p>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                             <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>" style="width: 24px; height: 24px; border-radius: 50%;">
+                             <a href="/students/<%= post.author_id %>" style="font-weight: 600; color: white; text-decoration: none;"><%= post.authorName %></a>
+                        </div>
                         <p><%= post.content.substring(0, 100) %>...</p>
+                        <% if (post.media_path) { %>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+                                <i class="fas fa-paperclip"></i> Pièce jointe
+                            </div>
+                        <% } %>
                     </div>
                 <% }); %>
             </div>

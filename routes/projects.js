@@ -136,6 +136,20 @@ router.post('/new/internal', isAuthenticated, upload.fields([{ name: 'banner', m
             return res.status(500).send("Erreur serveur lors de la création du projet.");
         }
         const projectId = this.lastID;
+
+        // Check badges "Architecte"
+        db.get('SELECT count(*) as count FROM projects WHERE author_id = ?', [author_id], (err, row) => {
+            if (!err) {
+                db.all('SELECT * FROM badges WHERE criteria_type = "projects_count" AND criteria_value <= ?', [row.count], (err, badges) => {
+                    if (!err && badges) {
+                        badges.forEach(badge => {
+                            db.run('INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)', [author_id, badge.id]);
+                        });
+                    }
+                });
+            }
+        });
+
         if (req.files['project_files'] && req.files['project_files'].length > 0) {
             const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
             req.files['project_files'].forEach(file => {

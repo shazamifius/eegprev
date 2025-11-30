@@ -7,6 +7,176 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/modern-theme.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        /* Beacon Coworking Widget */
+        .beacon-widget {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 300px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            z-index: 9000;
+            color: white;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .beacon-widget.minimized {
+            transform: translateY(calc(100% + 2rem));
+        }
+
+        .beacon-toggle-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            z-index: 9001;
+            display: none; /* Shown when widget minimized */
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .beacon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+
+        .beacon-title {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .beacon-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .coworking-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            background: #1e293b;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .coworkers-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .coworker-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .coworker-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #334155;
+        }
+
+        .coworker-info {
+            flex: 1;
+        }
+
+        .coworker-name {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .coworker-status {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .beacon-inputs {
+            display: none;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .beacon-inputs.active {
+            display: flex;
+        }
+
+        .beacon-input {
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Toggle Switch CSS */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #22c55e; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+    </style>
 </head>
 <body>
     <header>
@@ -23,7 +193,7 @@
                         <li><a href="/projects/my-projects">Mes Projets</a></li>
                         <li><a href="/publications">Publications</a></li>
                         <li><a href="/news">Actualités</a></li>
-                        <li><a href="/help">Aide</a></li>
+                        <li><a href="/help">Entraide</a></li>
                         <li><a href="/chat">Chat</a></li>
                         <li><a href="/profile">Profil</a></li>
                         <li><a href="/logout">Déconnexion</a></li>
@@ -35,4 +205,119 @@
             </nav>
         </div>
     </header>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+        <!-- Beacon Widget -->
+        <button class="beacon-toggle-btn" id="beaconToggleBtn" onclick="toggleBeaconWidget()">
+            <i class="fas fa-wifi"></i>
+        </button>
+
+        <div class="beacon-widget" id="beaconWidget">
+            <div class="beacon-header">
+                <div class="beacon-title">
+                    <span class="beacon-dot"></span> Beacon Live
+                </div>
+                <i class="fas fa-chevron-down" style="cursor: pointer;" onclick="toggleBeaconWidget()"></i>
+            </div>
+
+            <div class="coworking-switch">
+                <label class="switch">
+                    <input type="checkbox" id="coworkingToggle">
+                    <span class="slider"></span>
+                </label>
+                <span id="coworkingLabel">Je suis disponible</span>
+            </div>
+
+            <div class="beacon-inputs" id="beaconInputs">
+                <input type="text" id="coworkRoom" class="beacon-input" placeholder="Salle (ex: 304)">
+                <input type="text" id="coworkActivity" class="beacon-input" placeholder="Activité (ex: Montage)">
+                <button onclick="updateCoworkingStatus()" class="btn btn-sm btn-primary" style="margin-top: 0.5rem; width: 100%;">Valider</button>
+            </div>
+
+            <div class="coworkers-list" id="coworkersList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <script>
+            const socket = io();
+            const beaconWidget = document.getElementById('beaconWidget');
+            const beaconToggleBtn = document.getElementById('beaconToggleBtn');
+            const coworkingToggle = document.getElementById('coworkingToggle');
+            const beaconInputs = document.getElementById('beaconInputs');
+            const coworkersList = document.getElementById('coworkersList');
+            const user = <%- JSON.stringify({ id: user.id, name: user.name, avatar: user.avatar }) %>;
+
+            // Connect
+            socket.emit('user connected', user);
+
+            function toggleBeaconWidget() {
+                beaconWidget.classList.toggle('minimized');
+                if (beaconWidget.classList.contains('minimized')) {
+                    beaconToggleBtn.style.display = 'flex';
+                } else {
+                    beaconToggleBtn.style.display = 'none';
+                }
+            }
+
+            coworkingToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    beaconInputs.classList.add('active');
+                    document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
+                } else {
+                    beaconInputs.classList.remove('active');
+                    document.getElementById('coworkingLabel').innerText = "Je suis disponible";
+                    // Send OFF signal immediately
+                    socket.emit('coworking update', { is_coworking: false });
+                }
+            });
+
+            function updateCoworkingStatus() {
+                const room = document.getElementById('coworkRoom').value;
+                const activity = document.getElementById('coworkActivity').value;
+
+                if (room && activity) {
+                    socket.emit('coworking update', {
+                        is_coworking: true,
+                        room: room,
+                        activity: activity
+                    });
+                    // Hide inputs after validation for cleaner look
+                    beaconInputs.classList.remove('active');
+                }
+            }
+
+            socket.on('update coworkers list', (coworkers) => {
+                coworkersList.innerHTML = '';
+                coworkers.forEach(coworker => {
+                    const div = document.createElement('div');
+                    div.className = 'coworker-item';
+
+                    const img = document.createElement('img');
+                    img.src = coworker.avatar;
+                    img.className = 'coworker-avatar';
+                    img.alt = coworker.name;
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'coworker-info';
+
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'coworker-name';
+                    nameDiv.textContent = coworker.name;
+
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'coworker-status';
+                    statusDiv.textContent = `${coworker.room} • ${coworker.activity}`;
+
+                    infoDiv.appendChild(nameDiv);
+                    infoDiv.appendChild(statusDiv);
+                    div.appendChild(img);
+                    div.appendChild(infoDiv);
+
+                    coworkersList.appendChild(div);
+                });
+            });
+        </script>
+    <% } %>
+
     <div class="container">

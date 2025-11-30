@@ -28,8 +28,26 @@ const createSchema = (callback) => {
             portfolio TEXT,
             bio TEXT,
             avatar TEXT,
-            is_admin BOOLEAN DEFAULT 0
-        )`);
+            is_admin BOOLEAN DEFAULT 0,
+            is_coworking BOOLEAN DEFAULT 0,
+            coworking_room TEXT,
+            coworking_activity TEXT
+        )`, () => {
+             // Migration pour ajouter les colonnes coworking si elles n'existent pas
+             db.all("PRAGMA table_info(users)", (err, columns) => {
+                if (!err) {
+                    const hasIsCoworking = columns.some(col => col.name === 'is_coworking');
+                    if (!hasIsCoworking) {
+                        db.run("ALTER TABLE users ADD COLUMN is_coworking BOOLEAN DEFAULT 0");
+                        db.run("ALTER TABLE users ADD COLUMN coworking_room TEXT");
+                        db.run("ALTER TABLE users ADD COLUMN coworking_activity TEXT", (err) => {
+                             if(err) console.error("Erreur migration users coworking:", err);
+                             else console.log("Migration: Colonnes coworking ajoutées à users.");
+                        });
+                    }
+                }
+            });
+        });
 
         // Table des projets
         db.run(`CREATE TABLE IF NOT EXISTS projects (
@@ -130,8 +148,26 @@ const createSchema = (callback) => {
             status TEXT DEFAULT 'ouverte',
             author_id INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_anonymous BOOLEAN DEFAULT 0,
+            request_type TEXT DEFAULT 'help',
+            tags TEXT,
             FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
-        )`);
+        )`, () => {
+             // Migration pour ajouter les colonnes help_requests si elles n'existent pas
+             db.all("PRAGMA table_info(help_requests)", (err, columns) => {
+                if (!err) {
+                    const hasIsAnonymous = columns.some(col => col.name === 'is_anonymous');
+                    if (!hasIsAnonymous) {
+                        db.run("ALTER TABLE help_requests ADD COLUMN is_anonymous BOOLEAN DEFAULT 0");
+                        db.run("ALTER TABLE help_requests ADD COLUMN request_type TEXT DEFAULT 'help'");
+                        db.run("ALTER TABLE help_requests ADD COLUMN tags TEXT", (err) => {
+                             if(err) console.error("Erreur migration help_requests:", err);
+                             else console.log("Migration: Colonnes ajoutées à help_requests.");
+                        });
+                    }
+                }
+            });
+        });
 
         // Table des commentaires sur les demandes d'aide
         db.run(`CREATE TABLE IF NOT EXISTS help_request_comments (
@@ -183,12 +219,53 @@ const createSchema = (callback) => {
             file_name TEXT NOT NULL,
             file_path TEXT NOT NULL,
             FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+        )`);
+
+        // Table des badges
+        db.run(`CREATE TABLE IF NOT EXISTS badges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT,
+            icon TEXT,
+            criteria_type TEXT,
+            criteria_value INTEGER
+        )`, () => {
+            // Seed badges if empty
+            db.get("SELECT count(*) as count FROM badges", (err, row) => {
+                if (!err && row.count === 0) {
+                     db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Mentor", "A aidé 5 personnes", "fa-user-graduate", "help_resolved", 5]);
+                     db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Architecte", "A publié 3 projets", "fa-drafting-compass", "projects_count", 3]);
+                     db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Social", "A posté 10 publications", "fa-comments", "posts_count", 10]);
+                }
+            });
+        });
+
+        // Table des badges utilisateurs
+        db.run(`CREATE TABLE IF NOT EXISTS user_badges (
+            user_id INTEGER,
+            badge_id INTEGER,
+            awarded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, badge_id),
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (badge_id) REFERENCES badges (id) ON DELETE CASCADE
+        )`);
+
+        // Table des sujets du jour (Daily Prompts)
+        db.run(`CREATE TABLE IF NOT EXISTS daily_prompts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL,
+            active_date DATE DEFAULT CURRENT_DATE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`, callback);
+
     });
 }
 
 const setupDatabase = (callback) => {
     const tables = [
+        'user_badges',
+        'badges',
+        'daily_prompts',
         'project_files',
         'project_comments',
         'project_collaborators',
