@@ -18,7 +18,19 @@
     <div class="profile-header">
         <img class="profile-avatar" src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= user.name %>">
         <div class="profile-header-info">
-            <h1><%= user.name %></h1>
+            <h1>
+                <%= user.name %>
+                <!-- Badges Display -->
+                <% if (typeof badges !== 'undefined' && badges.length > 0) { %>
+                    <div class="badges-container" style="display: inline-flex; gap: 0.5rem; vertical-align: middle; margin-left: 0.5rem;">
+                        <% badges.forEach(badge => { %>
+                            <span title="<%= badge.name %> : <%= badge.description %>" class="badge-icon" style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.8rem; border: 1px solid rgba(251, 191, 36, 0.3);">
+                                <i class="fas <%= badge.icon %>"></i>
+                            </span>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </h1>
             <p class="user-class"><%= user.classe || 'Classe non spécifiée' %></p>
         </div>
         <% if (sessionUser && sessionUser.id === user.id) { %>

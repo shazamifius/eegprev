@@ -31,6 +31,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const { db } = require('./database');
 const projectsRouter = require('./routes/projects');
+const helpRouter = require('./routes/help');
 
 const port = 3000;
 
@@ -49,11 +50,7 @@ const storage = multer.diskStorage({
         } else if (file.fieldname === "media") {
             dest += 'publications';
         } else if (file.fieldname === "image") {
-            if (req.path.includes('help')) {
-                dest += 'help';
-            } else {
-                dest += 'news';
-            }
+            dest += 'news';
         }
         cb(null, dest);
     },
@@ -132,9 +129,22 @@ const parsePortfolioLinks = (portfolioString) => {
     }).filter(item => item !== null);
 };
 
+// --- ROUTES ---
+
+app.use('/projects', projectsRouter);
+app.use('/help', helpRouter);
+
 app.get('/', (req, res) => {
+    // Récupérer le "Daily Prompt" actif
+    const dailyPromptPromise = new Promise((resolve, reject) => {
+        db.get('SELECT * FROM daily_prompts WHERE active_date = CURRENT_DATE ORDER BY created_at DESC LIMIT 1', [], (err, prompt) => {
+            if (err) resolve(null); // Ne pas bloquer si erreur
+            else resolve(prompt);
+        });
+    });
+
     if (req.session.user) {
-        // Logged-in view: Fetch latest news and publications
+        // Logged-in view
         const newsPromise = new Promise((resolve, reject) => {
             db.all('SELECT * FROM news ORDER BY created_at DESC LIMIT 5', [], (err, news) => {
                 if (err) return reject(err);
@@ -148,13 +158,13 @@ app.get('/', (req, res) => {
             });
         });
 
-        Promise.all([newsPromise, postsPromise])
-            .then(([news, posts]) => {
-                res.render('index', { user: req.session.user, news: news, posts: posts });
+        Promise.all([newsPromise, postsPromise, dailyPromptPromise])
+            .then(([news, posts, dailyPrompt]) => {
+                res.render('index', { user: req.session.user, news: news, posts: posts, dailyPrompt: dailyPrompt });
             })
             .catch(err => handleDbError(err, res));
     } else {
-        // Logged-out view: Fetch featured projects, recent posts, and latest news
+        // Logged-out view
         const projectsPromise = new Promise((resolve, reject) => {
             db.all('SELECT p.*, u.name as authorName, (SELECT image_path FROM project_images WHERE project_id = p.id AND is_main = 1) as main_image FROM projects p JOIN users u ON p.author_id = u.id ORDER BY p.upvotes DESC LIMIT 3', [], (err, projects) => {
                 if (err) return reject(err);
@@ -178,10 +188,19 @@ app.get('/', (req, res) => {
 
         Promise.all([projectsPromise, postsPromise, newsPromise])
             .then(([projects, posts, news]) => {
-                res.render('index', { user: undefined, projects: projects, posts: posts, news: news });
+                res.render('index', { user: undefined, projects: projects, posts: posts, news: news, dailyPrompt: null });
             })
             .catch(err => handleDbError(err, res));
     }
+});
+
+// Route Admin pour créer un Daily Prompt
+app.post('/admin/daily-prompt', isAdmin, (req, res) => {
+    const { content } = req.body;
+    db.run('INSERT INTO daily_prompts (content) VALUES (?)', [content], (err) => {
+        if (err) return handleDbError(err, res);
+        res.redirect('/');
+    });
 });
 
 app.get('/login', (req, res) => {
@@ -293,11 +312,18 @@ app.get('/profile', (req, res) => {
                 resolve(posts);
             });
         });
+        const badgesPromise = new Promise((resolve, reject) => {
+            db.all('SELECT b.* FROM badges b JOIN user_badges ub ON b.id = ub.badge_id WHERE ub.user_id = ?', [userId], (err, badges) => {
+                if (err) return reject(err);
+                resolve(badges);
+            });
+        });
 
-        Promise.all([projectsPromise, showcasePromise, postsPromise])
-            .then(([projects, showcaseImages, posts]) => {
+
+        Promise.all([projectsPromise, showcasePromise, postsPromise, badgesPromise])
+            .then(([projects, showcaseImages, posts, badges]) => {
                 const portfolioLinks = parsePortfolioLinks(req.session.user.portfolio);
-                res.render('profile', { user: req.session.user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks });
+                res.render('profile', { user: req.session.user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks, badges: badges });
             })
             .catch(err => handleDbError(err, res));
     } else {
@@ -392,92 +418,6 @@ app.post('/news/delete/:id', isAdmin, (req, res) => {
     });
 });
 
-// Routes pour l'aide et l'assistance
-app.get('/help', (req, res) => {
-    const { category, status } = req.query;
-    let query = 'SELECT hr.*, u.name as authorName FROM help_requests hr JOIN users u ON hr.author_id = u.id';
-    const params = [];
-
-    if (category || status) {
-        query += ' WHERE';
-        if (category) {
-            query += ' hr.category = ?';
-            params.push(category);
-        }
-        if (status) {
-            if (category) query += ' AND';
-            query += ' hr.status = ?';
-            params.push(status);
-        }
-    }
-
-    query += ' ORDER BY hr.created_at DESC';
-
-    db.all(query, params, (err, requests) => {
-        if (err) return handleDbError(err, res);
-        res.render('help', { requests: requests || [], user: req.session.user });
-    });
-});
-
-app.post('/help/new', (req, res) => {
-    if (req.session.user) {
-        const { title, description, category } = req.body;
-        db.run('INSERT INTO help_requests (title, description, category, author_id) VALUES (?, ?, ?, ?)',
-            [title, description, category, req.session.user.id],
-            (err) => {
-                if (err) return handleDbError(err, res);
-                res.redirect('/help');
-            });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-app.get('/help/:id', (req, res) => {
-    const requestId = req.params.id;
-    db.get('SELECT hr.*, u.name as authorName FROM help_requests hr JOIN users u ON hr.author_id = u.id WHERE hr.id = ?', [requestId], (err, request) => {
-        if (err || !request) {
-            return res.redirect('/help');
-        }
-        db.all('SELECT c.*, u.name as authorName, u.avatar as authorAvatar FROM help_request_comments c JOIN users u ON c.author_id = u.id WHERE c.request_id = ? ORDER BY c.created_at ASC', [requestId], (err, comments) => {
-            if (err) return handleDbError(err, res);
-            res.render('help-detail', { request: request, comments: comments, user: req.session.user });
-        });
-    });
-});
-
-app.post('/help/:id/resolve', (req, res) => {
-    if (req.session.user) {
-        const requestId = req.params.id;
-        db.get('SELECT author_id FROM help_requests WHERE id = ?', [requestId], (err, row) => {
-            if (err || !row || row.author_id !== req.session.user.id) {
-                return res.redirect('/help');
-            }
-            db.run('UPDATE help_requests SET status = "résolue" WHERE id = ?', [requestId], (err) => {
-                if (err) return handleDbError(err, res);
-                res.redirect('/help/' + requestId);
-            });
-        });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-app.post('/help/:id/comment', upload.single('image'), (req, res) => {
-    if (req.session.user) {
-        const requestId = req.params.id;
-        const { comment } = req.body;
-        const imagePath = req.file ? '/images/help/' + req.file.filename : null;
-        db.run('INSERT INTO help_request_comments (content, image_path, author_id, request_id) VALUES (?, ?, ?, ?)',
-            [comment, imagePath, req.session.user.id, requestId],
-            (err) => {
-                if (err) return handleDbError(err, res);
-                res.redirect('/help/' + requestId);
-            });
-    } else {
-        res.redirect('/login');
-    }
-});
 
 // Routes pour les publications
 app.get('/publications', (req, res) => {
@@ -508,6 +448,18 @@ app.post('/publications/new', upload.single('media'), (req, res) => {
             [content, mediaPath, mediaType, category, req.session.user.id],
             (err) => {
                 if (err) return handleDbError(err, res);
+                // Check badges "Social"
+                db.get('SELECT count(*) as count FROM posts WHERE author_id = ?', [req.session.user.id], (err, row) => {
+                    if (!err) {
+                        db.all('SELECT * FROM badges WHERE criteria_type = "posts_count" AND criteria_value <= ?', [row.count], (err, badges) => {
+                            if (!err && badges) {
+                                badges.forEach(badge => {
+                                    db.run('INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)', [req.session.user.id, badge.id]);
+                                });
+                            }
+                        });
+                    }
+                });
                 res.redirect('/publications');
             });
     } else {
@@ -685,11 +637,17 @@ app.get('/students/:id', (req, res) => {
                 resolve(posts);
             });
         });
+        const badgesPromise = new Promise((resolve, reject) => {
+            db.all('SELECT b.* FROM badges b JOIN user_badges ub ON b.id = ub.badge_id WHERE ub.user_id = ?', [userId], (err, badges) => {
+                if (err) return reject(err);
+                resolve(badges);
+            });
+        });
 
-        Promise.all([projectsPromise, showcasePromise, postsPromise])
-            .then(([projects, showcaseImages, posts]) => {
+        Promise.all([projectsPromise, showcasePromise, postsPromise, badgesPromise])
+            .then(([projects, showcaseImages, posts, badges]) => {
                 const portfolioLinks = parsePortfolioLinks(user.portfolio);
-                res.render('profile', { user: user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks });
+                res.render('profile', { user: user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks, badges: badges });
             })
             .catch(err => handleDbError(err, res));
     });
@@ -703,7 +661,6 @@ app.post('/projects/:id/upvote', (req, res) => {
         db.get('SELECT * FROM project_upvotes WHERE user_id = ? AND project_id = ?', [userId, projectId], (err, row) => {
             if (err) return handleDbError(err, res);
             if (row) {
-                // L'utilisateur a déjà voté
                 return res.redirect('/projects');
             }
             db.run('INSERT INTO project_upvotes (user_id, project_id) VALUES (?, ?)', [userId, projectId], (err) => {
@@ -728,14 +685,18 @@ app.get('/chat', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
+    if (req.session.user) {
+         // Reset coworking status on logout
+         db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [req.session.user.id]);
+    }
     req.session.destroy();
     res.redirect('/');
 });
 
-// Mount the projects router
-app.use('/projects', projectsRouter);
 
+// Socket.IO Logic
 const connectedUsers = {};
+const coworkers = {}; // { userId: { name, avatar, room, activity } }
 
 io.on('connection', (socket) => {
     const session = socket.request.session;
@@ -749,6 +710,34 @@ io.on('connection', (socket) => {
     socket.on('user connected', (connectedUser) => {
         connectedUsers[socket.id] = connectedUser;
         io.emit('update user list', connectedUsers);
+
+        // Send current coworkers list to new user
+        socket.emit('update coworkers list', Object.values(coworkers));
+    });
+
+    // Gestion du Beacon Coworking
+    socket.on('coworking update', (data) => {
+        // data = { is_coworking: boolean, room: string, activity: string }
+        if (data.is_coworking) {
+            coworkers[user.id] = {
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
+                room: data.room,
+                activity: data.activity
+            };
+
+            // Optional: Persist to DB if needed for profile display (not strictly required for live widget but good practice)
+            db.run('UPDATE users SET is_coworking = 1, coworking_room = ?, coworking_activity = ? WHERE id = ?',
+                [data.room, data.activity, user.id]);
+
+        } else {
+            delete coworkers[user.id];
+            db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [user.id]);
+        }
+
+        // Broadcast full list to everyone
+        io.emit('update coworkers list', Object.values(coworkers));
     });
 
     // Gérer les messages du chat
@@ -759,6 +748,15 @@ io.on('connection', (socket) => {
     // Gérer la déconnexion d'un utilisateur
     socket.on('disconnect', () => {
         delete connectedUsers[socket.id];
+        // Note: We don't remove from coworkers automatically on disconnect (reload page),
+        // OR we should? "Live status". If they close tab, they aren't coworking?
+        // Let's keep them in coworkers map for a bit or until explicit stop?
+        // Simplicity: Remove from live widget on disconnect.
+        if (user) {
+             delete coworkers[user.id];
+             db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [user.id]);
+             io.emit('update coworkers list', Object.values(coworkers));
+        }
         io.emit('update user list', connectedUsers);
     });
 });
