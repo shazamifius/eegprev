@@ -34,9 +34,9 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            width: 56px;
+            width: auto;
             height: 56px;
-            border-radius: 50%;
+            border-radius: 9999px;
             background: #2563eb;
             color: white;
             border: none;
@@ -46,7 +46,16 @@
             display: none; /* Shown when widget minimized */
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            padding: 0 1.5rem;
+            gap: 0.75rem;
+        }
+
+        .beacon-btn-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
         }
 
         .beacon-header {
@@ -209,7 +218,11 @@
     <% if (typeof user !== 'undefined' && user) { %>
         <!-- Beacon Widget -->
         <button class="beacon-toggle-btn" id="beaconToggleBtn" onclick="toggleBeaconWidget()">
-            <i class="fas fa-wifi"></i>
+            <div class="beacon-btn-content">
+                <i class="fas fa-wifi"></i>
+                <span id="beaconCount">0</span>
+            </div>
+            <i class="fas fa-chevron-up"></i>
         </button>
 
         <div class="beacon-widget" id="beaconWidget">
@@ -335,6 +348,12 @@
             });
 
             socket.on('update coworkers list', (coworkers) => {
+                // Update count in the toggle button
+                const countElement = document.getElementById('beaconCount');
+                if (countElement) {
+                    countElement.innerText = coworkers.length;
+                }
+
                 coworkersList.innerHTML = '';
                 coworkers.forEach(coworker => {
                     const div = document.createElement('div');
