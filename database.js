@@ -54,6 +54,17 @@ const createSchema = (callback) => {
                              else console.log("Migration: Colonne coworking_start_time ajoutée à users.");
                         });
                     }
+
+                    const hasColorBg = columns.some(col => col.name === 'color_bg');
+                    if (!hasColorBg) {
+                        db.run("ALTER TABLE users ADD COLUMN color_bg TEXT");
+                        db.run("ALTER TABLE users ADD COLUMN color_text TEXT");
+                        db.run("ALTER TABLE users ADD COLUMN color_primary TEXT");
+                        db.run("ALTER TABLE users ADD COLUMN color_secondary TEXT", (err) => {
+                             if(err) console.error("Erreur migration users colors:", err);
+                             else console.log("Migration: Colonnes couleurs ajoutées à users.");
+                        });
+                    }
                 }
             });
         });

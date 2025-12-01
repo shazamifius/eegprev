@@ -88,5 +88,67 @@
         <label for="bio">Biographie :</label>
         <textarea id="bio" name="bio"><%= isEdit ? user.bio : '' %></textarea>
     </div>
+
+    <% if (isEdit) { %>
+    <hr>
+    <h2>Personnalisation du Thème</h2>
+    <div style="margin-bottom: 20px;">
+        <button type="button" class="button" onclick="setEEGPTheme()">Thème Officiel EEGP</button>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label for="color_bg">Fond Principal</label>
+            <input type="color" id="color_bg" name="color_bg" value="<%= user.color_bg || '#23272A' %>" style="height: 50px; cursor: pointer;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="color_text">Couleur de Texte</label>
+            <input type="color" id="color_text" name="color_text" value="<%= user.color_text || '#ffffff' %>" style="height: 50px; cursor: pointer;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="color_primary">Couleur Primaire</label>
+            <input type="color" id="color_primary" name="color_primary" value="<%= user.color_primary || '#d95e4f' %>" style="height: 50px; cursor: pointer;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="color_secondary">Couleur Secondaire</label>
+            <input type="color" id="color_secondary" name="color_secondary" value="<%= user.color_secondary || '#41435e' %>" style="height: 50px; cursor: pointer;">
+        </div>
+    </div>
+
+    <script>
+        function setEEGPTheme() {
+            document.getElementById('color_bg').value = '#0f3450';
+            document.getElementById('color_text').value = '#a3c0f0'; // Accents clairs as text/accent usually, but based on prompt: "Accents clairs : #a3c0f0" and "Neutre/Dark : #3f4360".
+            // The prompt says:
+            // Fond/Dominante : #0f3450
+            // Secondaire (Boutons) : #f55246
+            // Accents clairs : #a3c0f0
+            // Neutre/Dark : #3f4360
+
+            // Mapping to my 4 vars:
+            // color_bg (Fond principal) -> #0f3450
+            // color_text (Couleur de texte) -> #ffffff (Default) or maybe #a3c0f0?
+            // Prompt says: "Accents clairs : #a3c0f0". Usually text is light on dark bg.
+            // Let's assume text is white-ish or the accent color.
+            // Wait, let's look at the mapping requested.
+            // color_bg -> #0f3450
+            // color_secondary -> #3f4360 (Neutre/Dark) OR #f55246 (Secondaire/Boutons)?
+
+            // Let's re-read carefully:
+            // "Base de Données : ... color_bg, color_text, color_primary, color_secondary"
+            // "Thème Officiel EEGP":
+            // Fond/Dominante : #0f3450  -> color_bg
+            // Secondaire (Boutons) : #f55246 -> color_primary (Since my CSS uses primary for buttons)
+            // Accents clairs : #a3c0f0 -> color_text (Text/Accents)
+            // Neutre/Dark : #3f4360 -> color_secondary (Secondary elements)
+
+            document.getElementById('color_bg').value = '#0f3450';
+            document.getElementById('color_primary').value = '#f55246';
+            document.getElementById('color_text').value = '#a3c0f0';
+            document.getElementById('color_secondary').value = '#3f4360';
+        }
+    </script>
+    <hr>
+    <% } %>
+
     <button type="submit"><%= submitText %></button>
 </form>
