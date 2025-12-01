@@ -215,7 +215,7 @@
         <div class="beacon-widget" id="beaconWidget">
             <div class="beacon-header">
                 <div class="beacon-title">
-                    <span class="beacon-dot"></span> Beacon Live
+                    <span class="beacon-dot"></span> Workspace
                 </div>
                 <i class="fas fa-chevron-down" style="cursor: pointer;" onclick="toggleBeaconWidget()"></i>
             </div>
@@ -227,6 +227,11 @@
                 </label>
                 <span id="coworkingLabel">Je suis disponible</span>
             </div>
+
+            <!-- "Fini" Button, hidden by default -->
+            <button id="stopCoworkingBtn" class="btn btn-sm btn-danger" style="display:none; width: 100%; margin-bottom: 1rem;" onclick="stopCoworking()">
+                <i class="fas fa-times"></i> Terminer la session
+            </button>
 
             <div class="beacon-inputs" id="beaconInputs">
                 <input type="text" id="coworkRoom" class="beacon-input" placeholder="Salle (ex: 304)">
@@ -245,8 +250,33 @@
             const beaconToggleBtn = document.getElementById('beaconToggleBtn');
             const coworkingToggle = document.getElementById('coworkingToggle');
             const beaconInputs = document.getElementById('beaconInputs');
+            const stopCoworkingBtn = document.getElementById('stopCoworkingBtn');
             const coworkersList = document.getElementById('coworkersList');
-            const user = <%- JSON.stringify({ id: user.id, name: user.name, avatar: user.avatar }) %>;
+
+            // Pass the full user object (including coworking status) from EJS to JS
+            const user = <%- JSON.stringify({
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
+                is_coworking: user.is_coworking || false,
+                coworking_room: user.coworking_room || '',
+                coworking_activity: user.coworking_activity || ''
+            }) %>;
+
+            // Initialize Widget State based on User Persistence
+            if (user.is_coworking) {
+                coworkingToggle.checked = true;
+                document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
+                document.getElementById('coworkRoom').value = user.coworking_room;
+                document.getElementById('coworkActivity').value = user.coworking_activity;
+                stopCoworkingBtn.style.display = 'block';
+                beaconInputs.classList.remove('active'); // Inputs hidden when active
+            } else {
+                coworkingToggle.checked = false;
+                document.getElementById('coworkingLabel').innerText = "Je suis disponible";
+                stopCoworkingBtn.style.display = 'none';
+                beaconInputs.classList.remove('active');
+            }
 
             // Connect
             socket.emit('user connected', user);
@@ -264,11 +294,9 @@
                 if (e.target.checked) {
                     beaconInputs.classList.add('active');
                     document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
+                    stopCoworkingBtn.style.display = 'none'; // Don't show stop btn while editing
                 } else {
-                    beaconInputs.classList.remove('active');
-                    document.getElementById('coworkingLabel').innerText = "Je suis disponible";
-                    // Send OFF signal immediately
-                    socket.emit('coworking update', { is_coworking: false });
+                    stopCoworking();
                 }
             });
 
@@ -282,10 +310,29 @@
                         room: room,
                         activity: activity
                     });
-                    // Hide inputs after validation for cleaner look
+
+                    // Optimistic UI update
                     beaconInputs.classList.remove('active');
+                    stopCoworkingBtn.style.display = 'block';
                 }
             }
+
+            function stopCoworking() {
+                beaconInputs.classList.remove('active');
+                document.getElementById('coworkingLabel').innerText = "Je suis disponible";
+                coworkingToggle.checked = false;
+                stopCoworkingBtn.style.display = 'none';
+                socket.emit('coworking update', { is_coworking: false });
+            }
+
+            socket.on('coworking error', (msg) => {
+                alert(msg);
+                // Revert UI if error (e.g., restricted hours)
+                coworkingToggle.checked = false;
+                beaconInputs.classList.remove('active');
+                document.getElementById('coworkingLabel').innerText = "Je suis disponible";
+                stopCoworkingBtn.style.display = 'none';
+            });
 
             socket.on('update coworkers list', (coworkers) => {
                 coworkersList.innerHTML = '';
