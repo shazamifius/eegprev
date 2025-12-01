@@ -324,7 +324,7 @@ app.get('/profile', (req, res) => {
                     new Promise((resolveProject, rejectProject) => {
                         db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
                             if (err) return rejectProject(err);
-                            project.main_image = mainImage ? mainImage.image_path : null;
+                            project.main_image = mainImage ? mainImage.image_path : (project.banner_path || null);
                             resolveProject(project);
                         });
                     })
@@ -649,7 +649,7 @@ app.get('/students/:id', (req, res) => {
                     new Promise((resolveProject, rejectProject) => {
                         db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
                             if (err) return rejectProject(err);
-                            project.main_image = mainImage ? mainImage.image_path : null;
+                            project.main_image = mainImage ? mainImage.image_path : (project.banner_path || null);
                             resolveProject(project);
                         });
                     })
