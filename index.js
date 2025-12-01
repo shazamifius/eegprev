@@ -144,25 +144,33 @@ app.get('/', (req, res) => {
     });
 
     if (req.session.user) {
-        // Logged-in view
-        const newsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM news ORDER BY created_at DESC LIMIT 5', [], (err, news) => {
-                if (err) return reject(err);
-                resolve(news);
-            });
-        });
-        const postsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id ORDER BY p.created_at DESC LIMIT 10', [], (err, posts) => {
-                if (err) return reject(err);
-                resolve(posts);
-            });
-        });
+        // Refresh session user data from DB to get latest coworking status
+        db.get('SELECT * FROM users WHERE id = ?', [req.session.user.id], (err, refreshedUser) => {
+            if (!err && refreshedUser) {
+                req.session.user = refreshedUser; // Update session
+                req.session.save(); // Ensure session is saved
+            }
 
-        Promise.all([newsPromise, postsPromise, dailyPromptPromise])
-            .then(([news, posts, dailyPrompt]) => {
-                res.render('index', { user: req.session.user, news: news, posts: posts, dailyPrompt: dailyPrompt });
-            })
-            .catch(err => handleDbError(err, res));
+            // Logged-in view
+            const newsPromise = new Promise((resolve, reject) => {
+                db.all('SELECT * FROM news ORDER BY created_at DESC LIMIT 5', [], (err, news) => {
+                    if (err) return reject(err);
+                    resolve(news);
+                });
+            });
+            const postsPromise = new Promise((resolve, reject) => {
+                db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id ORDER BY p.created_at DESC LIMIT 10', [], (err, posts) => {
+                    if (err) return reject(err);
+                    resolve(posts);
+                });
+            });
+
+            Promise.all([newsPromise, postsPromise, dailyPromptPromise])
+                .then(([news, posts, dailyPrompt]) => {
+                    res.render('index', { user: req.session.user, news: news, posts: posts, dailyPrompt: dailyPrompt });
+                })
+                .catch(err => handleDbError(err, res));
+        });
     } else {
         // Logged-out view
         const projectsPromise = new Promise((resolve, reject) => {
@@ -711,14 +719,47 @@ io.on('connection', (socket) => {
         connectedUsers[socket.id] = connectedUser;
         io.emit('update user list', connectedUsers);
 
-        // Send current coworkers list to new user
-        socket.emit('update coworkers list', Object.values(coworkers));
+        // Check if user is already coworking in DB (Persistence)
+        db.get('SELECT is_coworking, coworking_room, coworking_activity FROM users WHERE id = ?', [user.id], (err, row) => {
+            if (!err && row && row.is_coworking) {
+                coworkers[user.id] = {
+                    id: user.id,
+                    name: user.name,
+                    avatar: user.avatar,
+                    room: row.coworking_room,
+                    activity: row.coworking_activity
+                };
+                // Broadcast update to ensure everyone sees the re-connected user
+                io.emit('update coworkers list', Object.values(coworkers));
+            } else {
+                // Send current coworkers list to new user even if they aren't coworking
+                socket.emit('update coworkers list', Object.values(coworkers));
+            }
+        });
     });
 
     // Gestion du Beacon Coworking
     socket.on('coworking update', (data) => {
         // data = { is_coworking: boolean, room: string, activity: string }
+
         if (data.is_coworking) {
+            // Check time constraints
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+
+            // Constraint: Can't start before 08:16
+            if (currentHour < 8 || (currentHour === 8 && currentMinute < 16)) {
+                socket.emit('coworking error', "Le Workspace n'ouvre qu'à 8h16.");
+                return;
+            }
+
+            // Constraint: Can't start after 18:30 (Auto-close handles existing, this prevents new)
+            if (currentHour > 18 || (currentHour === 18 && currentMinute >= 30)) {
+                socket.emit('coworking error', "Le Workspace ferme à 18h30.");
+                return;
+            }
+
             coworkers[user.id] = {
                 id: user.id,
                 name: user.name,
@@ -727,9 +768,10 @@ io.on('connection', (socket) => {
                 activity: data.activity
             };
 
-            // Optional: Persist to DB if needed for profile display (not strictly required for live widget but good practice)
-            db.run('UPDATE users SET is_coworking = 1, coworking_room = ?, coworking_activity = ? WHERE id = ?',
-                [data.room, data.activity, user.id]);
+            const startTime = new Date().toISOString();
+
+            db.run('UPDATE users SET is_coworking = 1, coworking_room = ?, coworking_activity = ?, coworking_start_time = ? WHERE id = ?',
+                [data.room, data.activity, startTime, user.id]);
 
         } else {
             delete coworkers[user.id];
@@ -748,18 +790,55 @@ io.on('connection', (socket) => {
     // Gérer la déconnexion d'un utilisateur
     socket.on('disconnect', () => {
         delete connectedUsers[socket.id];
-        // Note: We don't remove from coworkers automatically on disconnect (reload page),
-        // OR we should? "Live status". If they close tab, they aren't coworking?
-        // Let's keep them in coworkers map for a bit or until explicit stop?
-        // Simplicity: Remove from live widget on disconnect.
-        if (user) {
-             delete coworkers[user.id];
-             db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [user.id]);
-             io.emit('update coworkers list', Object.values(coworkers));
-        }
+        // Persistence: Do NOT remove from coworkers on disconnect.
+        // User remains "live" until they explicitly turn it off or timeout occurs.
         io.emit('update user list', connectedUsers);
     });
 });
+
+// Background task to clean up old coworking sessions
+setInterval(() => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    // Check global close time (18:30)
+    if (currentHour > 18 || (currentHour === 18 && currentMinute >= 30)) {
+        // Close all sessions
+        if (Object.keys(coworkers).length > 0) {
+            for (const userId in coworkers) {
+                delete coworkers[userId];
+            }
+            db.run('UPDATE users SET is_coworking = 0');
+            io.emit('update coworkers list', []);
+        }
+        return;
+    }
+
+    // Check individual timeouts (2 hours)
+    db.all('SELECT id, coworking_start_time FROM users WHERE is_coworking = 1', [], (err, rows) => {
+        if (!err && rows) {
+            let changed = false;
+            rows.forEach(row => {
+                if (row.coworking_start_time) {
+                    const startTime = new Date(row.coworking_start_time);
+                    const diffMs = now - startTime;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+
+                    if (diffHours >= 2) {
+                        delete coworkers[row.id];
+                        db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [row.id]);
+                        changed = true;
+                    }
+                }
+            });
+
+            if (changed) {
+                io.emit('update coworkers list', Object.values(coworkers));
+            }
+        }
+    });
+}, 60 * 1000); // Run every minute
 
 if (process.env.NODE_ENV !== 'test') {
     server.listen(port, () => {
