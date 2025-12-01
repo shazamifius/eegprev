@@ -89,6 +89,30 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+// Middleware pour rafraîchir les données de session utilisateur depuis la BDD
+const refreshSessionUser = (req, res, next) => {
+    if (req.session.user) {
+        db.get('SELECT * FROM users WHERE id = ?', [req.session.user.id], (err, refreshedUser) => {
+            if (!err && refreshedUser) {
+                // Update properties from DB
+                req.session.user = refreshedUser;
+                // Force save not strictly necessary if we modify the object in place and store uses it,
+                // but explicit save handles some store edge cases.
+                req.session.save((err) => {
+                     if (err) console.error("Session save error:", err);
+                     next();
+                });
+            } else {
+                 next();
+            }
+        });
+    } else {
+        next();
+    }
+};
+
+app.use(refreshSessionUser);
+
 const calculateAge = (birthdate) => {
     if (!birthdate) return null;
     const [day, month, year] = birthdate.split('/');
