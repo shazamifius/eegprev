@@ -31,7 +31,8 @@ const createSchema = (callback) => {
             is_admin BOOLEAN DEFAULT 0,
             is_coworking BOOLEAN DEFAULT 0,
             coworking_room TEXT,
-            coworking_activity TEXT
+            coworking_activity TEXT,
+            coworking_start_time DATETIME
         )`, () => {
              // Migration pour ajouter les colonnes coworking si elles n'existent pas
              db.all("PRAGMA table_info(users)", (err, columns) => {
@@ -43,6 +44,14 @@ const createSchema = (callback) => {
                         db.run("ALTER TABLE users ADD COLUMN coworking_activity TEXT", (err) => {
                              if(err) console.error("Erreur migration users coworking:", err);
                              else console.log("Migration: Colonnes coworking ajoutées à users.");
+                        });
+                    }
+
+                    const hasCoworkingStartTime = columns.some(col => col.name === 'coworking_start_time');
+                    if (!hasCoworkingStartTime) {
+                        db.run("ALTER TABLE users ADD COLUMN coworking_start_time DATETIME", (err) => {
+                             if(err) console.error("Erreur migration coworking_start_time:", err);
+                             else console.log("Migration: Colonne coworking_start_time ajoutée à users.");
                         });
                     }
                 }
