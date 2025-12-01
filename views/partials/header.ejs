@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title><%= title %> - EEGP</title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/modern-theme.css">
     <script src="/socket.io/socket.io.js"></script>
+    <% if (typeof user !== 'undefined' && user) { %>
+    <style>
+        :root {
+            --background-dark: <%= user.color_bg || '#23272A' %>;
+            --text-primary: <%= user.color_text || '#ffffff' %>;
+            --primary-color: <%= user.color_primary || '#d95e4f' %>;
+            --secondary-color: <%= user.color_secondary || '#41435e' %>;
+        }
+    </style>
+    <% } %>
     <style>
         /* Beacon Coworking Widget */
         .beacon-widget {
@@ -191,7 +201,7 @@
     <header>
         <div class="container">
             <div id="branding">
-                <h1><a href="/">École d'Art</a></h1>
+                <h1><a href="/">EEGP</a></h1>
             </div>
             <nav>
                 <ul>
@@ -247,7 +257,43 @@
             </button>
 
             <div class="beacon-inputs" id="beaconInputs">
-                <input type="text" id="coworkRoom" class="beacon-input" placeholder="Salle (ex: 304)">
+                <select id="coworkRoom" class="beacon-input">
+                    <option value="" disabled selected>Choisir une salle...</option>
+                    <optgroup label="Bâtiment Principal - RDC">
+                        <option value="The Kid">The Kid</option>
+                        <option value="Banksy">Banksy</option>
+                        <option value="Malika Favre">Malika Favre</option>
+                        <option value="Anne Imhof">Anne Imhof</option>
+                    </optgroup>
+                    <optgroup label="Bâtiment Principal - Étage 1">
+                        <option value="Joan Cornella">Joan Cornella</option>
+                        <option value="Fabienne Verdier">Fabienne Verdier</option>
+                        <option value="Ron Mueck">Ron Mueck</option>
+                        <option value="Jules Julien">Jules Julien</option>
+                        <option value="Philip Johnson">Philip Johnson</option>
+                        <option value="Frank Gehry">Frank Gehry</option>
+                    </optgroup>
+                    <optgroup label="Extension - RDC">
+                        <option value="Suzanne Kare">Suzanne Kare</option>
+                        <option value="Frida Kahlo">Frida Kahlo</option>
+                        <option value="Yves Klein">Yves Klein</option>
+                        <option value="Paul Cox">Paul Cox</option>
+                        <option value="Charlotte Perriand">Charlotte Perriand</option>
+                    </optgroup>
+                    <optgroup label="Annexe - RDC">
+                        <option value="Tim Burton">Tim Burton</option>
+                        <option value="Saul Bass">Saul Bass</option>
+                    </optgroup>
+                    <optgroup label="Annexe - Étage 1">
+                        <option value="Zaha Hadid">Zaha Hadid</option>
+                        <option value="Karabo Poppy">Karabo Poppy</option>
+                    </optgroup>
+                    <optgroup label="Zones Communes">
+                        <option value="Hall">Hall</option>
+                        <option value="Passerelle">Passerelle</option>
+                        <option value="Extérieur">Extérieur</option>
+                    </optgroup>
+                </select>
                 <input type="text" id="coworkActivity" class="beacon-input" placeholder="Activité (ex: Montage)">
                 <button onclick="updateCoworkingStatus()" class="btn btn-sm btn-primary" style="margin-top: 0.5rem; width: 100%;">Valider</button>
             </div>

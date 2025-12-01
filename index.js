@@ -536,18 +536,18 @@ app.get('/profile/edit', (req, res) => {
 
 app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 4 }]), (req, res) => {
     if (req.session.user) {
-        const { name, classe, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
+        const { name, classe, birthdate, discord, instagram, snapchat, portfolio, bio, color_bg, color_text, color_primary, color_secondary } = req.body;
         const age = calculateAge(birthdate);
         let avatar = req.session.user.avatar;
         if (req.files['avatar']) {
             avatar = '/images/avatars/' + req.files['avatar'][0].filename;
         }
 
-        db.run('UPDATE users SET name = ?, classe = ?, age = ?, birthdate = ?, discord = ?, instagram = ?, snapchat = ?, portfolio = ?, bio = ?, avatar = ? WHERE id = ?',
-            [name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, req.session.user.id],
+        db.run('UPDATE users SET name = ?, classe = ?, age = ?, birthdate = ?, discord = ?, instagram = ?, snapchat = ?, portfolio = ?, bio = ?, avatar = ?, color_bg = ?, color_text = ?, color_primary = ?, color_secondary = ? WHERE id = ?',
+            [name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, color_bg, color_text, color_primary, color_secondary, req.session.user.id],
             function(err) {
                 if (err) return handleDbError(err, res);
-                req.session.user = { ...req.session.user, name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar };
+                req.session.user = { ...req.session.user, name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, color_bg, color_text, color_primary, color_secondary };
 
                 if (req.files['showcase']) {
                     req.files['showcase'].forEach(file => {
