@@ -29,6 +29,60 @@ const isAuthenticated = (req, res, next) => {
     res.redirect('/login');
 };
 
+// Helper function to process projects (add banner and summary)
+const processProjects = (projects) => {
+    return projects.map(project => {
+        let bannerImage = '/images/default-banner.jpg'; // Default image
+        let summary = project.description || 'Pas de description.';
+
+        // Prioritize dedicated banner_path
+        if (project.banner_path) {
+            bannerImage = '/uploads/projects/' + project.banner_path;
+        } else if (project.readme_content) {
+            // Fallback: Extract first image from README HTML content
+            const imageMatch = project.readme_content.match(/<img src="(.*?)"/);
+            if (imageMatch && imageMatch[1]) {
+                bannerImage = imageMatch[1];
+            } else {
+                // Try markdown image regex
+                    const mdImageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
+                    if (mdImageMatch && mdImageMatch[1]) {
+                        bannerImage = mdImageMatch[1];
+                    }
+            }
+        }
+
+        if (project.readme_content) {
+            // Create a summary from the first 3 sentences of the README
+            // Improved stripping of Markdown and HTML tags, and trimming whitespace
+            const textOnlyReadme = project.readme_content
+                .replace(/!\[.*?\]\(.*?\)/g, '')  // Remove Markdown images
+                .replace(/<[^>]+>/g, '')         // Strip HTML tags
+                .replace(/[#*`~-]/g, '')         // Remove common Markdown characters
+                .trim();
+
+            if (textOnlyReadme) {
+                const sentences = textOnlyReadme.split('. ').slice(0, 3);
+                summary = sentences.join('. ').trim();
+                if (summary) {
+                        summary += (sentences.length < 3 ? '' : '...');
+                }
+            }
+        }
+
+        // Fallback summary if still empty
+        if (!summary || summary.trim() === '...' || summary.trim() === '') {
+            summary = project.description || 'Ce projet n\'a pas encore de description.';
+        }
+
+        return {
+            ...project,
+            banner_image: bannerImage,
+            summary: summary
+        };
+    });
+};
+
 // GET /projects - Public projects gallery
 router.get('/', (req, res) => {
     db.all(`
@@ -42,57 +96,7 @@ router.get('/', (req, res) => {
             return res.status(500).send("Erreur serveur");
         }
 
-        const processedProjects = projects.map(project => {
-            let bannerImage = '/images/default-banner.jpg'; // Default image
-            let summary = project.description || 'Pas de description.';
-
-            // Prioritize dedicated banner_path
-            if (project.banner_path) {
-                bannerImage = '/uploads/projects/' + project.banner_path;
-            } else if (project.readme_content) {
-                // Fallback: Extract first image from README HTML content
-                const imageMatch = project.readme_content.match(/<img src="(.*?)"/);
-                if (imageMatch && imageMatch[1]) {
-                    bannerImage = imageMatch[1];
-                } else {
-                    // Try markdown image regex
-                     const mdImageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
-                     if (mdImageMatch && mdImageMatch[1]) {
-                         bannerImage = mdImageMatch[1];
-                     }
-                }
-            }
-
-            if (project.readme_content) {
-                // Create a summary from the first 3 sentences of the README
-                // Improved stripping of Markdown and HTML tags, and trimming whitespace
-                const textOnlyReadme = project.readme_content
-                    .replace(/!\[.*?\]\(.*?\)/g, '')  // Remove Markdown images
-                    .replace(/<[^>]+>/g, '')         // Strip HTML tags
-                    .replace(/[#*`~-]/g, '')         // Remove common Markdown characters
-                    .trim();
-
-                if (textOnlyReadme) {
-                    const sentences = textOnlyReadme.split('. ').slice(0, 3);
-                    summary = sentences.join('. ').trim();
-                    if (summary) {
-                         summary += (sentences.length < 3 ? '' : '...');
-                    }
-                }
-            }
-
-            // Fallback summary if still empty
-            if (!summary || summary.trim() === '...' || summary.trim() === '') {
-                summary = project.description || 'Ce projet n\'a pas encore de description.';
-            }
-
-            return {
-                ...project,
-                banner_image: bannerImage,
-                summary: summary
-            };
-        });
-
+        const processedProjects = processProjects(projects);
         res.render('projects/index', { projects: processedProjects, user: req.session.user, title: 'Projets' });
     });
 });
@@ -100,12 +104,20 @@ router.get('/', (req, res) => {
 // GET /projects/my-projects - User's own projects
 router.get('/my-projects', isAuthenticated, (req, res) => {
     const userId = req.session.user.id;
-    db.all('SELECT * FROM projects WHERE author_id = ? ORDER BY created_at DESC', [userId], (err, projects) => {
+    // Join with users table to get author_name (even though it's the current user, consistency helps)
+    db.all(`
+        SELECT projects.*, users.name as author_name
+        FROM projects
+        JOIN users ON projects.author_id = users.id
+        WHERE author_id = ?
+        ORDER BY projects.created_at DESC`, [userId], (err, projects) => {
         if (err) {
             console.error(err);
             return res.status(500).send("Erreur serveur");
         }
-        res.render('projects/my-projects', { projects, user: req.session.user, title: 'Mes Projets' });
+
+        const processedProjects = processProjects(projects);
+        res.render('projects/my-projects', { projects: processedProjects, user: req.session.user, title: 'Mes Projets' });
     });
 });
 

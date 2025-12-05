@@ -1,28 +1,59 @@
 <%- include('../partials/header') %>
 
 <div class="container">
-    <h1>Mes Projets</h1>
-    <a href="/projects/new" class="btn">Créer un nouveau projet</a>
+    <div class="page-header-container">
+        <div class="page-header-title">
+            <h1>Mes Projets</h1>
+            <div class="page-header-subtitle">Gérez vos projets et suivez leur évolution</div>
+        </div>
+        <a href="/projects/new" class="btn-futuristic-action">
+            <span class="btn-icon-circle">
+                <i class="fas fa-plus" style="font-size: 0.8em; color: var(--primary-color);"></i>
+            </span>
+            <span>Nouveau Projet</span>
+        </a>
+    </div>
 
-    <div class="project-list">
-        <% if (projects.length > 0) { %>
+    <% if (projects.length > 0) { %>
+        <div class="modern-project-grid">
             <% projects.forEach(project => { %>
-                <div class="project-item">
-                    <h2><a href="/projects/<%= project.id %>"><%= project.title %></a></h2>
-                    <p>Statut : <%= project.is_public ? 'Public' : 'Privé' %></p>
-                    <p>Créé le <%= new Date(project.created_at).toLocaleDateString() %></p>
-                    <div>
-                        <a href="/projects/<%= project.id %>/edit" class="btn">Modifier</a>
-                        <form action="/projects/<%= project.id %>/delete" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </form>
+                <div class="modern-project-card">
+                    <div class="card-banner-container">
+                        <img src="<%= project.banner_image %>" class="card-banner-img" alt="Bannière du projet <%= project.title %>" onerror="this.onerror=null;this.src='/images/default-banner.svg';">
+                        <!-- Badge de statut -->
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; background: <%= project.is_public ? 'rgba(46, 204, 113, 0.9)' : 'rgba(231, 76, 60, 0.9)' %>; color: white; backdrop-filter: blur(4px);">
+                            <%= project.is_public ? 'Public' : 'Privé' %>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title"><a href="/projects/<%= project.id %>" style="text-decoration: none; color: inherit;"><%= project.title %></a></h3>
+                        <div class="card-meta">
+                            <span><i class="far fa-calendar-alt"></i></span>
+                            <span><%= new Date(project.created_at).toLocaleDateString() %></span>
+                        </div>
+                        <p class="card-summary"><%= project.summary %></p>
+
+                        <div class="card-actions" style="display: flex; gap: 10px;">
+                            <a href="/projects/<%= project.id %>/edit" class="btn-card-action btn-action-edit" style="flex: 1;">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <form action="/projects/<%= project.id %>/delete" method="POST" style="flex: 1; margin: 0; display: flex;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                                <button type="submit" class="btn-card-action btn-action-delete">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             <% }); %>
-        <% } else { %>
-            <p>Vous n'avez encore aucun projet.</p>
-        <% } %>
-    </div>
+        </div>
+    <% } else { %>
+        <div class="text-center" style="padding: 4rem 0;">
+            <i class="fas fa-folder-open" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-secondary); font-size: 1.2rem;">Vous n'avez encore aucun projet.</p>
+            <p>Commencez par en créer un !</p>
+        </div>
+    <% } %>
 </div>
 
 <%- include('../partials/footer') %>
