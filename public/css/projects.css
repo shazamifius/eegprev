@@ -1,0 +1,21 @@
+.form-container {
+    max-width: 900px;
+    margin: 40px auto;
+}
+.form-container h1 {
+    text-align: center;
+    color: var(--accent-color);
+}
+.form-container .form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.form-container .form-check-input {
+   width: auto;
+   margin-bottom: 0;
+}
+.tox-tinymce {
+    border-radius: var(--border-radius) !important;
+}

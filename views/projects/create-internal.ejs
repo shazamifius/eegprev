@@ -1,29 +1,5 @@
 <%- include('../partials/header', { title: 'Nouveau Projet Local', user: user }) %>
 
-<style>
-    .form-container {
-        max-width: 900px;
-        margin: 40px auto;
-    }
-    .form-container h1 {
-        text-align: center;
-        color: var(--accent-color);
-    }
-    .form-container .form-check {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    .form-container .form-check-input {
-       width: auto;
-       margin-bottom: 0;
-    }
-    .tox-tinymce {
-        border-radius: var(--border-radius) !important;
-    }
-</style>
-
 <div class="form-container">
     <form id="create-project-form" action="/projects/new/internal" method="POST" enctype="multipart/form-data">
         <h1>Nouveau Projet Local</h1>
@@ -89,7 +65,5 @@
         <button type="submit" class="button" style="width: 100%; margin-top: 20px;">Créer le projet</button>
     </form>
 </div>
-
-<!-- No more TinyMCE, removed script -->
 
 <%- include('../partials/footer') %>
