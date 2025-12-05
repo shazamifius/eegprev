@@ -1064,3 +1064,29 @@ a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-but
     border: none !important;
     transform: none !important; /* Annule tout effet de transformation */
 }
+
+/* Special overrides for card actions */
+.btn-action-delete {
+    width: 100%;
+    border: 1px solid #e74c3c !important; /* Force red border */
+    color: #e74c3c !important;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0; /* Override generic button min-width */
+}
+
+.btn-action-delete:hover {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border-color: #e74c3c !important;
+}
+
+.btn-action-edit {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+}
