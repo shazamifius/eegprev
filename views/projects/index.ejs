@@ -1,156 +1,49 @@
 <%- include('../partials/header', { title: 'Projets', user: user }) %>
 
-<style>
-    .project-card {
-        background-color: var(--card-bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        overflow: hidden;
-        margin-bottom: 2rem;
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-    .project-banner {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
-    .project-card-body {
-        padding: 1.5rem;
-    }
-    .project-card-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-    .project-card-author {
-        font-weight: 500;
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-    }
-    .project-card-summary {
-        color: var(--text-primary);
-        height: 80px; /* Approx 3-4 lines */
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Animated New Project Button */
-    .btn-new-project-animated {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 24px;
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        text-decoration: none;
-        overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
-    }
-
-    .btn-new-project-animated:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 10px 25px rgba(168, 85, 247, 0.6);
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); /* Maintain gradient */
-    }
-
-    .btn-new-project-animated:active {
-        transform: translateY(1px);
-    }
-
-    .btn-new-project-animated .icon-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        transition: transform 0.4s ease;
-    }
-
-    .btn-new-project-animated:hover .icon-container {
-        transform: rotate(90deg);
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-new-project-animated .shine {
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.4),
-            transparent
-        );
-        transition: 0.5s;
-    }
-
-    .btn-new-project-animated:hover .shine {
-        left: 100%;
-        transition: 0.5s;
-    }
-
-    /* Pulse animation for visibility */
-    @keyframes subtlePulse {
-        0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
-    }
-
-    .btn-new-project-animated {
-        animation: subtlePulse 3s infinite;
-    }
-</style>
-
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <h1>Découvrez les projets</h1>
+    <div class="page-header-container">
+        <div class="page-header-title">
+            <h1>Découvrez les projets</h1>
+            <div class="page-header-subtitle">Explorez la créativité des étudiants de l'EEGP</div>
+        </div>
         <% if (user) { %>
-            <a href="/projects/new" class="btn btn-new-project-animated">
-                <span class="icon-container">
-                    <i class="fas fa-plus"></i>
+            <a href="/projects/new" class="btn-futuristic-action">
+                <span class="btn-icon-circle">
+                    <i class="fas fa-plus" style="font-size: 0.8em; color: var(--primary-color);"></i>
                 </span>
-                <span class="text">Nouveau Projet</span>
-                <span class="shine"></span>
+                <span>Nouveau Projet</span>
             </a>
         <% } %>
     </div>
 
     <% if (projects && projects.length > 0) { %>
-        <div class="row">
+        <div class="modern-project-grid">
             <% projects.forEach(project => { %>
-                <div class="col-md-6 col-lg-4">
-                    <div class="project-card">
-                        <img src="<%= project.banner_image %>" class="project-banner" alt="Bannière du projet <%= project.title %>">
-                        <div class="project-card-body">
-                            <h5 class="project-card-title"><%= project.title %></h5>
-                            <h6 class="project-card-author">par <%= project.author_name %></h6>
-                            <p class="project-card-summary"><%= project.summary %></p>
-                            <a href="/projects/<%= project.id %>" class="btn btn-outline-light w-100">Voir le projet</a>
+                <div class="modern-project-card">
+                    <div class="card-banner-container">
+                        <img src="<%= project.banner_image %>" class="card-banner-img" alt="Bannière du projet <%= project.title %>">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title"><%= project.title %></h3>
+                        <div class="card-meta">
+                            <span><i class="fas fa-user-circle"></i></span>
+                            <span class="author-name"><%= project.author_name %></span>
+                        </div>
+                        <p class="card-summary"><%= project.summary %></p>
+
+                        <div class="card-actions">
+                            <a href="/projects/<%= project.id %>" class="btn-card-action">
+                                Voir le projet
+                            </a>
                         </div>
                     </div>
                 </div>
             <% }); %>
         </div>
     <% } else { %>
-        <div class="text-center">
-            <p>Aucun projet public n'a été trouvé.</p>
+        <div class="text-center" style="padding: 4rem 0;">
+            <i class="fas fa-layer-group" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-secondary); font-size: 1.2rem;">Aucun projet public n'a été trouvé.</p>
             <p>Soyez le premier à en créer un !</p>
         </div>
     <% } %>
