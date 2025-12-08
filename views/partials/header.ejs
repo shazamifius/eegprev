@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - EEGP</title>
+    <title>
+        <%= title %> - EEGP
+    </title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/modern-theme.css">
@@ -11,27 +14,64 @@
     <link rel="stylesheet" href="/css/beacon.css">
     <link rel="stylesheet" href="/css/help.css">
     <link rel="stylesheet" href="/css/projects.css">
+    <link rel="stylesheet" href="/css/clock.css"> <!-- Clock Styles -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r125/three.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <% if (typeof user !== 'undefined' && user) { %>
-    <style>
-        :root {
-            --background-dark: <%= user.color_bg || '#23272A' %>;
-            --text-primary: <%= user.color_text || '#ffffff' %>;
-            --primary-color: <%= user.color_primary || '#d95e4f' %>;
-            --secondary-color: <%= user.color_secondary || '#41435e' %>;
-        }
-    </style>
-    <% } %>
+    <script src="/js/clock.js" defer></script>
+    <script src="/js/logo.js" defer></script>
+
+    <% if (typeof user !=='undefined' && user) { %>
+        <style>
+            :root {
+                --background-dark: <%=user.color_bg || '#23272A' %>;
+                --text-primary: <%=user.color_text || '#ffffff' %>;
+                --primary-color: <%=user.color_primary || '#d95e4f' %>;
+                --secondary-color: <%=user.color_secondary || '#41435e' %>;
+            }
+
+            /* Custom logo container size */
+            #magic {
+                width: 150px;
+                height: 60px;
+                display: inline-block;
+            }
+        </style>
+        <% } %>
 </head>
+
 <body>
     <header>
         <div class="container">
             <div id="branding">
-                <h1><a href="/">EEGP</a></h1>
+                <!-- Replaced text logo with animated three.js logo -->
+                <a href="/" style="display: block;">
+                    <div id="magic"></div>
+                </a>
             </div>
+
+            <!-- Clock UI Integration -->
+            <div class="clock__container grid"
+                style="position: absolute; left: 50%; transform: translateX(-50%) scale(0.6);">
+                <div class="clock__content grid">
+                    <div class="clock__circle">
+                        <span class="clock__twelve"></span>
+                        <span class="clock__three"></span>
+                        <span class="clock__six"></span>
+                        <span class="clock__nine"></span>
+
+                        <div class="clock__rounder"></div>
+                        <div class="clock__hour" id="clock-hour"></div>
+                        <div class="clock__minutes" id="clock-minutes"></div>
+                        <div class="clock__seconds" id="clock-seconds"></div>
+                    </div>
+                    <!-- Date/Time text removed/hidden for header compactness or kept small -->
+                </div>
+            </div>
+
             <nav>
                 <ul>
-                    <% if (typeof user !== 'undefined' && user) { %>
+                    <% if (typeof user !=='undefined' && user) { %>
                         <li><a href="/">Accueil</a></li>
                         <li><a href="/students">Élèves</a></li>
                         <li><a href="/projects">Projets</a></li>
@@ -42,16 +82,16 @@
                         <li><a href="/chat">Chat</a></li>
                         <li><a href="/profile">Profil</a></li>
                         <li><a href="/logout">Déconnexion</a></li>
-                    <% } else { %>
-                        <li><a href="/login">Connexion</a></li>
-                        <li><a href="/register">Inscription</a></li>
-                    <% } %>
+                        <% } else { %>
+                            <li><a href="/login">Connexion</a></li>
+                            <li><a href="/register">Inscription</a></li>
+                            <% } %>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <% if (typeof user !== 'undefined' && user) { %>
+    <% if (typeof user !=='undefined' && user) { %>
         <!-- Beacon Widget -->
         <button class="beacon-toggle-btn" id="beaconToggleBtn" onclick="toggleBeaconWidget()">
             <div class="beacon-btn-content">
@@ -78,7 +118,8 @@
             </div>
 
             <!-- "Fini" Button, hidden by default -->
-            <button id="stopCoworkingBtn" class="btn btn-sm btn-danger" style="display:none; width: 100%; margin-bottom: 1rem;" onclick="stopCoworking()">
+            <button id="stopCoworkingBtn" class="btn btn-sm btn-danger"
+                style="display:none; width: 100%; margin-bottom: 1rem;" onclick="stopCoworking()">
                 <i class="fas fa-times"></i> Terminer la session
             </button>
 
@@ -121,7 +162,8 @@
                     </optgroup>
                 </select>
                 <input type="text" id="coworkActivity" class="beacon-input" placeholder="Activité (ex: Montage)">
-                <button onclick="updateCoworkingStatus()" class="btn btn-sm btn-primary" style="margin-top: 0.5rem; width: 100%;">Valider</button>
+                <button onclick="updateCoworkingStatus()" class="btn btn-sm btn-primary"
+                    style="margin-top: 0.5rem; width: 100%;">Valider</button>
             </div>
 
             <div class="coworkers-list" id="coworkersList">
@@ -138,7 +180,7 @@
             const stopCoworkingBtn = document.getElementById('stopCoworkingBtn');
             const coworkersList = document.getElementById('coworkersList');
 
-            const user = <%- JSON.stringify({
+            const user = <% - JSON.stringify({
                 id: user.id,
                 name: user.name,
                 avatar: user.avatar,
@@ -250,6 +292,6 @@
                 });
             });
         </script>
-    <% } %>
+        <% } %>
 
-    <div class="container">
+            <div class="container">

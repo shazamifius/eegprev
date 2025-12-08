@@ -1,0 +1,187 @@
+/* Clock UI Styles - Integrated */
+
+/* Scoped variables for Clock to map to Global Theme */
+.clock__container {
+    /* Map local vars to global theme vars */
+    --clock-first-color: var(--primary-color);
+    --clock-title-color: var(--text-primary);
+    --clock-text-color: var(--text-secondary);
+    --clock-text-light: var(--text-secondary);
+    --clock-body-color: var(--background-light);
+    /* Background of the clock circle */
+    --clock-white: #FFF;
+
+    --body-font: 'Poppins', sans-serif;
+    --biggest-font-size: 2rem;
+    /* Reduced for header */
+    --small-font-size: 0.8rem;
+    --smaller-font-size: 0.75rem;
+    --tiny-font-size: 0.6rem;
+    --font-medium: 500;
+
+    /* Position relative for absolute children */
+    position: relative;
+    /* Adjust size for header */
+    transform: scale(0.6);
+    transform-origin: center;
+}
+
+/* Remove body/container styles that conflict with main app */
+
+.clock__container {
+    display: grid;
+    grid-template-rows: 1fr max-content;
+    /* justify-items: center; Remove to let it sit in header */
+}
+
+.clock__circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    /* Adapted shadow for dark theme default */
+    box-shadow:
+        -6px -6px 16px rgba(255, 255, 255, 0.05),
+        6px 6px 16px rgba(0, 0, 0, 0.3),
+        inset 6px 6px 16px rgba(0, 0, 0, 0.3),
+        inset -6px -6px 16px rgba(255, 255, 255, 0.05);
+
+    border-radius: 50%;
+    justify-self: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--clock-body-color);
+}
+
+.clock__content {
+    align-self: center;
+    row-gap: 3.5rem;
+}
+
+.clock__twelve,
+.clock__three,
+.clock__six,
+.clock__nine {
+    position: absolute;
+    width: 1rem;
+    height: 1px;
+    background-color: var(--clock-text-light);
+}
+
+.clock__twelve,
+.clock__six {
+    transform: translateX(-50%) rotate(90deg);
+}
+
+.clock__twelve {
+    top: 1.25rem;
+    left: 50%;
+}
+
+.clock__three {
+    top: 50%;
+    right: .75rem;
+}
+
+.clock__six {
+    bottom: 1.25rem;
+    left: 50%;
+}
+
+.clock__nine {
+    left: .75rem;
+    top: 50%;
+}
+
+.clock__rounder {
+    width: .75rem;
+    height: .75rem;
+    background-color: var(--clock-first-color);
+    border-radius: 50%;
+    border: 2px solid var(--clock-body-color);
+    z-index: 10;
+}
+
+.clock__hour,
+.clock__minutes,
+.clock__seconds {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+}
+
+.clock__hour {
+    width: 105px;
+    height: 105px;
+}
+
+.clock__hour::before {
+    content: '';
+    position: absolute;
+    background-color: var(--clock-text-color);
+    width: .25rem;
+    height: 3rem;
+    border-radius: .75rem;
+    z-index: 1;
+}
+
+.clock__minutes {
+    width: 136px;
+    height: 136px;
+}
+
+.clock__minutes::before {
+    content: '';
+    position: absolute;
+    background-color: var(--clock-text-color);
+    width: .25rem;
+    height: 4rem;
+    border-radius: .75rem;
+    z-index: 1;
+}
+
+.clock__seconds {
+    width: 130px;
+    height: 130px;
+}
+
+.clock__seconds::before {
+    content: '';
+    position: absolute;
+    background-color: var(--clock-first-color);
+    width: .125rem;
+    height: 5rem;
+    border-radius: .75rem;
+    z-index: 1;
+}
+
+.clock__text {
+    display: flex;
+    justify-content: center;
+}
+
+.clock__text-hour,
+.clock__text-minutes {
+    font-size: var(--biggest-font-size);
+    font-weight: var(--font-medium);
+    color: var(--clock-title-color);
+}
+
+.clock__text-ampm {
+    font-size: var(--tiny-font-size);
+    color: var(--clock-title-color);
+    font-weight: var(--font-medium);
+    margin-left: 0.25rem;
+}
+
+.clock__date {
+    text-align: center;
+    font-size: var(--small-font-size);
+    font-weight: var(--font-medium);
+    color: var(--clock-text-color);
+}
+
+/* Hide theme button as the main app likely handles theme globally or we don't need it on the clock itself */
+.clock__theme {
+    display: none;
+}
