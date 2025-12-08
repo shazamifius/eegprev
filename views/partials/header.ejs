@@ -7,6 +7,10 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/modern-theme.css">
+    <link rel="stylesheet" href="/css/checkbox.css">
+    <link rel="stylesheet" href="/css/beacon.css">
+    <link rel="stylesheet" href="/css/help.css">
+    <link rel="stylesheet" href="/css/projects.css">
     <script src="/socket.io/socket.io.js"></script>
     <% if (typeof user !== 'undefined' && user) { %>
     <style>
@@ -18,184 +22,6 @@
         }
     </style>
     <% } %>
-    <style>
-        /* Beacon Coworking Widget */
-        .beacon-widget {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 1.5rem;
-            width: 300px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            z-index: 9000;
-            color: white;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .beacon-widget.minimized {
-            transform: translateY(calc(100% + 2rem));
-        }
-
-        .beacon-toggle-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: auto;
-            height: 56px;
-            border-radius: 9999px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            z-index: 9001;
-            display: none; /* Shown when widget minimized */
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            padding: 0 1.5rem;
-            gap: 0.75rem;
-        }
-
-        .beacon-btn-content {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-        }
-
-        .beacon-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 0.5rem;
-        }
-
-        .beacon-title {
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .beacon-dot {
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #22c55e;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .coworking-switch {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            background: #1e293b;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-
-        .coworkers-list {
-            max-height: 200px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .coworker-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.9rem;
-        }
-
-        .coworker-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #334155;
-        }
-
-        .coworker-info {
-            flex: 1;
-        }
-
-        .coworker-name {
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .coworker-status {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-
-        .beacon-inputs {
-            display: none;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .beacon-inputs.active {
-            display: flex;
-        }
-
-        .beacon-input {
-            background: #0f172a;
-            border: 1px solid #475569;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-
-        /* Toggle Switch CSS */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 24px;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: #22c55e; }
-        input:checked + .slider:before { transform: translateX(16px); }
-
-    </style>
 </head>
 <body>
     <header>
@@ -312,7 +138,6 @@
             const stopCoworkingBtn = document.getElementById('stopCoworkingBtn');
             const coworkersList = document.getElementById('coworkersList');
 
-            // Pass the full user object (including coworking status) from EJS to JS
             const user = <%- JSON.stringify({
                 id: user.id,
                 name: user.name,
@@ -322,14 +147,13 @@
                 coworking_activity: user.coworking_activity || ''
             }) %>;
 
-            // Initialize Widget State based on User Persistence
             if (user.is_coworking) {
                 coworkingToggle.checked = true;
                 document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
                 document.getElementById('coworkRoom').value = user.coworking_room;
                 document.getElementById('coworkActivity').value = user.coworking_activity;
                 stopCoworkingBtn.style.display = 'block';
-                beaconInputs.classList.remove('active'); // Inputs hidden when active
+                beaconInputs.classList.remove('active');
             } else {
                 coworkingToggle.checked = false;
                 document.getElementById('coworkingLabel').innerText = "Je suis disponible";
@@ -337,7 +161,6 @@
                 beaconInputs.classList.remove('active');
             }
 
-            // Connect
             socket.emit('user connected', user);
 
             function toggleBeaconWidget() {
@@ -353,7 +176,7 @@
                 if (e.target.checked) {
                     beaconInputs.classList.add('active');
                     document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
-                    stopCoworkingBtn.style.display = 'none'; // Don't show stop btn while editing
+                    stopCoworkingBtn.style.display = 'none';
                 } else {
                     stopCoworking();
                 }
@@ -370,7 +193,6 @@
                         activity: activity
                     });
 
-                    // Optimistic UI update
                     beaconInputs.classList.remove('active');
                     stopCoworkingBtn.style.display = 'block';
                 }
@@ -386,7 +208,6 @@
 
             socket.on('coworking error', (msg) => {
                 alert(msg);
-                // Revert UI if error (e.g., restricted hours)
                 coworkingToggle.checked = false;
                 beaconInputs.classList.remove('active');
                 document.getElementById('coworkingLabel').innerText = "Je suis disponible";
@@ -394,7 +215,6 @@
             });
 
             socket.on('update coworkers list', (coworkers) => {
-                // Update count in the toggle button
                 const countElement = document.getElementById('beaconCount');
                 if (countElement) {
                     countElement.innerText = coworkers.length;
