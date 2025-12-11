@@ -39,7 +39,7 @@ const parsePortfolioLinks = (portfolioString) => {
                 name: name,
                 icon: icon
             };
-        } catch (e) {
+        } catch {
             return null;
         }
     }).filter(item => item !== null);

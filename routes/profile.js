@@ -103,7 +103,7 @@ router.get('/showcase/delete/:id', (req, res) => {
         db.get('SELECT * FROM showcase_images WHERE id = ? AND user_id = ?', [imageId, req.session.user.id], (err, image) => {
             if (err) return handleDbError(err, res);
             if (image) {
-                fs.unlink(path.join(__dirname, '../public', image.image_path), (err) => { // path correction: public is outside routes/
+                fs.unlink(path.join(__dirname, '../public', image.image_path), () => { // path correction: public is outside routes/
                     // Ignorer l'erreur si le fichier n'existe pas
                 });
                 db.run('DELETE FROM showcase_images WHERE id = ?', [imageId], (err) => {

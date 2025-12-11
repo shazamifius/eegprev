@@ -1,6 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const dbPath = process.env.NODE_ENV === 'test' ? ':memory:' : './database.db';
-const bcrypt = require('bcrypt');
+
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -34,24 +34,24 @@ const createSchema = (callback) => {
             coworking_activity TEXT,
             coworking_start_time DATETIME
         )`, () => {
-             // Migration pour ajouter les colonnes coworking si elles n'existent pas
-             db.all("PRAGMA table_info(users)", (err, columns) => {
+            // Migration pour ajouter les colonnes coworking si elles n'existent pas
+            db.all("PRAGMA table_info(users)", (err, columns) => {
                 if (!err) {
                     const hasIsCoworking = columns.some(col => col.name === 'is_coworking');
                     if (!hasIsCoworking) {
                         db.run("ALTER TABLE users ADD COLUMN is_coworking BOOLEAN DEFAULT 0");
                         db.run("ALTER TABLE users ADD COLUMN coworking_room TEXT");
                         db.run("ALTER TABLE users ADD COLUMN coworking_activity TEXT", (err) => {
-                             if(err) console.error("Erreur migration users coworking:", err);
-                             else console.log("Migration: Colonnes coworking ajoutées à users.");
+                            if (err) console.error("Erreur migration users coworking:", err);
+                            else console.log("Migration: Colonnes coworking ajoutées à users.");
                         });
                     }
 
                     const hasCoworkingStartTime = columns.some(col => col.name === 'coworking_start_time');
                     if (!hasCoworkingStartTime) {
                         db.run("ALTER TABLE users ADD COLUMN coworking_start_time DATETIME", (err) => {
-                             if(err) console.error("Erreur migration coworking_start_time:", err);
-                             else console.log("Migration: Colonne coworking_start_time ajoutée à users.");
+                            if (err) console.error("Erreur migration coworking_start_time:", err);
+                            else console.log("Migration: Colonne coworking_start_time ajoutée à users.");
                         });
                     }
 
@@ -61,8 +61,8 @@ const createSchema = (callback) => {
                         db.run("ALTER TABLE users ADD COLUMN color_text TEXT");
                         db.run("ALTER TABLE users ADD COLUMN color_primary TEXT");
                         db.run("ALTER TABLE users ADD COLUMN color_secondary TEXT", (err) => {
-                             if(err) console.error("Erreur migration users colors:", err);
-                             else console.log("Migration: Colonnes couleurs ajoutées à users.");
+                            if (err) console.error("Erreur migration users colors:", err);
+                            else console.log("Migration: Colonnes couleurs ajoutées à users.");
                         });
                     }
                 }
@@ -173,16 +173,16 @@ const createSchema = (callback) => {
             tags TEXT,
             FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
         )`, () => {
-             // Migration pour ajouter les colonnes help_requests si elles n'existent pas
-             db.all("PRAGMA table_info(help_requests)", (err, columns) => {
+            // Migration pour ajouter les colonnes help_requests si elles n'existent pas
+            db.all("PRAGMA table_info(help_requests)", (err, columns) => {
                 if (!err) {
                     const hasIsAnonymous = columns.some(col => col.name === 'is_anonymous');
                     if (!hasIsAnonymous) {
                         db.run("ALTER TABLE help_requests ADD COLUMN is_anonymous BOOLEAN DEFAULT 0");
                         db.run("ALTER TABLE help_requests ADD COLUMN request_type TEXT DEFAULT 'help'");
                         db.run("ALTER TABLE help_requests ADD COLUMN tags TEXT", (err) => {
-                             if(err) console.error("Erreur migration help_requests:", err);
-                             else console.log("Migration: Colonnes ajoutées à help_requests.");
+                            if (err) console.error("Erreur migration help_requests:", err);
+                            else console.log("Migration: Colonnes ajoutées à help_requests.");
                         });
                     }
                 }
@@ -253,9 +253,9 @@ const createSchema = (callback) => {
             // Seed badges if empty
             db.get("SELECT count(*) as count FROM badges", (err, row) => {
                 if (!err && row.count === 0) {
-                     db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Mentor", "A aidé 5 personnes", "fa-user-graduate", "help_resolved", 5]);
-                     db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Architecte", "A publié 3 projets", "fa-drafting-compass", "projects_count", 3]);
-                     db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Social", "A posté 10 publications", "fa-comments", "posts_count", 10]);
+                    db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Mentor", "A aidé 5 personnes", "fa-user-graduate", "help_resolved", 5]);
+                    db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Architecte", "A publié 3 projets", "fa-drafting-compass", "projects_count", 3]);
+                    db.run("INSERT INTO badges (name, description, icon, criteria_type, criteria_value) VALUES (?, ?, ?, ?, ?)", ["Social", "A posté 10 publications", "fa-comments", "posts_count", 10]);
                 }
             });
         });
@@ -276,7 +276,17 @@ const createSchema = (callback) => {
             content TEXT NOT NULL,
             active_date DATE DEFAULT CURRENT_DATE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`, callback);
+        )`, () => {
+            // Basic Indices for Performance
+            db.run("CREATE INDEX IF NOT EXISTS idx_projects_author ON projects(author_id)");
+            db.run("CREATE INDEX IF NOT EXISTS idx_projects_public ON projects(is_public)");
+            db.run("CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id)");
+            db.run("CREATE INDEX IF NOT EXISTS idx_user_badges_user ON user_badges(user_id)");
+            db.run("CREATE INDEX IF NOT EXISTS idx_project_files_project ON project_files(project_id)");
+            db.run("CREATE INDEX IF NOT EXISTS idx_project_comments_project ON project_comments(project_id)");
+
+            if (callback) callback();
+        });
 
     });
 }

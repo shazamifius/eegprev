@@ -5,8 +5,6 @@ const { db } = require('../database');
 const { handleDbError } = require('../utils/helpers');
 const { isAdmin } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
-const path = require('path');
-const fs = require('fs');
 
 // Routes pour les actualités
 router.get('/', (req, res) => {

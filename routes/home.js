@@ -7,7 +7,7 @@ const { isAdmin } = require('../middleware/auth');
 
 router.get('/', (req, res) => {
     // Récupérer le "Daily Prompt" actif
-    const dailyPromptPromise = new Promise((resolve, reject) => {
+    const dailyPromptPromise = new Promise((resolve) => {
         db.get('SELECT * FROM daily_prompts WHERE active_date = CURRENT_DATE ORDER BY created_at DESC LIMIT 1', [], (err, prompt) => {
             if (err) resolve(null); // Ne pas bloquer si erreur
             else resolve(prompt);

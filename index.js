@@ -27,7 +27,6 @@ uploadDirs.forEach(dir => {
 const session = require('express-session');
 const flash = require('connect-flash');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 const { db } = require('./database');
 const projectsRouter = require('./routes/projects');
 const helpRouter = require('./routes/help');
@@ -37,9 +36,7 @@ const newsRouter = require('./routes/news');
 const profileRouter = require('./routes/profile');
 const publicationsRouter = require('./routes/publications');
 const studentsRouter = require('./routes/students');
-const { calculateAge, parsePortfolioLinks, handleDbError } = require('./utils/helpers');
-const { isAdmin, refreshSessionUser } = require('./middleware/auth');
-const { upload } = require('./middleware/upload');
+const { refreshSessionUser } = require('./middleware/auth');
 
 const port = 3000;
 
@@ -158,7 +155,6 @@ io.on('connection', (socket) => {
             // Check time constraints
             const now = new Date();
             const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
 
             // Constraint: Can't start before 06:00
             if (currentHour < 6) {
