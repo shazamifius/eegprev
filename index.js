@@ -28,37 +28,22 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const multer = require('multer');
 const { db } = require('./database');
 const projectsRouter = require('./routes/projects');
 const helpRouter = require('./routes/help');
+const authRouter = require('./routes/auth');
+const homeRouter = require('./routes/home');
+const newsRouter = require('./routes/news');
+const profileRouter = require('./routes/profile');
+const publicationsRouter = require('./routes/publications');
+const studentsRouter = require('./routes/students');
+const { calculateAge, parsePortfolioLinks, handleDbError } = require('./utils/helpers');
+const { isAdmin, refreshSessionUser } = require('./middleware/auth');
+const { upload } = require('./middleware/upload');
 
 const port = 3000;
 
-// Configuration de Multer pour le stockage des images
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        let dest = './public/images/';
-        if (file.fieldname === "avatar") {
-            dest += 'avatars';
-        } else if (file.fieldname === "showcase") {
-            dest += 'showcase';
-        } else if (file.fieldname === "main_image" || file.fieldname === "secondary_images") {
-            dest += 'projects';
-        } else if (file.fieldname === "project_files") {
-            dest = './public/files/projects';
-        } else if (file.fieldname === "media") {
-            dest += 'publications';
-        } else if (file.fieldname === "image") {
-            dest += 'news';
-        }
-        cb(null, dest);
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -75,637 +60,41 @@ app.use(flash());
 io.engine.use(sessionMiddleware);
 
 // Middleware de gestion d'erreurs
-const handleDbError = (err, res) => {
-    console.error(err);
-    res.status(500).send("Une erreur interne est survenue.");
-};
+
 
 // Middleware pour vérifier si l'utilisateur est admin
-const isAdmin = (req, res, next) => {
-    if (req.session.user && req.session.user.is_admin) {
-        next();
-    } else {
-        res.redirect('/');
-    }
-};
+
 
 // Middleware pour rafraîchir les données de session utilisateur depuis la BDD
-const refreshSessionUser = (req, res, next) => {
-    if (req.session.user) {
-        db.get('SELECT * FROM users WHERE id = ?', [req.session.user.id], (err, refreshedUser) => {
-            if (!err && refreshedUser) {
-                // Update properties from DB
-                req.session.user = refreshedUser;
-                // Force save not strictly necessary if we modify the object in place and store uses it,
-                // but explicit save handles some store edge cases.
-                req.session.save((err) => {
-                    if (err) console.error("Session save error:", err);
-                    next();
-                });
-            } else {
-                next();
-            }
-        });
-    } else {
-        next();
-    }
-};
+
 
 app.use(refreshSessionUser);
 
-const calculateAge = (birthdate) => {
-    if (!birthdate) return null;
-    const [day, month, year] = birthdate.split('/');
-    const birthDateObj = new Date(`${year}-${month}-${day}`);
-    const today = new Date();
-    let age = today.getFullYear() - birthDateObj.getFullYear();
-    const m = today.getMonth() - birthDateObj.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) {
-        age--;
-    }
-    return age;
-};
 
-const parsePortfolioLinks = (portfolioString) => {
-    if (!portfolioString) {
-        return [];
-    }
-    const urls = portfolioString.split(/[\n\r]+/).filter(line => line.trim() !== '');
-    return urls.map(url => {
-        try {
-            // Ensure URL has a protocol
-            let fullUrl = url;
-            if (!/^https?:\/\//i.test(url)) {
-                fullUrl = 'https://' + url;
-            }
-            const urlObject = new URL(fullUrl);
-            let domain = urlObject.hostname.replace('www.', '');
-            const name = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
-            const icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            return {
-                url: fullUrl,
-                name: name,
-                icon: icon
-            };
-        } catch (e) {
-            return null;
-        }
-    }).filter(item => item !== null);
-};
 
 // --- ROUTES ---
 
+app.use('/', authRouter);
+app.use('/', homeRouter);
+app.use('/news', newsRouter);
+app.use('/profile', profileRouter);
+app.use('/publications', publicationsRouter);
+app.use('/students', studentsRouter);
 app.use('/projects', projectsRouter);
 app.use('/help', helpRouter);
 
-app.get('/', (req, res) => {
-    // Récupérer le "Daily Prompt" actif
-    const dailyPromptPromise = new Promise((resolve, reject) => {
-        db.get('SELECT * FROM daily_prompts WHERE active_date = CURRENT_DATE ORDER BY created_at DESC LIMIT 1', [], (err, prompt) => {
-            if (err) resolve(null); // Ne pas bloquer si erreur
-            else resolve(prompt);
-        });
-    });
-
-    if (req.session.user) {
-        // Refresh session user data from DB to get latest coworking status
-        db.get('SELECT * FROM users WHERE id = ?', [req.session.user.id], (err, refreshedUser) => {
-            if (!err && refreshedUser) {
-                req.session.user = refreshedUser; // Update session
-                req.session.save(); // Ensure session is saved
-            }
-
-            // Logged-in view
-            const newsPromise = new Promise((resolve, reject) => {
-                db.all('SELECT * FROM news ORDER BY created_at DESC LIMIT 5', [], (err, news) => {
-                    if (err) return reject(err);
-                    resolve(news);
-                });
-            });
-            const postsPromise = new Promise((resolve, reject) => {
-                db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id ORDER BY p.created_at DESC LIMIT 10', [], (err, posts) => {
-                    if (err) return reject(err);
-                    resolve(posts);
-                });
-            });
-
-            Promise.all([newsPromise, postsPromise, dailyPromptPromise])
-                .then(([news, posts, dailyPrompt]) => {
-                    res.render('index', { user: req.session.user, news: news, posts: posts, dailyPrompt: dailyPrompt });
-                })
-                .catch(err => handleDbError(err, res));
-        });
-    } else {
-        const projectsPromise = new Promise((resolve, reject) => {
-            db.all("SELECT p.*, u.name as authorName, COALESCE((SELECT image_path FROM project_images WHERE project_id = p.id AND is_main = 1), CASE WHEN p.banner_path IS NOT NULL THEN '/uploads/projects/' || p.banner_path ELSE '/images/default-project.png' END) as main_image FROM projects p JOIN users u ON p.author_id = u.id ORDER BY p.upvotes DESC LIMIT 3", [], (err, projects) => {
-                if (err) return reject(err);
-                resolve(projects);
-            });
-        });
-
-        const postsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT p.*, u.name as authorName FROM posts p JOIN users u ON p.author_id = u.id ORDER BY p.created_at DESC LIMIT 3', [], (err, posts) => {
-                if (err) return reject(err);
-                resolve(posts);
-            });
-        });
-
-        const newsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM news ORDER BY created_at DESC LIMIT 1', [], (err, news) => {
-                if (err) return reject(err);
-                resolve(news);
-            });
-        });
-
-        Promise.all([projectsPromise, postsPromise, newsPromise])
-            .then(([projects, posts, news]) => {
-                res.render('index', { user: undefined, projects: projects, posts: posts, news: news, dailyPrompt: null });
-            })
-            .catch(err => handleDbError(err, res));
-    }
-});
-
-// Route Admin pour créer un Daily Prompt
-app.post('/admin/daily-prompt', isAdmin, (req, res) => {
-    const { content } = req.body;
-    db.run('INSERT INTO daily_prompts (content) VALUES (?)', [content], (err) => {
-        if (err) return handleDbError(err, res);
-        res.redirect('/');
-    });
-});
-
-app.get('/login', (req, res) => {
-    res.render('login', { user: undefined, error: req.flash('error') });
-});
-
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
-        if (err) return handleDbError(err, res);
-        if (!user) {
-            req.flash('error', 'Aucun utilisateur trouvé avec cet email.');
-            return res.redirect('/login');
-        }
-
-        bcrypt.compare(password, user.password, (err, result) => {
-            if (result) {
-                req.session.user = user;
-                res.redirect('/profile');
-            } else {
-                req.flash('error', 'Mot de passe incorrect.');
-                res.redirect('/login');
-            }
-        });
-    });
-});
-
-app.get('/register', (req, res) => {
-    res.render('register', { user: undefined, error: req.flash('error') });
-});
-
-app.post('/register', (req, res) => {
-    const uploader = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 15 }]);
-
-    uploader(req, res, async function (err) {
-        if (err instanceof multer.MulterError) {
-            let message = "Une erreur est survenue lors du téléversement.";
-            if (err.code === 'LIMIT_FILE_SIZE') {
-                message = "Un des fichiers est trop volumineux.";
-            } else if (err.code === 'LIMIT_FILE_COUNT') {
-                message = "Vous avez envoyé trop de fichiers.";
-            }
-            req.flash('error', message);
-            return res.redirect('/register');
-        } else if (err) {
-            req.flash('error', "Une erreur inconnue est survenue lors du téléversement.");
-            return res.redirect('/register');
-        }
-
-        try {
-            const hashedPassword = await bcrypt.hash(req.body.password, 10);
-            const { name, email, classe, birthdate, discord, instagram, snapchat, portfolio, bio } = req.body;
-            const age = calculateAge(birthdate);
-            const avatar = req.files['avatar'] ? '/images/avatars/' + req.files['avatar'][0].filename : null;
-
-            db.run('INSERT INTO users (name, email, password, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [name, email, hashedPassword, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio],
-                function (err) {
-                    if (err) {
-                        if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE constraint failed: users.email')) {
-                            req.flash('error', 'Cet email est déjà utilisé. Veuillez en choisir un autre.');
-                            return res.redirect('/register');
-                        }
-                        return handleDbError(err, res);
-                    }
-                    const userId = this.lastID;
-                    if (req.files['showcase']) {
-                        req.files['showcase'].forEach(file => {
-                            const imagePath = '/images/showcase/' + file.filename;
-                            db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [userId, imagePath]);
-                        });
-                    }
-                    res.redirect('/login');
-                });
-        } catch (err) {
-            handleDbError(err, res);
-        }
-    });
-});
-
-app.get('/profile', (req, res) => {
-    if (req.session.user) {
-        const userId = req.session.user.id;
-        const projectsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM projects WHERE author_id = ?', [userId], (err, projects) => {
-                if (err) return reject(err);
-
-                const detailedProjects = projects.map(project =>
-                    new Promise((resolveProject, rejectProject) => {
-                        db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
-                            if (err) return rejectProject(err);
-                            project.main_image = mainImage ? mainImage.image_path : (project.banner_path || null);
-                            resolveProject(project);
-                        });
-                    })
-                );
-                Promise.all(detailedProjects).then(resolve).catch(reject);
-            });
-        });
-        const showcasePromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM showcase_images WHERE user_id = ?', [userId], (err, images) => {
-                if (err) return reject(err);
-                resolve(images);
-            });
-        });
-        const postsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id WHERE p.author_id = ? ORDER BY p.created_at DESC', [userId], (err, posts) => {
-                if (err) return reject(err);
-                resolve(posts);
-            });
-        });
-        const badgesPromise = new Promise((resolve, reject) => {
-            db.all('SELECT b.* FROM badges b JOIN user_badges ub ON b.id = ub.badge_id WHERE ub.user_id = ?', [userId], (err, badges) => {
-                if (err) return reject(err);
-                resolve(badges);
-            });
-        });
 
 
-        Promise.all([projectsPromise, showcasePromise, postsPromise, badgesPromise])
-            .then(([projects, showcaseImages, posts, badges]) => {
-                const portfolioLinks = parsePortfolioLinks(req.session.user.portfolio);
-                res.render('profile', { user: req.session.user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks, badges: badges });
-            })
-            .catch(err => handleDbError(err, res));
-    } else {
-        res.redirect('/login');
-    }
-});
 
-app.get('/publications/:id', (req, res) => {
-    const postId = req.params.id;
-    db.get('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id WHERE p.id = ?', [postId], (err, post) => {
-        if (err || !post) {
-            return res.redirect('/publications');
-        }
-        db.all('SELECT c.*, u.name as authorName, u.avatar as authorAvatar FROM post_comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ? ORDER BY c.created_at ASC', [postId], (err, comments) => {
-            if (err) return handleDbError(err, res);
-            res.render('publication-detail', { post: post, comments: comments, user: req.session.user });
-        });
-    });
-});
 
-app.post('/publications/:id/comment', (req, res) => {
-    if (req.session.user) {
-        const postId = req.params.id;
-        const { comment } = req.body;
-        db.run('INSERT INTO post_comments (post_id, user_id, comment) VALUES (?, ?, ?)',
-            [postId, req.session.user.id, comment],
-            (err) => {
-                if (err) return handleDbError(err, res);
-                res.redirect('/publications/' + postId);
-            });
-    } else {
-        res.redirect('/login');
-    }
-});
+
 
 // Routes pour les actualités
-app.get('/news', (req, res) => {
-    db.all('SELECT * FROM news ORDER BY created_at DESC', [], (err, news) => {
-        if (err) return handleDbError(err, res);
-        res.render('news', { news: news, user: req.session.user });
-    });
-});
 
-app.get('/news/new', isAdmin, (req, res) => {
-    res.render('new-news', { user: req.session.user });
-});
-
-app.post('/news/new', isAdmin, upload.single('image'), (req, res) => {
-    const { title, content, video_url } = req.body;
-    const imagePath = req.file ? '/images/news/' + req.file.filename : null;
-    db.run('INSERT INTO news (title, content, image_path, video_url, author_id) VALUES (?, ?, ?, ?, ?)',
-        [title, content, imagePath, video_url, req.session.user.id],
-        (err) => {
-            if (err) return handleDbError(err, res);
-            res.redirect('/news');
-        });
-});
-
-app.get('/news/edit/:id', isAdmin, (req, res) => {
-    const newsId = req.params.id;
-    db.get('SELECT * FROM news WHERE id = ?', [newsId], (err, article) => {
-        if (err || !article) {
-            return res.redirect('/news');
-        }
-        res.render('edit-news', { article: article, user: req.session.user });
-    });
-});
-
-app.post('/news/edit/:id', isAdmin, upload.single('image'), (req, res) => {
-    const newsId = req.params.id;
-    const { title, content, video_url } = req.body;
-    let imagePath;
-
-    db.get('SELECT image_path FROM news WHERE id = ?', [newsId], (err, row) => {
-        if (err) return handleDbError(err, res);
-        imagePath = req.file ? '/images/news/' + req.file.filename : row.image_path;
-
-        db.run('UPDATE news SET title = ?, content = ?, image_path = ?, video_url = ? WHERE id = ?',
-            [title, content, imagePath, video_url, newsId],
-            (err) => {
-                if (err) return handleDbError(err, res);
-                res.redirect('/news');
-            });
-    });
-});
-
-app.post('/news/delete/:id', isAdmin, (req, res) => {
-    const newsId = req.params.id;
-    db.run('DELETE FROM news WHERE id = ?', [newsId], (err) => {
-        if (err) return handleDbError(err, res);
-        res.redirect('/news');
-    });
-});
 
 
 // Routes pour les publications
-app.get('/publications', (req, res) => {
-    const filter = req.query.filter;
-    let query = 'SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id';
-    const params = [];
 
-    if (filter && filter !== 'Tous') {
-        query += ' WHERE p.category = ?';
-        params.push(filter);
-    }
-
-    query += ' ORDER BY p.created_at DESC';
-
-    db.all(query, params, (err, posts) => {
-        if (err) return handleDbError(err, res);
-        res.render('publications', { posts: posts || [], user: req.session.user });
-    });
-});
-
-app.post('/publications/new', upload.single('media'), (req, res) => {
-    if (req.session.user) {
-        const { content, category } = req.body;
-        const mediaPath = req.file ? '/images/publications/' + req.file.filename : null;
-        const mediaType = req.file ? req.file.mimetype : null;
-
-        db.run('INSERT INTO posts (content, media_path, media_type, category, author_id) VALUES (?, ?, ?, ?, ?)',
-            [content, mediaPath, mediaType, category, req.session.user.id],
-            (err) => {
-                if (err) return handleDbError(err, res);
-                // Check badges "Social"
-                db.get('SELECT count(*) as count FROM posts WHERE author_id = ?', [req.session.user.id], (err, row) => {
-                    if (!err) {
-                        db.all('SELECT * FROM badges WHERE criteria_type = "posts_count" AND criteria_value <= ?', [row.count], (err, badges) => {
-                            if (!err && badges) {
-                                badges.forEach(badge => {
-                                    db.run('INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)', [req.session.user.id, badge.id]);
-                                });
-                            }
-                        });
-                    }
-                });
-                res.redirect('/publications');
-            });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-app.post('/publications/:id/upvote', (req, res) => {
-    if (req.session.user) {
-        const postId = req.params.id;
-        const userId = req.session.user.id;
-
-        db.get('SELECT * FROM post_upvotes WHERE user_id = ? AND post_id = ?', [userId, postId], (err, row) => {
-            if (err) return handleDbError(err, res);
-            if (row) {
-                return res.redirect('/publications');
-            }
-            db.run('INSERT INTO post_upvotes (user_id, post_id) VALUES (?, ?)', [userId, postId], (err) => {
-                if (err) return handleDbError(err, res);
-                db.run('UPDATE posts SET upvotes = upvotes + 1 WHERE id = ?', [postId], (err) => {
-                    if (err) return handleDbError(err, res);
-                    res.redirect('/publications');
-                });
-            });
-        });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-
-app.get('/profile/edit', (req, res) => {
-    if (req.session.user) {
-        db.all('SELECT * FROM showcase_images WHERE user_id = ?', [req.session.user.id], (err, showcaseImages) => {
-            if (err) return handleDbError(err, res);
-            res.render('edit-profile', { user: req.session.user, showcaseImages: showcaseImages });
-        });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'showcase', maxCount: 4 }]), (req, res) => {
-    if (req.session.user) {
-        const { name, classe, birthdate, discord, instagram, snapchat, portfolio, bio, color_bg, color_text, color_primary, color_secondary } = req.body;
-        const age = calculateAge(birthdate);
-        let avatar = req.session.user.avatar;
-        if (req.files['avatar']) {
-            avatar = '/images/avatars/' + req.files['avatar'][0].filename;
-        }
-
-        db.run('UPDATE users SET name = ?, classe = ?, age = ?, birthdate = ?, discord = ?, instagram = ?, snapchat = ?, portfolio = ?, bio = ?, avatar = ?, color_bg = ?, color_text = ?, color_primary = ?, color_secondary = ? WHERE id = ?',
-            [name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, color_bg, color_text, color_primary, color_secondary, req.session.user.id],
-            function (err) {
-                if (err) return handleDbError(err, res);
-                req.session.user = { ...req.session.user, name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, color_bg, color_text, color_primary, color_secondary };
-
-                if (req.files['showcase']) {
-                    req.files['showcase'].forEach(file => {
-                        const imagePath = '/images/showcase/' + file.filename;
-                        db.run('INSERT INTO showcase_images (user_id, image_path) VALUES (?, ?)', [req.session.user.id, imagePath]);
-                    });
-                }
-                res.redirect('/profile');
-            });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-app.get('/profile/showcase/delete/:id', (req, res) => {
-    if (req.session.user) {
-        const imageId = req.params.id;
-        db.get('SELECT * FROM showcase_images WHERE id = ? AND user_id = ?', [imageId, req.session.user.id], (err, image) => {
-            if (err) return handleDbError(err, res);
-            if (image) {
-                fs.unlink(path.join(__dirname, 'public', image.image_path), (err) => {
-                    // Ignorer l'erreur si le fichier n'existe pas
-                });
-                db.run('DELETE FROM showcase_images WHERE id = ?', [imageId], (err) => {
-                    if (err) return handleDbError(err, res);
-                    res.redirect('/profile/edit');
-                });
-            } else {
-                res.redirect('/profile/edit');
-            }
-        });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-
-app.get('/students', (req, res) => {
-    const { search_name, search_class } = req.query;
-    let query = 'SELECT id, name, email, classe, bio, avatar FROM users';
-    const params = [];
-
-    let conditions = [];
-    if (search_name) {
-        conditions.push('name LIKE ?');
-        params.push(`%${search_name}%`);
-    }
-    if (search_class) {
-        conditions.push('classe = ?');
-        params.push(search_class);
-    }
-
-    if (conditions.length > 0) {
-        query += ' WHERE ' + conditions.join(' AND ');
-    }
-
-    db.all(query, params, (err, users) => {
-        if (err) return handleDbError(err, res);
-
-        const promises = users.map(user =>
-            new Promise((resolve, reject) => {
-                db.all('SELECT image_path FROM showcase_images WHERE user_id = ? LIMIT 4', [user.id], (err, images) => {
-                    if (err) return reject(err);
-                    user.showcaseImages = images;
-                    resolve(user);
-                });
-            })
-        );
-
-        Promise.all(promises)
-            .then(usersWithShowcases => {
-                db.all('SELECT DISTINCT classe FROM users WHERE classe IS NOT NULL ORDER BY classe', [], (err, classes) => {
-                    if (err) return handleDbError(err, res);
-                    res.render('students', {
-                        users: usersWithShowcases,
-                        user: req.session.user,
-                        classes: classes.map(c => c.classe),
-                        search_name: search_name,
-                        search_class: search_class
-                    });
-                });
-            })
-            .catch(err => handleDbError(err, res));
-    });
-});
-
-app.get('/students/:id', (req, res) => {
-    const userId = req.params.id;
-    db.get('SELECT * FROM users WHERE id = ?', [userId], (err, user) => {
-        if (err || !user) {
-            return res.redirect('/students');
-        }
-
-        const projectsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM projects WHERE author_id = ?', [userId], (err, projects) => {
-                if (err) return reject(err);
-
-                const detailedProjects = projects.map(project =>
-                    new Promise((resolveProject, rejectProject) => {
-                        db.get('SELECT image_path FROM project_images WHERE project_id = ? AND is_main = 1', [project.id], (err, mainImage) => {
-                            if (err) return rejectProject(err);
-                            project.main_image = mainImage ? mainImage.image_path : (project.banner_path || null);
-                            resolveProject(project);
-                        });
-                    })
-                );
-                Promise.all(detailedProjects).then(resolve).catch(reject);
-            });
-        });
-        const showcasePromise = new Promise((resolve, reject) => {
-            db.all('SELECT * FROM showcase_images WHERE user_id = ?', [userId], (err, images) => {
-                if (err) return reject(err);
-                resolve(images);
-            });
-        });
-        const postsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT p.*, u.name as authorName, u.avatar as authorAvatar FROM posts p JOIN users u ON p.author_id = u.id WHERE p.author_id = ? ORDER BY p.created_at DESC', [userId], (err, posts) => {
-                if (err) return reject(err);
-                resolve(posts);
-            });
-        });
-        const badgesPromise = new Promise((resolve, reject) => {
-            db.all('SELECT b.* FROM badges b JOIN user_badges ub ON b.id = ub.badge_id WHERE ub.user_id = ?', [userId], (err, badges) => {
-                if (err) return reject(err);
-                resolve(badges);
-            });
-        });
-
-        Promise.all([projectsPromise, showcasePromise, postsPromise, badgesPromise])
-            .then(([projects, showcaseImages, posts, badges]) => {
-                const portfolioLinks = parsePortfolioLinks(user.portfolio);
-                res.render('profile', { user: user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks, badges: badges });
-            })
-            .catch(err => handleDbError(err, res));
-    });
-});
-
-
-app.post('/projects/:id/upvote', (req, res) => {
-    if (req.session.user) {
-        const projectId = req.params.id;
-        const userId = req.session.user.id;
-        db.get('SELECT * FROM project_upvotes WHERE user_id = ? AND project_id = ?', [userId, projectId], (err, row) => {
-            if (err) return handleDbError(err, res);
-            if (row) {
-                return res.redirect('/projects');
-            }
-            db.run('INSERT INTO project_upvotes (user_id, project_id) VALUES (?, ?)', [userId, projectId], (err) => {
-                if (err) return handleDbError(err, res);
-                db.run('UPDATE projects SET upvotes = upvotes + 1 WHERE id = ?', [projectId], (err) => {
-                    if (err) return handleDbError(err, res);
-                    res.redirect('/projects');
-                });
-            });
-        });
-    } else {
-        res.redirect('/login');
-    }
-});
 
 app.get('/chat', (req, res) => {
     if (req.session.user) {
@@ -771,15 +160,16 @@ io.on('connection', (socket) => {
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
 
-            // Constraint: Can't start before 08:16
-            if (currentHour < 8 || (currentHour === 8 && currentMinute < 16)) {
-                socket.emit('coworking error', "Le Workspace n'ouvre qu'à 8h16.");
+            // Constraint: Can't start before 06:00
+            if (currentHour < 6) {
+                socket.emit('coworking error', "Le Workspace n'ouvre qu'à 06h00.");
                 return;
             }
 
-            // Constraint: Can't start after 18:30 (Auto-close handles existing, this prevents new)
-            if (currentHour > 18 || (currentHour === 18 && currentMinute >= 30)) {
-                socket.emit('coworking error', "Le Workspace ferme à 18h30.");
+            // Constraint: Can't start after 23:59 (Auto-close handles existing, this prevents new)
+            // Removed strict 18:30 limit as requested
+            if (currentHour >= 24) {
+                socket.emit('coworking error', "Le Workspace est fermé.");
                 return;
             }
 
@@ -825,8 +215,9 @@ setInterval(() => {
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
-    // Check global close time (18:30)
-    if (currentHour > 18 || (currentHour === 18 && currentMinute >= 30)) {
+    // Check global close time (02:00 AM instead of 18:30 for example, or simply reset at midnight)
+    // Relaxed to practically always open
+    if (currentHour === 4 && currentMinute === 0) { // Reset at 4 AM
         // Close all sessions
         if (Object.keys(coworkers).length > 0) {
             for (const userId in coworkers) {

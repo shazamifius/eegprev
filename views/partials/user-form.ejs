@@ -1,154 +1,162 @@
 <%# views/partials/user-form.ejs %>
-<%
-    const isEdit = typeof user !== 'undefined' && user !== null;
-    const formAction = isEdit ? '/profile/edit' : '/register';
-    const submitText = isEdit ? 'Enregistrer les modifications' : 'S\'inscrire';
-%>
+    <% const isEdit=typeof user !=='undefined' && user !==null; const formAction=isEdit ? '/profile/edit' : '/register'
+        ; const submitText=isEdit ? 'Enregistrer les modifications' : 'S\' inscrire'; %>
 
-<form action="<%= formAction %>" method="POST" enctype="multipart/form-data">
-    <div>
-        <label for="name">Nom :</label>
-        <input type="text" id="name" name="name" value="<%= isEdit ? user.name : '' %>" required>
-    </div>
+        <form action="<%= formAction %>" method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="name">Nom :</label>
+                <input type="text" id="name" name="name" value="<%= isEdit ? user.name : '' %>" required>
+            </div>
 
-    <% if (!isEdit) { %>
-    <div>
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-    <div>
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" required>
-    </div>
-    <% } %>
-
-    <div>
-        <label for="avatar">Photo de profil :</label>
-        <% if (isEdit && user.avatar) { %>
-            <img src="<%= user.avatar %>" alt="Aperçu de l'avatar" class="avatar-preview">
-        <% } %>
-        <%- include('file-uploader', {
-            fieldName: 'avatar',
-            labelText: 'Cliquez ou glissez-déposez un fichier',
-            isMultiple: false,
-            isRequired: !isEdit
-        }) %>
-        <% if (isEdit) { %>
-            <p>Laissez vide pour conserver l'image actuelle.</p>
-        <% } %>
-    </div>
-
-    <% if (isEdit) { %>
-        <h2>Images "Showcase"</h2>
-        <div class="showcase-edit">
-            <% showcaseImages.forEach(image => { %>
-                <div class="showcase-image-edit">
-                    <img src="<%= image.image_path %>" alt="Image Showcase">
-                    <a href="/profile/showcase/delete/<%= image.id %>" class="button">Supprimer</a>
+            <% if (!isEdit) { %>
+                <div>
+                    <label for="email">Email :</label>
+                    <input type="email" id="email" name="email" required>
                 </div>
-            <% }); %>
-        </div>
-    <% } %>
+                <div>
+                    <label for="password">Mot de passe :</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <% } %>
 
-    <div>
-        <label>Images de bannière (<%= isEdit ? "Ajouter de nouvelles" : "jusqu'à 4" %>) :</label>
-        <%- include('file-uploader', {
-            fieldName: 'showcase',
-            labelText: 'Cliquez ou glissez-déposez jusqu\'à 4 fichiers',
-            isMultiple: true,
-            isRequired: false
-        }) %>
-    </div>
+                    <div>
+                        <label for="avatar">Photo de profil :</label>
+                        <% if (isEdit && user.avatar) { %>
+                            <img src="<%= user.avatar %>" alt="Aperçu de l'avatar" class="avatar-preview">
+                            <% } %>
+                                <%- include('file-uploader', { fieldName: 'avatar' ,
+                                    labelText: 'Cliquez ou glissez-déposez un fichier' , isMultiple: false, isRequired:
+                                    !isEdit }) %>
+                                    <% if (isEdit) { %>
+                                        <p>Laissez vide pour conserver l'image actuelle.</p>
+                                        <% } %>
+                    </div>
 
-    <div>
-        <label for="classe">Classe :</label>
-        <input type="text" id="classe" name="classe" value="<%= isEdit ? user.classe : '' %>">
-    </div>
-    <div>
-        <label for="birthdate">Date d'anniversaire :</label>
-        <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA" value="<%= isEdit ? user.birthdate : '' %>">
-    </div>
-    <div>
-        <label for="discord">Discord :</label>
-        <input type="text" id="discord" name="discord" value="<%= isEdit ? user.discord : '' %>">
-    </div>
-    <div>
-        <label for="instagram">Instagram :</label>
-        <input type="text" id="instagram" name="instagram" value="<%= isEdit ? user.instagram : '' %>">
-    </div>
-    <div>
-        <label for="snapchat">Snapchat :</label>
-        <input type="text" id="snapchat" name="snapchat" value="<%= isEdit ? user.snapchat : '' %>">
-    </div>
-    <div>
-        <label for="portfolio">Portfolio :</label>
-        <textarea id="portfolio" name="portfolio" rows="3" placeholder="Collez ici des liens vers vos travaux..."><%= isEdit ? user.portfolio : '' %></textarea>
-    </div>
-    <div>
-        <label for="bio">Biographie :</label>
-        <textarea id="bio" name="bio"><%= isEdit ? user.bio : '' %></textarea>
-    </div>
+                    <% if (isEdit) { %>
+                        <h2>Images "Showcase"</h2>
+                        <div class="showcase-edit">
+                            <% showcaseImages.forEach(image=> { %>
+                                <div class="showcase-image-edit">
+                                    <img src="<%= image.image_path %>" alt="Image Showcase">
+                                    <a href="/profile/showcase/delete/<%= image.id %>" class="button">Supprimer</a>
+                                </div>
+                                <% }); %>
+                        </div>
+                        <% } %>
 
-    <% if (isEdit) { %>
-    <hr>
-    <h2>Personnalisation du Thème</h2>
-    <div style="margin-bottom: 20px;">
-        <button type="button" class="button" onclick="setEEGPTheme()">Thème Officiel EEGP</button>
-    </div>
-    <div class="form-row">
-        <div class="form-group" style="flex: 1;">
-            <label for="color_bg">Fond Principal</label>
-            <input type="color" id="color_bg" name="color_bg" value="<%= user.color_bg || '#23272A' %>" style="height: 50px; cursor: pointer;">
-        </div>
-        <div class="form-group" style="flex: 1;">
-            <label for="color_text">Couleur de Texte</label>
-            <input type="color" id="color_text" name="color_text" value="<%= user.color_text || '#ffffff' %>" style="height: 50px; cursor: pointer;">
-        </div>
-        <div class="form-group" style="flex: 1;">
-            <label for="color_primary">Couleur Primaire</label>
-            <input type="color" id="color_primary" name="color_primary" value="<%= user.color_primary || '#d95e4f' %>" style="height: 50px; cursor: pointer;">
-        </div>
-        <div class="form-group" style="flex: 1;">
-            <label for="color_secondary">Couleur Secondaire</label>
-            <input type="color" id="color_secondary" name="color_secondary" value="<%= user.color_secondary || '#41435e' %>" style="height: 50px; cursor: pointer;">
-        </div>
-    </div>
+                            <div>
+                                <label>Images de bannière (<%= isEdit ? "Ajouter de nouvelles" : "jusqu'à 20" %>)
+                                        :</label>
+                                <%- include('file-uploader', { fieldName: 'showcase' ,
+                                    labelText: 'Cliquez ou glissez-déposez jusqu\' à 20 fichiers', isMultiple: true,
+                                    isRequired: false }) %>
+                            </div>
 
-    <script>
-        function setEEGPTheme() {
-            document.getElementById('color_bg').value = '#0f3450';
-            document.getElementById('color_text').value = '#a3c0f0'; // Accents clairs as text/accent usually, but based on prompt: "Accents clairs : #a3c0f0" and "Neutre/Dark : #3f4360".
-            // The prompt says:
-            // Fond/Dominante : #0f3450
-            // Secondaire (Boutons) : #f55246
-            // Accents clairs : #a3c0f0
-            // Neutre/Dark : #3f4360
+                            <div>
+                                <label for="classe">Classe :</label>
+                                <input type="text" id="classe" name="classe" value="<%= isEdit ? user.classe : '' %>">
+                            </div>
+                            <div>
+                                <label for="birthdate">Date d'anniversaire :</label>
+                                <input type="text" id="birthdate" name="birthdate" placeholder="JJ/MM/AAAA"
+                                    value="<%= isEdit ? user.birthdate : '' %>">
+                            </div>
+                            <div>
+                                <label for="discord">Discord :</label>
+                                <input type="text" id="discord" name="discord"
+                                    value="<%= isEdit ? user.discord : '' %>">
+                            </div>
+                            <div>
+                                <label for="instagram">Instagram :</label>
+                                <input type="text" id="instagram" name="instagram"
+                                    value="<%= isEdit ? user.instagram : '' %>">
+                            </div>
+                            <div>
+                                <label for="snapchat">Snapchat :</label>
+                                <input type="text" id="snapchat" name="snapchat"
+                                    value="<%= isEdit ? user.snapchat : '' %>">
+                            </div>
+                            <div>
+                                <label for="portfolio">Portfolio :</label>
+                                <textarea id="portfolio" name="portfolio" rows="3"
+                                    placeholder="Collez ici des liens vers vos travaux..."><%= isEdit ? user.portfolio : '' %></textarea>
+                            </div>
+                            <div>
+                                <label for="bio">Biographie :</label>
+                                <textarea id="bio" name="bio"><%= isEdit ? user.bio : '' %></textarea>
+                            </div>
 
-            // Mapping to my 4 vars:
-            // color_bg (Fond principal) -> #0f3450
-            // color_text (Couleur de texte) -> #ffffff (Default) or maybe #a3c0f0?
-            // Prompt says: "Accents clairs : #a3c0f0". Usually text is light on dark bg.
-            // Let's assume text is white-ish or the accent color.
-            // Wait, let's look at the mapping requested.
-            // color_bg -> #0f3450
-            // color_secondary -> #3f4360 (Neutre/Dark) OR #f55246 (Secondaire/Boutons)?
+                            <% if (isEdit) { %>
+                                <hr>
+                                <h2>Personnalisation du Thème</h2>
+                                <div style="margin-bottom: 20px;">
+                                    <button type="button" class="button" onclick="setEEGPTheme()">Thème Officiel
+                                        EEGP</button>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="color_bg">Fond Principal</label>
+                                        <input type="color" id="color_bg" name="color_bg"
+                                            value="<%= user.color_bg || '#23272A' %>"
+                                            style="height: 50px; cursor: pointer;">
+                                    </div>
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="color_text">Couleur de Texte</label>
+                                        <input type="color" id="color_text" name="color_text"
+                                            value="<%= user.color_text || '#ffffff' %>"
+                                            style="height: 50px; cursor: pointer;">
+                                    </div>
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="color_primary">Couleur Primaire</label>
+                                        <input type="color" id="color_primary" name="color_primary"
+                                            value="<%= user.color_primary || '#d95e4f' %>"
+                                            style="height: 50px; cursor: pointer;">
+                                    </div>
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="color_secondary">Couleur Secondaire</label>
+                                        <input type="color" id="color_secondary" name="color_secondary"
+                                            value="<%= user.color_secondary || '#41435e' %>"
+                                            style="height: 50px; cursor: pointer;">
+                                    </div>
+                                </div>
 
-            // Let's re-read carefully:
-            // "Base de Données : ... color_bg, color_text, color_primary, color_secondary"
-            // "Thème Officiel EEGP":
-            // Fond/Dominante : #0f3450  -> color_bg
-            // Secondaire (Boutons) : #f55246 -> color_primary (Since my CSS uses primary for buttons)
-            // Accents clairs : #a3c0f0 -> color_text (Text/Accents)
-            // Neutre/Dark : #3f4360 -> color_secondary (Secondary elements)
+                                <script>
+                                    function setEEGPTheme() {
+                                        document.getElementById('color_bg').value = '#0f3450';
+                                        document.getElementById('color_text').value = '#a3c0f0'; // Accents clairs as text/accent usually, but based on prompt: "Accents clairs : #a3c0f0" and "Neutre/Dark : #3f4360".
+                                        // The prompt says:
+                                        // Fond/Dominante : #0f3450
+                                        // Secondaire (Boutons) : #f55246
+                                        // Accents clairs : #a3c0f0
+                                        // Neutre/Dark : #3f4360
 
-            document.getElementById('color_bg').value = '#0f3450';
-            document.getElementById('color_primary').value = '#f55246';
-            document.getElementById('color_text').value = '#a3c0f0';
-            document.getElementById('color_secondary').value = '#3f4360';
-        }
-    </script>
-    <hr>
-    <% } %>
+                                        // Mapping to my 4 vars:
+                                        // color_bg (Fond principal) -> #0f3450
+                                        // color_text (Couleur de texte) -> #ffffff (Default) or maybe #a3c0f0?
+                                        // Prompt says: "Accents clairs : #a3c0f0". Usually text is light on dark bg.
+                                        // Let's assume text is white-ish or the accent color.
+                                        // Wait, let's look at the mapping requested.
+                                        // color_bg -> #0f3450
+                                        // color_secondary -> #3f4360 (Neutre/Dark) OR #f55246 (Secondaire/Boutons)?
 
-    <button type="submit"><%= submitText %></button>
-</form>
+                                        // Let's re-read carefully:
+                                        // "Base de Données : ... color_bg, color_text, color_primary, color_secondary"
+                                        // "Thème Officiel EEGP":
+                                        // Fond/Dominante : #0f3450  -> color_bg
+                                        // Secondaire (Boutons) : #f55246 -> color_primary (Since my CSS uses primary for buttons)
+                                        // Accents clairs : #a3c0f0 -> color_text (Text/Accents)
+                                        // Neutre/Dark : #3f4360 -> color_secondary (Secondary elements)
+
+                                        document.getElementById('color_bg').value = '#0f3450';
+                                        document.getElementById('color_primary').value = '#f55246';
+                                        document.getElementById('color_text').value = '#a3c0f0';
+                                        document.getElementById('color_secondary').value = '#3f4360';
+                                    }
+                                </script>
+                                <hr>
+                                <% } %>
+
+                                    <button type="submit">
+                                        <%= submitText %>
+                                    </button>
+        </form>

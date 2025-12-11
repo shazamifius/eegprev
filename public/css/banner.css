@@ -1,0 +1,105 @@
+/* Profile Banner Grid - 3 Images */
+.profile-banner-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    height: 350px;
+    margin-bottom: 2rem;
+}
+
+.banner-slot-container {
+    perspective: 1000px;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: #2C2F33;
+    overflow: hidden;
+}
+
+.banner-slot {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.banner-slot.flipped {
+    transform: rotateY(180deg);
+}
+
+.slot-front,
+.slot-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--border-radius);
+}
+
+.slot-back {
+    transform: rotateY(180deg);
+}
+
+/* Responsive: 1 column on mobile */
+@media (max-width: 768px) {
+    .profile-banner-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 300px;
+    }
+
+    .banner-slot-container {
+        height: 250px;
+    }
+}
+
+/* Mini version for Student Cards */
+.student-card-banner-mini {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    height: 120px;
+    /* Adjust as needed */
+    width: 100%;
+    overflow: hidden;
+}
+
+.mini-slot-container {
+    perspective: 500px;
+    width: 100%;
+    height: 100%;
+    background: #2C2F33;
+    overflow: hidden;
+}
+
+.mini-slot {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.mini-slot.flipped {
+    transform: rotateY(180deg);
+}
+
+.mini-slot-front,
+.mini-slot-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+.mini-slot-back {
+    transform: rotateY(180deg);
+}

@@ -1,41 +1,64 @@
-<%- include('partials/header', { title: "Étudiants", user: user }) %>
+<%- include('partials/header', { title: "Étudiants" , user: user }) %>
 
-<div class="students-container">
-    <h1>Annuaire des Étudiants</h1>
+    <div class="students-container">
+        <h1>Annuaire des Étudiants</h1>
 
-    <form action="/students" method="GET" class="search-form">
-        <input type="text" name="search_name" placeholder="Rechercher par nom..." value="<%= typeof search_name !== 'undefined' ? search_name : '' %>">
-        <select name="search_class">
-            <option value="">Toutes les classes</option>
-            <% classes.forEach(classe => { %>
-                <option value="<%= classe %>" <%= (typeof search_class !== 'undefined' && search_class === classe) ? 'selected' : '' %>><%= classe %></option>
-            <% }); %>
-        </select>
-        <button type="submit">Rechercher</button>
-    </form>
+        <form action="/students" method="GET" class="search-form">
+            <input type="text" name="search_name" placeholder="Rechercher par nom..."
+                value="<%= typeof search_name !== 'undefined' ? search_name : '' %>">
+            <select name="search_class">
+                <option value="">Toutes les classes</option>
+                <% classes.forEach(classe=> { %>
+                    <option value="<%= classe %>" <%=(typeof search_class !=='undefined' && search_class===classe)
+                        ? 'selected' : '' %>><%= classe %>
+                    </option>
+                    <% }); %>
+            </select>
+            <button type="submit">Rechercher</button>
+        </form>
 
-    <div class="student-cards-grid">
-        <% users.forEach(student => { %>
-            <div class="student-card">
-                <div class="student-card-banner">
-                    <% if (student.showcaseImages && student.showcaseImages.length > 0) { %>
-                        <% student.showcaseImages.forEach(image => { %>
-                            <img src="<%= image.image_path %>" alt="Image de vitrine">
-                        <% }); %>
-                    <% } else { %>
-                        <div class="placeholder-banner"></div>
-                    <% } %>
+        <link rel="stylesheet" href="/css/banner.css">
+        <script src="/js/banner.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', initStudentCardBanners);
+        </script>
+
+        <div class="student-cards-grid">
+            <% users.forEach(student=> {
+                const images = (student.showcaseImages && student.showcaseImages.length > 0) ?
+                student.showcaseImages.map(img => img.image_path) : ['/images/default-banner.svg'];
+                const imagesJson = JSON.stringify(images);
+                %>
+                <div class="student-card">
+                    <div class="student-card-banner-mini" data-images='<%- imagesJson %>'>
+                        <% for(let i=0; i<3; i++) { const imgUrl=images[i % images.length]; %>
+                            <div class="mini-slot-container slot-<%= i %>">
+                                <div class="mini-slot" data-current-src="<%= imgUrl %>">
+                                    <div class="mini-slot-front" style="background-image: url('<%= imgUrl %>');"></div>
+                                    <div class="mini-slot-back" style="background-image: url('<%= imgUrl %>');"></div>
+                                </div>
+                            </div>
+                            <% } %>
+                    </div>
+
+                    <div class="student-card-content">
+                        <img src="<%= student.avatar || '/images/default-avatar.png' %>"
+                            alt="Avatar de <%= student.name %>" class="student-card-avatar">
+                        <h2>
+                            <%= student.name %>
+                        </h2>
+                        <p class="student-card-class">
+                            <%= student.classe %>
+                        </p>
+                        <p class="student-card-bio">
+                            <%= student.bio ? student.bio.substring(0, 100) + '...' : 'Aucune biographie.' %>
+                        </p>
+                        <a href="/students/<%= student.id %>" class="button">Voir le profil</a>
+                    </div>
                 </div>
-                <div class="student-card-content">
-                    <img src="<%= student.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= student.name %>" class="student-card-avatar">
-                    <h2><%= student.name %></h2>
-                    <p class="student-card-class"><%= student.classe %></p>
-                    <p class="student-card-bio"><%= student.bio ? student.bio.substring(0, 100) + '...' : 'Aucune biographie.' %></p>
-                    <a href="/students/<%= student.id %>" class="button">Voir le profil</a>
-                </div>
-            </div>
-        <% }); %>
+                <% }); %>
+        </div>
     </div>
-</div>
 
-<%- include('partials/footer') %>
+
+    <%- include('partials/footer') %>

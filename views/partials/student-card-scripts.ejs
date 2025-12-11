@@ -1,0 +1,44 @@
+<script>
+    let cardIntervals = {};
+
+    function startCardSlideshow(card) {
+        const banner = card.querySelector('.student-card-banner');
+        if (!banner) return;
+
+        const imagesData = banner.getAttribute('data-images');
+        if (!imagesData) return;
+
+        const images = JSON.parse(imagesData);
+        if (images.length <= 1) return;
+
+        // Clear existing just in case
+        if (cardIntervals[card]) clearInterval(cardIntervals[card]);
+
+        cardIntervals[card] = setInterval(() => {
+            let currentIndex = parseInt(banner.getAttribute('data-index') || 0);
+            let nextIndex = (currentIndex + 1) % images.length;
+
+            // Preload next image? Browser cache should handle it after first loop
+            banner.style.backgroundImage = `url('${images[nextIndex]}')`;
+            banner.setAttribute('data-index', nextIndex);
+        }, 3000); // Change every 3s on hover (slower for readability)
+    }
+
+    function stopCardSlideshow(card) {
+        if (cardIntervals[card]) {
+            clearInterval(cardIntervals[card]);
+            delete cardIntervals[card];
+        }
+    }
+</script>
+
+<style>
+    .student-card-banner {
+        height: 120px;
+        background-color: #333;
+        background-size: cover;
+        background-position: center;
+        transition: background-image 0.5s ease-in-out;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+</style>

@@ -7,7 +7,7 @@ const fs = require('fs');
 
 // Configure multer for file uploads
 const uploadDir = path.join(__dirname, '../uploads/projects');
-if (!fs.existsSync(uploadDir)){
+if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
@@ -45,10 +45,10 @@ const processProjects = (projects) => {
                 bannerImage = imageMatch[1];
             } else {
                 // Try markdown image regex
-                    const mdImageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
-                    if (mdImageMatch && mdImageMatch[1]) {
-                        bannerImage = mdImageMatch[1];
-                    }
+                const mdImageMatch = project.readme_content.match(/!\[.*?\]\((.*?)\)/);
+                if (mdImageMatch && mdImageMatch[1]) {
+                    bannerImage = mdImageMatch[1];
+                }
             }
         }
 
@@ -65,7 +65,7 @@ const processProjects = (projects) => {
                 const sentences = textOnlyReadme.split('. ').slice(0, 3);
                 summary = sentences.join('. ').trim();
                 if (summary) {
-                        summary += (sentences.length < 3 ? '' : '...');
+                    summary += (sentences.length < 3 ? '' : '...');
                 }
             }
         }
@@ -142,45 +142,45 @@ router.post('/new/internal', isAuthenticated, upload.fields([{ name: 'banner', m
 
     db.run(`INSERT INTO projects (title, readme_content, banner_path, author_id, project_type, is_public, allow_download)
             VALUES (?, ?, ?, ?, 'internal', ?, ?)`,
-        [title, readme_content, bannerPath, author_id, isPublicFinal, allowDownloadFinal], function(err) {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Erreur serveur lors de la création du projet.");
-        }
-        const projectId = this.lastID;
+        [title, readme_content, bannerPath, author_id, isPublicFinal, allowDownloadFinal], function (err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Erreur serveur lors de la création du projet.");
+            }
+            const projectId = this.lastID;
 
-        // Check badges "Architecte"
-        db.get('SELECT count(*) as count FROM projects WHERE author_id = ?', [author_id], (err, row) => {
-            if (!err) {
-                db.all('SELECT * FROM badges WHERE criteria_type = "projects_count" AND criteria_value <= ?', [row.count], (err, badges) => {
-                    if (!err && badges) {
-                        badges.forEach(badge => {
-                            db.run('INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)', [author_id, badge.id]);
-                        });
-                    }
+            // Check badges "Architecte"
+            db.get('SELECT count(*) as count FROM projects WHERE author_id = ?', [author_id], (err, row) => {
+                if (!err) {
+                    db.all('SELECT * FROM badges WHERE criteria_type = "projects_count" AND criteria_value <= ?', [row.count], (err, badges) => {
+                        if (!err && badges) {
+                            badges.forEach(badge => {
+                                db.run('INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)', [author_id, badge.id]);
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (req.files['project_files'] && req.files['project_files'].length > 0) {
+                const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
+                req.files['project_files'].forEach(file => {
+                    stmt.run(projectId, file.originalname, file.filename, (err) => {
+                        if (err) {
+                            console.error("Erreur lors de l'insertion du fichier :", err);
+                        }
+                    });
                 });
+                stmt.finalize((err) => {
+                    if (err) {
+                        console.error("Erreur lors de la finalisation de l'insertion des fichiers :", err);
+                    }
+                    res.redirect('/projects/my-projects');
+                });
+            } else {
+                res.redirect('/projects/my-projects');
             }
         });
-
-        if (req.files['project_files'] && req.files['project_files'].length > 0) {
-            const stmt = db.prepare('INSERT INTO project_files (project_id, file_name, file_path) VALUES (?, ?, ?)');
-            req.files['project_files'].forEach(file => {
-                stmt.run(projectId, file.originalname, file.filename, (err) => {
-                    if (err) {
-                        console.error("Erreur lors de l'insertion du fichier :", err);
-                    }
-                });
-            });
-            stmt.finalize((err) => {
-                if(err) {
-                    console.error("Erreur lors de la finalisation de l'insertion des fichiers :", err);
-                }
-                res.redirect('/projects/my-projects');
-            });
-        } else {
-            res.redirect('/projects/my-projects');
-        }
-    });
 });
 
 // POST /projects/upload-image - Handle image uploads from TinyMCE
@@ -282,7 +282,7 @@ router.post('/:id/edit', isAuthenticated, upload.fields([{ name: 'banner', maxCo
     updateQuery += ' WHERE id = ? AND author_id = ?';
     params.push(projectId, userId);
 
-    db.run(updateQuery, params, function(err) {
+    db.run(updateQuery, params, function (err) {
         if (err) {
             console.error(err);
             return res.status(500).send("Erreur serveur");
@@ -307,13 +307,13 @@ router.post('/:id/comment', isAuthenticated, (req, res) => {
     const { comment } = req.body;
 
     db.run('INSERT INTO project_comments (project_id, user_id, comment) VALUES (?, ?, ?)',
-        [projectId, userId, comment], function(err) {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Erreur serveur");
-        }
-        res.redirect('/projects/' + projectId);
-    });
+        [projectId, userId, comment], function (err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Erreur serveur");
+            }
+            res.redirect('/projects/' + projectId);
+        });
 });
 
 // GET /projects/:id/files/:file_id/delete - Handle file deletion
@@ -351,6 +351,34 @@ router.get('/:id/files/:file_id/delete', isAuthenticated, (req, res) => {
 });
 
 // POST /projects/:id/delete - Handle project deletion
+// POST /projects/:id/upvote - Upvote a project
+router.post('/:id/upvote', isAuthenticated, (req, res) => {
+    const projectId = req.params.id;
+    const userId = req.session.user.id;
+    db.get('SELECT * FROM project_upvotes WHERE user_id = ? AND project_id = ?', [userId, projectId], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Erreur serveur");
+        }
+        if (row) {
+            return res.redirect('/projects');
+        }
+        db.run('INSERT INTO project_upvotes (user_id, project_id) VALUES (?, ?)', [userId, projectId], (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Erreur serveur");
+            }
+            db.run('UPDATE projects SET upvotes = upvotes + 1 WHERE id = ?', [projectId], (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send("Erreur serveur");
+                }
+                res.redirect('/projects');
+            });
+        });
+    });
+});
+
 router.post('/:id/delete', isAuthenticated, (req, res) => {
     const projectId = req.params.id;
     const userId = req.session.user.id;
@@ -370,7 +398,7 @@ router.post('/:id/delete', isAuthenticated, (req, res) => {
             });
         });
 
-        db.run('DELETE FROM projects WHERE id = ? AND author_id = ?', [projectId, userId], function(err) {
+        db.run('DELETE FROM projects WHERE id = ? AND author_id = ?', [projectId, userId], function (err) {
             if (err) {
                 console.error(err);
                 return res.status(500).send("Erreur serveur");
