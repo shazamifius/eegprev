@@ -1,77 +1,78 @@
-<%- include('partials/header', { title: "Chat Général", user: user }) %>
+<%- include('partials/header', { title: "Chat Général" , user: user }) %>
 
-<div class="chat-container">
-    <div class="user-list-panel">
-        <h2>En ligne</h2>
-        <ul id="user-list">
-            <!-- Les utilisateurs connectés apparaîtront ici -->
-        </ul>
-    </div>
-    <div class="chat-panel">
-        <div id="messages" class="chat-messages">
-            <!-- Les messages du chat apparaîtront ici -->
+    <div class="chat-container">
+        <div class="user-list-panel">
+            <h2>En ligne</h2>
+            <ul id="user-list">
+                <!-- Les utilisateurs connectés apparaîtront ici -->
+            </ul>
         </div>
-        <form id="form" class="chat-form" action="">
-            <input id="input" autocomplete="off" placeholder="Écrivez votre message..." /><button>Envoyer</button>
-        </form>
+        <div class="chat-panel">
+            <div id="messages" class="chat-messages">
+                <!-- Les messages du chat apparaîtront ici -->
+            </div>
+            <form id="form" class="chat-form" action="">
+                <input id="input" autocomplete="off" placeholder="Écrivez votre message..." /><button>Envoyer</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-    // socket is already initialized in header.ejs
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-    const userList = document.getElementById('user-list');
-    const currentUser = <%- JSON.stringify(user) %>;
+    <script>
+        // socket is already initialized in header.ejs
+        const socket = window.socket;
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const userList = document.getElementById('user-list');
+        const currentUser = <% - JSON.stringify(user) %>;
 
-    // Émettre un événement pour annoncer la connexion de l'utilisateur
-    socket.emit('user connected', currentUser);
+        // Émettre un événement pour annoncer la connexion de l'utilisateur
+        socket.emit('user connected', currentUser);
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (input.value) {
-            socket.emit('chat message', { name: currentUser.name, avatar: currentUser.avatar, msg: input.value });
-            input.value = '';
-        }
-    });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', { name: currentUser.name, avatar: currentUser.avatar, msg: input.value });
+                input.value = '';
+            }
+        });
 
-    socket.on('chat message', (data) => {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message');
+        socket.on('chat message', (data) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
 
-        const avatarElement = document.createElement('img');
-        avatarElement.src = data.avatar || '/images/default-avatar.png';
-        avatarElement.alt = `Avatar de ${data.name}`;
-        avatarElement.classList.add('chat-avatar');
+            const avatarElement = document.createElement('img');
+            avatarElement.src = data.avatar || '/images/default-avatar.png';
+            avatarElement.alt = `Avatar de ${data.name}`;
+            avatarElement.classList.add('chat-avatar');
 
-        const contentElement = document.createElement('div');
-        contentElement.classList.add('chat-message-content');
+            const contentElement = document.createElement('div');
+            contentElement.classList.add('chat-message-content');
 
-        const nameElement = document.createElement('strong');
-        nameElement.textContent = data.name;
+            const nameElement = document.createElement('strong');
+            nameElement.textContent = data.name;
 
-        const textElement = document.createElement('p');
-        textElement.textContent = data.msg;
+            const textElement = document.createElement('p');
+            textElement.textContent = data.msg;
 
-        contentElement.appendChild(nameElement);
-        contentElement.appendChild(textElement);
+            contentElement.appendChild(nameElement);
+            contentElement.appendChild(textElement);
 
-        messageElement.appendChild(avatarElement);
-        messageElement.appendChild(contentElement);
+            messageElement.appendChild(avatarElement);
+            messageElement.appendChild(contentElement);
 
-        messages.appendChild(messageElement);
-        messages.scrollTop = messages.scrollHeight;
-    });
+            messages.appendChild(messageElement);
+            messages.scrollTop = messages.scrollHeight;
+        });
 
-    socket.on('update user list', (users) => {
-        userList.innerHTML = '';
-        for (const id in users) {
-            const userItem = document.createElement('li');
-            userItem.textContent = users[id].name;
-            userList.appendChild(userItem);
-        }
-    });
-</script>
+        socket.on('update user list', (users) => {
+            userList.innerHTML = '';
+            for (const id in users) {
+                const userItem = document.createElement('li');
+                userItem.textContent = users[id].name;
+                userList.appendChild(userItem);
+            }
+        });
+    </script>
 
-<%- include('partials/footer') %>
+    <%- include('partials/footer') %>

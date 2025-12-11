@@ -1,0 +1,397 @@
+/* eegp-premium-home.css */
+/* A complete overhaul for the landing and dashboard pages */
+
+:root {
+    --hero-bg-deep: #0f172a;
+    --hero-bg-accent: #1e293b;
+    --neon-accent: #f43f5e;
+    /* Vibrant red/pink */
+    --neon-blue: #3b82f6;
+    /* Electric blue */
+    --neon-purple: #8b5cf6;
+    /* Deep purple */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --text-glow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+body {
+    background-color: #0d1117;
+    /* Deepest dark */
+    overflow-x: hidden;
+}
+
+/* =========================================
+   HERO SECTION (Logged Out)
+   ========================================= */
+.hero-container {
+    position: relative;
+    height: 90vh;
+    /* Almost full screen */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: radial-gradient(circle at top right, #1e1b4b, #0d1117);
+}
+
+/* Animated Background Mesh */
+.hero-bg-mesh {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15), transparent 40%),
+        radial-gradient(circle at 20% 80%, rgba(244, 63, 94, 0.1), transparent 30%);
+    animation: rotateMesh 20s infinite linear;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes rotateMesh {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    border-radius: 50px;
+    color: #f43f5e;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, white 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.hero-title span {
+    background: linear-gradient(135deg, #f43f5e, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #94a3b8;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.btn-hero {
+    padding: 1rem 2.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.btn-hero-primary {
+    background: linear-gradient(135deg, #f43f5e, #e11d48);
+    color: white;
+    box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.5);
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 35px -5px rgba(244, 63, 94, 0.6);
+}
+
+.btn-hero-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+}
+
+/* =========================================
+   FEATURED PREVIEWS (Logged Out)
+   ========================================= */
+.preview-section {
+    padding: 5rem 0;
+    position: relative;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    color: #94a3b8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.perspective-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    perspective: 1000px;
+    padding: 2rem;
+    flex-wrap: wrap;
+}
+
+.card-3d {
+    width: 300px;
+    background: #1e293b;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.card-3d:hover {
+    transform: translateY(-15px) rotateX(5deg);
+    box-shadow: 0 35px 60px -15px rgba(244, 63, 94, 0.2);
+    border-color: rgba(244, 63, 94, 0.3);
+}
+
+.card-3d img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-3d-content {
+    padding: 1.5rem;
+}
+
+.card-3d-content h3 {
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.card-3d-content p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* =========================================
+   DASHBOARD (Logged In)
+   ========================================= */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.welcome-banner {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 24px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.welcome-text h1 {
+    font-size: 2.5rem;
+    margin: 0 0 1rem 0;
+    background: linear-gradient(90deg, white, #cbd5e1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-text p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    max-width: 600px;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.action-card {
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover {
+    background: rgba(30, 41, 59, 0.8);
+    transform: translateY(-5px);
+    border-color: rgba(244, 63, 94, 0.3);
+}
+
+.action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #f43f5e;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon {
+    background: #f43f5e;
+    color: white;
+    transform: scale(1.1);
+}
+
+.action-card h3 {
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.action-card p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Dashboard Feed Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.feed-section h2 {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #f43f5e;
+    padding-left: 1rem;
+}
+
+.feed-card {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feed-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.feed-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.feed-meta h4 {
+    margin: 0;
+    color: white;
+    font-size: 1rem;
+}
+
+.feed-meta span {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.feed-body p {
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+/* Daily Prompt Special Card */
+.prompt-card {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: white;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.prompt-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}

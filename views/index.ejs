@@ -1,186 +1,263 @@
-<%- include('partials/header', { title: "Accueil", user: user }) %>
+<%- include('partials/header', { title: "Accueil" , user: user, fullscreen: true }) %>
 
-<style>
-    .daily-prompt-banner {
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        position: relative;
-        overflow: hidden;
-    }
+    <!-- New Premium Styles -->
+    <link rel="stylesheet" href="/css/home-premium.css">
 
-    .prompt-icon {
-        font-size: 2.5rem;
-        background: rgba(255, 255, 255, 0.2);
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .prompt-content h3 {
-        margin: 0;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        opacity: 0.9;
-        margin-bottom: 0.5rem;
-    }
-
-    .prompt-content p {
-        margin: 0;
-        font-size: 1.4rem;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-
-    .admin-prompt-form {
-        margin-top: 1rem;
-        background: rgba(0,0,0,0.2);
-        padding: 1rem;
-        border-radius: 8px;
-    }
-    .admin-prompt-form input {
-        padding: 0.5rem;
-        border-radius: 4px;
-        border: none;
-        width: 70%;
-    }
-    .admin-prompt-form button {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 4px;
-        background: white;
-        color: #3b82f6;
-        font-weight: bold;
-        cursor: pointer;
-    }
-</style>
-
-<div class="homepage-container">
-    <% if (user) { %>
-        <!-- Vue pour l'utilisateur connecté -->
-        <div class="welcome-header">
-            <h1>Bienvenue, <%= user.name %> !</h1>
-            <p>Voici les dernières activités sur la plateforme.</p>
-        </div>
-
-        <!-- DAILY PROMPT SECTION -->
-        <% if (dailyPrompt) { %>
-            <div class="daily-prompt-banner">
-                <div class="prompt-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <div class="prompt-content">
-                    <h3>Sujet du Jour</h3>
-                    <p><%= dailyPrompt.content %></p>
-                </div>
-            </div>
-        <% } %>
-
-        <% if (user.is_admin) { %>
-            <div style="margin-bottom: 2rem; border: 1px solid #334155; padding: 1rem; border-radius: 8px; background: #1e293b;">
-                <h3 style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-user-shield"></i> Admin : Définir le Sujet du Jour</h3>
-                <form action="/admin/daily-prompt" method="POST" style="display: flex; gap: 0.5rem;">
-                    <input type="text" name="content" placeholder="Ex: Quel est votre artiste préféré ?" required style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 4px;">
-                    <button type="submit" class="btn btn-sm btn-primary">Publier</button>
-                </form>
-            </div>
-        <% } %>
-
-        <div class="quick-actions">
-            <a href="/projects/new" class="button">Créer un projet</a>
-            <a href="/publications" class="button">Faire un post</a>
-            <a href="/help" class="button">Demander de l'aide</a>
-        </div>
-
-        <div class="home-content">
-            <div class="home-news">
-                <h2>Actualités de l'école</h2>
-                <% news.forEach(article => { %>
-                    <div class="news-summary">
-                        <h3><a href="/news#<%= article.id %>"><%= article.title %></a></h3>
-                        <p><%= article.content.substring(0, 150) %>...</p>
+    <% if (!user) { %>
+        <!-- =========================================
+         LANDING PAGE (LOGGED OUT)
+         ========================================= -->
+        <div class="landing-wrapper">
+            <!-- Hero Section -->
+            <section class="hero-container">
+                <div class="hero-bg-mesh"></div>
+                <div class="hero-content">
+                    <div class="hero-badge">Communauté Artistique</div>
+                    <h1 class="hero-title">
+                        Révélez votre <span>Créativité</span> à l'EEGP
+                    </h1>
+                    <p class="hero-subtitle">
+                        La plateforme collaborative ultime pour les artistes, designers et créateurs.
+                        Partagez vos projets, trouvez de l'inspiration et collaborez.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/register" class="btn-hero btn-hero-primary">Commencer</a>
+                        <a href="/login" class="btn-hero btn-hero-secondary">Se connecter</a>
                     </div>
-                <% }); %>
-            </div>
-            <div class="home-posts">
-                <h2>Publications récentes</h2>
-                <% posts.forEach(post => { %>
-                    <div class="post-summary">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                             <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>" style="width: 24px; height: 24px; border-radius: 50%;">
-                             <a href="/students/<%= post.author_id %>" style="font-weight: 600; color: white; text-decoration: none;"><%= post.authorName %></a>
-                        </div>
-                        <p><%= post.content.substring(0, 100) %>...</p>
-                        <% if (post.media_path) { %>
-                            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
-                                <i class="fas fa-paperclip"></i> Pièce jointe
+                </div>
+            </section>
+
+            <!-- Featured Projects Preview -->
+            <section class="preview-section">
+                <div class="section-header">
+                    <h2>Projets à la Une</h2>
+                    <p>Découvrez les meilleures créations de nos étudiants cette semaine.</p>
+                </div>
+
+                <div class="perspective-grid">
+                    <% if (projects && projects.length> 0) { %>
+                        <% projects.forEach(project=> { %>
+                            <div class="card-3d">
+                                <img src="<%= project.main_image || '/images/default-project.png' %>"
+                                    alt="<%= project.title %>">
+                                <div class="card-3d-content">
+                                    <h3>
+                                        <%= project.title %>
+                                    </h3>
+                                    <p>Par <%= project.authorName %>
+                                    </p>
+                                </div>
                             </div>
-                        <% } %>
-                    </div>
-                <% }); %>
-            </div>
-        </div>
-
-    <% } else { %>
-        <!-- Vue pour l'utilisateur déconnecté -->
-        <div class="public-welcome">
-            <h1>Plateforme Communautaire EEGP</h1>
-            <p>Le réseau social interne pour les artistes et créateurs de l'école.</p>
-            <div class="welcome-buttons">
-                <a href="/login" class="button">Se connecter</a>
-                <a href="/register" class="button">S'inscrire</a>
-            </div>
-        </div>
-
-        <div class="public-preview">
-            <div class="preview-section">
-                <h2>Projets à la une</h2>
-                <div class="projects-preview-grid">
-                    <% projects.forEach(project => { %>
-                        <div class="project-preview-card">
-                            <img src="<%= project.main_image || '/images/default-project.png' %>" alt="<%= project.title %>">
-                            <h3><%= project.title %></h3>
-                            <p>par <%= project.authorName %></p>
-                        </div>
-                    <% }); %>
+                            <% }); %>
+                                <% } else { %>
+                                    <!-- Fallback if no projects -->
+                                    <div class="card-3d">
+                                        <div
+                                            style="height: 200px; background: #334155; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2);">
+                                            <i class="fas fa-image" style="font-size: 3rem;"></i>
+                                        </div>
+                                        <div class="card-3d-content">
+                                            <h3>Bientôt disponible</h3>
+                                            <p>Les projets apparaîtront ici.</p>
+                                        </div>
+                                    </div>
+                                    <% } %>
                 </div>
-            </div>
 
-            <div class="preview-section">
-                <h2>Dernières Publications</h2>
-                <% posts.forEach(post => { %>
-                    <div class="post-preview-card">
-                        <p>"<%= post.content.substring(0, 80) %>..."</p>
-                        <p><strong>- <%= post.authorName %></strong></p>
-                    </div>
-                <% }); %>
-            </div>
-
-            <div class="preview-section">
-                <h2>News de l'école</h2>
-                <% news.forEach(article => { %>
-                    <div class="news-preview-card">
-                        <h3><%= article.title %></h3>
-                        <p><%= article.content.substring(0, 200) %>...</p>
-                    </div>
-                <% }); %>
-            </div>
+                <div style="text-align: center; margin-top: 3rem;">
+                    <a href="/login"
+                        style="color: #94a3b8; text-decoration: none; border-bottom: 1px solid #94a3b8;">Voir tout les
+                        projets</a>
+                </div>
+            </section>
         </div>
-        <div class="footer-note">
-            <p>Ce site est réservé aux élèves de l’EEGP. Merci de rester respectueux et reconnaissables sur votre profil.</p>
-        </div>
-    <% } %>
-</div>
 
-<%- include('partials/footer') %>
+        <% } else { %>
+            <!-- =========================================
+         DASHBOARD (LOGGED IN)
+         ========================================= -->
+            <div class="dashboard-container">
+
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h1>Bonjour, <%= user.name %> 👋</h1>
+                        <p>Prêt à créer quelque chose d'extraordinaire aujourd'hui ?</p>
+                    </div>
+                    <div class="welcome-stats" style="display: flex; gap: 2rem;">
+                        <!-- Could add stats here later -->
+                    </div>
+                </div>
+
+                <!-- Daily Prompt -->
+                <% if (dailyPrompt) { %>
+                    <div class="prompt-card">
+                        <div style="display: flex; align-items: flex-start; gap: 1rem; position: relative; z-index: 2;">
+                            <div
+                                style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                💡
+                            </div>
+                            <div>
+                                <h3
+                                    style="margin: 0; font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px;">
+                                    Inspiration du jour</h3>
+                                <p style="margin: 0.5rem 0 0 0; font-size: 1.25rem; font-weight: 700;">
+                                    <%= dailyPrompt.content %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+
+                        <!-- Admin Prompt Controls -->
+                        <% if (user.is_admin) { %>
+                            <div
+                                style="margin-bottom: 2rem; background: #1e293b; padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                                <h4 style="color: #94a3b8; margin: 0 0 1rem 0;"><i class="fas fa-magic"></i> Admin:
+                                    Définir le sujet</h4>
+                                <form action="/admin/daily-prompt" method="POST" style="display: flex; gap: 1rem;">
+                                    <input type="text" name="content" placeholder="Nouveau sujet..."
+                                        style="flex: 1; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px;">
+                                    <button type="submit"
+                                        style="padding: 0 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Publier</button>
+                                </form>
+                            </div>
+                            <% } %>
+
+                                <!-- Quick Actions Grid -->
+                                <div class="action-grid">
+                                    <a href="/projects/new" class="action-card">
+                                        <div class="action-icon">
+                                            <i class="fas fa-plus"></i>
+                                        </div>
+                                        <h3>Créer un projet</h3>
+                                        <p>Partagez votre dernier travail</p>
+                                    </a>
+                                    <a href="/publications" class="action-card">
+                                        <div class="action-icon">
+                                            <i class="fas fa-pen-fancy"></i>
+                                        </div>
+                                        <h3>Fil d'actualité</h3>
+                                        <p>Voir ce que les autres postent</p>
+                                    </a>
+                                    <a href="/help" class="action-card">
+                                        <div class="action-icon">
+                                            <i class="fas fa-hands-helping"></i>
+                                        </div>
+                                        <h3>Entraide</h3>
+                                        <p>Besoin d'un coup de main ?</p>
+                                    </a>
+                                    <a href="/students" class="action-card">
+                                        <div class="action-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <h3>Étudiants</h3>
+                                        <p>Explorer la communauté</p>
+                                    </a>
+                                </div>
+
+                                <!-- Main Content Split -->
+                                <div class="dashboard-grid">
+                                    <!-- Feed Column -->
+                                    <div class="feed-section">
+                                        <h2>Publications Récentes</h2>
+                                        <% if (posts && posts.length> 0) { %>
+                                            <% posts.forEach(post=> { %>
+                                                <div class="feed-card">
+                                                    <div class="feed-header">
+                                                        <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>"
+                                                            class="feed-avatar" alt="Avatar">
+                                                        <div class="feed-meta">
+                                                            <h4>
+                                                                <%= post.authorName %>
+                                                            </h4>
+                                                            <!-- Add Time ago logic if available, currently just static or simple -->
+                                                            <span>Il y a quelque temps</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="feed-body">
+                                                        <p>
+                                                            <%= post.content %>
+                                                        </p>
+                                                        <% if (post.media_path) { %>
+                                                            <% if (post.media_type &&
+                                                                post.media_type.startsWith('image/')) { %>
+                                                                <img src="<%= post.media_path %>"
+                                                                    style="width: 100%; border-radius: 8px; margin-top: 1rem; max-height: 400px; object-fit: cover;"
+                                                                    alt="Post media">
+                                                                <% } else if (post.media_type &&
+                                                                    post.media_type.startsWith('video/')) { %>
+                                                                    <video src="<%= post.media_path %>" controls
+                                                                        style="width: 100%; border-radius: 8px; margin-top: 1rem;"></video>
+                                                                    <% } else { %>
+                                                                        <div
+                                                                            style="margin-top: 1rem; padding: 1rem; background: #0f172a; border-radius: 8px;">
+                                                                            <a href="<%= post.media_path %>"
+                                                                                style="color: #3b82f6; text-decoration: none;"><i
+                                                                                    class="fas fa-paperclip"></i> Voir
+                                                                                la pièce jointe</a>
+                                                                        </div>
+                                                                        <% } %>
+                                                                            <% } %>
+                                                    </div>
+                                                    <div
+                                                        style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem;">
+                                                        <a href="/publications/<%= post.id %>"
+                                                            style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;"><i
+                                                                class="far fa-comment"></i> Commenter</a>
+                                                        <span style="color: #94a3b8; font-size: 0.9rem;"><i
+                                                                class="far fa-heart"></i>
+                                                            <%= post.upvotes || 0 %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <% }); %>
+                                                    <div style="text-align: center; margin-top: 2rem;">
+                                                        <a href="/publications" class="button">Voir plus</a>
+                                                    </div>
+                                                    <% } else { %>
+                                                        <div class="feed-card"
+                                                            style="text-align: center; color: #94a3b8;">
+                                                            <p>Aucune publication récente.</p>
+                                                        </div>
+                                                        <% } %>
+                                    </div>
+
+                                    <!-- Sidebar Column -->
+                                    <div class="sidebar-section">
+                                        <!-- News Widget -->
+                                        <div
+                                            style="background: #1e293b; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                                            <h3
+                                                style="color: white; margin-top: 0; font-size: 1.1rem; margin-bottom: 1rem;">
+                                                📢 Actualités EEGP</h3>
+                                            <% if (news && news.length> 0) { %>
+                                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                                    <% news.forEach(article=> { %>
+                                                        <div class="mini-news-item">
+                                                            <a href="/news"
+                                                                style="color: #cbd5e1; text-decoration: none; font-weight: 500; display: block; margin-bottom: 0.25rem;">
+                                                                <%= article.title %>
+                                                            </a>
+                                                            <span style="font-size: 0.8rem; color: #64748b;">
+                                                                <%= new Date(article.created_at).toLocaleDateString() %>
+                                                            </span>
+                                                        </div>
+                                                        <% }); %>
+                                                </div>
+                                                <% } else { %>
+                                                    <p style="color: #64748b; font-size: 0.9rem;">Aucune news pour le
+                                                        moment.</p>
+                                                    <% } %>
+                                        </div>
+
+                                        <!-- Footer Links Mini -->
+                                        <div style="color: #64748b; font-size: 0.8rem; line-height: 1.6;">
+                                            <p>&copy; 2024 EEGP Community.<br>Fait avec ❤️ par Antigravity.</p>
+                                        </div>
+                                    </div>
+                                </div>
+            </div>
+            <% } %>
+
+                <%- include('partials/footer') %>

@@ -54,7 +54,7 @@ const storage = multer.diskStorage({
         }
         cb(null, dest);
     },
-    filename: function(req, file, cb){
+    filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
@@ -99,11 +99,11 @@ const refreshSessionUser = (req, res, next) => {
                 // Force save not strictly necessary if we modify the object in place and store uses it,
                 // but explicit save handles some store edge cases.
                 req.session.save((err) => {
-                     if (err) console.error("Session save error:", err);
-                     next();
+                    if (err) console.error("Session save error:", err);
+                    next();
                 });
             } else {
-                 next();
+                next();
             }
         });
     } else {
@@ -196,9 +196,8 @@ app.get('/', (req, res) => {
                 .catch(err => handleDbError(err, res));
         });
     } else {
-        // Logged-out view
         const projectsPromise = new Promise((resolve, reject) => {
-            db.all('SELECT p.*, u.name as authorName, (SELECT image_path FROM project_images WHERE project_id = p.id AND is_main = 1) as main_image FROM projects p JOIN users u ON p.author_id = u.id ORDER BY p.upvotes DESC LIMIT 3', [], (err, projects) => {
+            db.all("SELECT p.*, u.name as authorName, COALESCE((SELECT image_path FROM project_images WHERE project_id = p.id AND is_main = 1), CASE WHEN p.banner_path IS NOT NULL THEN '/uploads/projects/' || p.banner_path ELSE '/images/default-project.png' END) as main_image FROM projects p JOIN users u ON p.author_id = u.id ORDER BY p.upvotes DESC LIMIT 3", [], (err, projects) => {
                 if (err) return reject(err);
                 resolve(projects);
             });
@@ -290,7 +289,7 @@ app.post('/register', (req, res) => {
 
             db.run('INSERT INTO users (name, email, password, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [name, email, hashedPassword, avatar, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio],
-                function(err) {
+                function (err) {
                     if (err) {
                         if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE constraint failed: users.email')) {
                             req.flash('error', 'Cet email est déjà utilisé. Veuillez en choisir un autre.');
@@ -545,7 +544,7 @@ app.post('/profile/edit', upload.fields([{ name: 'avatar', maxCount: 1 }, { name
 
         db.run('UPDATE users SET name = ?, classe = ?, age = ?, birthdate = ?, discord = ?, instagram = ?, snapchat = ?, portfolio = ?, bio = ?, avatar = ?, color_bg = ?, color_text = ?, color_primary = ?, color_secondary = ? WHERE id = ?',
             [name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, color_bg, color_text, color_primary, color_secondary, req.session.user.id],
-            function(err) {
+            function (err) {
                 if (err) return handleDbError(err, res);
                 req.session.user = { ...req.session.user, name, classe, age, birthdate, discord, instagram, snapchat, portfolio, bio, avatar, color_bg, color_text, color_primary, color_secondary };
 
@@ -718,8 +717,8 @@ app.get('/chat', (req, res) => {
 
 app.get('/logout', (req, res) => {
     if (req.session.user) {
-         // Reset coworking status on logout
-         db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [req.session.user.id]);
+        // Reset coworking status on logout
+        db.run('UPDATE users SET is_coworking = 0 WHERE id = ?', [req.session.user.id]);
     }
     req.session.destroy();
     res.redirect('/');

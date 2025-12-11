@@ -109,12 +109,12 @@ class CreateParticles {
 
         this.data = {
             text: 'EEGP', // CHANGED FROM WEB\nLEB to EEGP
-            amount: 1500,
-            particleSize: 1,
+            amount: 5000, // High density for liquid look
+            particleSize: 1.5,
             particleColor: 0xffffff,
-            textSize: 20, // Adjusted size
-            area: 250,
-            ease: .05,
+            textSize: 60, // Bigger text for 300px container
+            area: 200, // Tighter interaction area for localized liquid effect
+            ease: .1, // Softer ease for more "liquid" feel
         }
 
         this.setup();

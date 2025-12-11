@@ -1,183 +1,215 @@
 <%- include('partials/header', { title: "Profil de " + user.name, user: sessionUser }) %>
 
-<div class="profile-container">
-    <!-- Bannière Showcase -->
-    <div class="profile-banner" id="profileBanner">
-        <!-- Images will be injected by JS -->
-        <% for (let i = 0; i < 4; i++) { %>
-            <div class="showcase-image-container">
-                 <div class="showcase-placeholder"></div>
-            </div>
-        <% } %>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const allShowcaseImages = <%- JSON.stringify(showcaseImages || []) %>;
-            const bannerContainer = document.getElementById('profileBanner');
-            const containers = bannerContainer.querySelectorAll('.showcase-image-container');
-
-            function updateShowcase() {
-                if (allShowcaseImages.length === 0) return;
-
-                // Select 4 random unique images
-                const shuffled = [...allShowcaseImages].sort(() => 0.5 - Math.random());
-                const selected = shuffled.slice(0, 4);
-
-                containers.forEach((container, index) => {
-                    const imageObj = selected[index];
-
-                    // Create new image element
-                    const newImg = document.createElement('img');
-                    newImg.style.opacity = '0';
-                    newImg.style.transition = 'opacity 1s ease-in-out';
-
-                    if (imageObj) {
-                        newImg.src = imageObj.image_path;
-                        newImg.alt = "Image Showcase";
-                    } else {
-                        // Keep placeholder if no image
-                        return;
-                    }
-
-                    // Clear previous content (but maybe keep placeholder if we want to crossfade properly?
-                    // Simpler: just replace content and fade in)
-                    container.innerHTML = '';
-                    container.appendChild(newImg);
-
-                    // Trigger reflow
-                    void newImg.offsetWidth;
-
-                    // Fade in
-                    newImg.style.opacity = '1';
-                });
-            }
-
-            // Initial load
-            updateShowcase();
-
-            // Rotate every minute (60000ms)
-            if (allShowcaseImages.length > 4) {
-                setInterval(updateShowcase, 60000);
-            }
-        });
-    </script>
-
-    <!-- Informations principales -->
-    <div class="profile-header">
-        <img class="profile-avatar" src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Avatar de <%= user.name %>">
-        <div class="profile-header-info">
-            <h1>
-                <%= user.name %>
-                <!-- Badges Display -->
-                <% if (typeof badges !== 'undefined' && badges.length > 0) { %>
-                    <div class="badges-container" style="display: inline-flex; gap: 0.5rem; vertical-align: middle; margin-left: 0.5rem;">
-                        <% badges.forEach(badge => { %>
-                            <span title="<%= badge.name %> : <%= badge.description %>" class="badge-icon" style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.8rem; border: 1px solid rgba(251, 191, 36, 0.3);">
-                                <i class="fas <%= badge.icon %>"></i>
-                            </span>
-                        <% }) %>
-                    </div>
+    <div class="profile-container">
+        <!-- Bannière Showcase -->
+        <div class="profile-banner" id="profileBanner">
+            <!-- Images will be injected by JS -->
+            <% for (let i=0; i < 4; i++) { %>
+                <div class="showcase-image-container">
+                    <div class="showcase-placeholder"></div>
+                </div>
                 <% } %>
-            </h1>
-            <p class="user-class"><%= user.classe || 'Classe non spécifiée' %></p>
-        </div>
-        <% if (sessionUser && sessionUser.id === user.id) { %>
-            <a href="/profile/edit" class="edit-profile-button">Modifier mon profil</a>
-        <% } %>
-    </div>
-
-    <!-- Contenu du profil -->
-    <div class="profile-content">
-        <div class="profile-sidebar">
-            <h2>À propos</h2>
-            <p class="user-bio"><%= user.bio || 'Aucune biographie.' %></p>
-
-            <div class="social-links">
-                <% if (user.discord) { %><a href="https://discordapp.com/users/<%= user.discord %>" target="_blank"><i class="fab fa-discord"></i></a><% } %>
-                <% if (user.instagram) { %><a href="https://instagram.com/<%= user.instagram %>" target="_blank"><i class="fab fa-instagram"></i></a><% } %>
-                <% if (user.snapchat) { %><a href="https://snapchat.com/add/<%= user.snapchat %>" target="_blank"><i class="fab fa-snapchat"></i></a><% } %>
-            </div>
-            <div class="portfolio-links">
-                <% if (portfolioLinks && portfolioLinks.length > 0) { %>
-                    <% portfolioLinks.forEach(link => { %>
-                        <a href="<%= link.url %>" class="portfolio-button" target="_blank" rel="noopener noreferrer">
-                            <img src="<%= link.icon %>" alt="" class="portfolio-icon">
-                            <span><%= link.name %></span>
-                        </a>
-                    <% }); %>
-                <% } else { %>
-                    <p>Aucun portfolio externe ajouté.</p>
-                <% } %>
-            </div>
         </div>
 
-        <div class="profile-main">
-            <!-- Section des Projets -->
-            <div class="section-header">
-                <h2>Projets de <%= user.name %></h2>
-                <% if (sessionUser && sessionUser.id === user.id) { %>
-                    <a href="/projects/my-projects" class="btn">Gérer mes projets</a>
-                <% } %>
-            </div>
-            <div class="projects-grid">
-                <% if (projects && projects.length > 0) { %>
-                    <% projects.forEach(project => { %>
-                        <div class="project-card">
-                            <a href="/projects/<%= project.id %>">
-                                <img src="<%= project.main_image || '/images/default-project.png' %>" alt="Image de <%= project.title %>">
-                                <h3><%= project.title %></h3>
-                                <% if (project.description) { %>
-                                    <p><%= project.description.substring(0, 100) %>...</p>
-                                <% } else { %>
-                                    <p>Pas de description.</p>
-                                <% } %>
-                            </a>
-                        </div>
-                    <% }); %>
-                <% } else { %>
-                    <p><%= user.name %> n'a pas encore publié de projet.</p>
-                <% } %>
-            </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const allShowcaseImages = <% - JSON.stringify(showcaseImages || []) %>;
+                const bannerContainer = document.getElementById('profileBanner');
+                const containers = bannerContainer.querySelectorAll('.showcase-image-container');
 
-            <!-- Section des Publications (Posts) -->
-            <hr>
-            <h2>Publications de <%= user.name %></h2>
-            <div class="posts-feed">
-                <% if (posts && posts.length > 0) { %>
-                    <% posts.forEach(post => { %>
-                    <div class="post-card">
-                        <div class="post-author">
-                            <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>" alt="Avatar de <%= post.authorName %>">
-                            <a href="/students/<%= post.author_id %>"><%= post.authorName %></a>
-                        </div>
-                        <div class="post-content">
-                            <p><%= post.content %></p>
-                            <% if (post.media_path) { %>
-                                <% if (post.media_type.startsWith('image')) { %>
-                                    <img src="<%= post.media_path %>" alt="Média de la publication">
-                                <% } else if (post.media_type.startsWith('video')) { %>
-                                    <video controls src="<%= post.media_path %>"></video>
-                                <% } %>
-                            <% } %>
-                        </div>
-                        <div class="post-footer">
-                            <div class="post-actions">
-                                <form action="/publications/<%= post.id %>/upvote" method="POST">
-                                    <button type="submit" class="upvote-button">▲ <%= post.upvotes %></button>
-                                </form>
-                                <a href="/publications/<%= post.id %>" class="comment-button">💬</a>
+                function updateShowcase() {
+                    if (allShowcaseImages.length === 0) return;
+
+                    // Select 4 random unique images
+                    const shuffled = [...allShowcaseImages].sort(() => 0.5 - Math.random());
+                    const selected = shuffled.slice(0, 4);
+
+                    containers.forEach((container, index) => {
+                        const imageObj = selected[index];
+
+                        // Create new image element
+                        const newImg = document.createElement('img');
+                        newImg.style.opacity = '0';
+                        newImg.style.transition = 'opacity 1s ease-in-out';
+
+                        if (imageObj) {
+                            newImg.src = imageObj.image_path;
+                            newImg.alt = "Image Showcase";
+                        } else {
+                            // Keep placeholder if no image
+                            return;
+                        }
+
+                        // Clear previous content (but maybe keep placeholder if we want to crossfade properly?
+                        // Simpler: just replace content and fade in)
+                        container.innerHTML = '';
+                        container.appendChild(newImg);
+
+                        // Trigger reflow
+                        void newImg.offsetWidth;
+
+                        // Fade in
+                        newImg.style.opacity = '1';
+                    });
+                }
+
+                // Initial load
+                updateShowcase();
+
+                // Rotate every minute (60000ms)
+                if (allShowcaseImages.length > 4) {
+                    setInterval(updateShowcase, 60000);
+                }
+            });
+        </script>
+
+        <!-- Informations principales -->
+        <div class="profile-header">
+            <img class="profile-avatar" src="<%= user.avatar || '/images/default-avatar.png' %>"
+                alt="Avatar de <%= user.name %>">
+            <div class="profile-header-info">
+                <h1>
+                    <%= user.name %>
+                        <!-- Badges Display -->
+                        <% if (typeof badges !=='undefined' && badges.length> 0) { %>
+                            <div class="badges-container"
+                                style="display: inline-flex; gap: 0.5rem; vertical-align: middle; margin-left: 0.5rem;">
+                                <% badges.forEach(badge=> { %>
+                                    <span title="<%= badge.name %> : <%= badge.description %>" class="badge-icon"
+                                        style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.8rem; border: 1px solid rgba(251, 191, 36, 0.3);">
+                                        <i class="fas <%= badge.icon %>"></i>
+                                    </span>
+                                    <% }) %>
                             </div>
-                            <span class="post-date"><%= new Date(post.created_at).toLocaleDateString() %></span>
-                        </div>
-                    </div>
-                    <% }); %>
-                <% } else { %>
-                    <p>Aucune publication pour le moment.</p>
+                            <% } %>
+                </h1>
+                <p class="user-class">
+                    <%= user.classe || 'Classe non spécifiée' %>
+                </p>
+            </div>
+            <% if (sessionUser && sessionUser.id===user.id) { %>
+                <a href="/profile/edit" class="edit-profile-button">Modifier mon profil</a>
                 <% } %>
+        </div>
+
+        <!-- Contenu du profil -->
+        <div class="profile-content">
+            <div class="profile-sidebar">
+                <h2>À propos</h2>
+                <p class="user-bio">
+                    <%= user.bio || 'Aucune biographie.' %>
+                </p>
+
+                <div class="social-links">
+                    <% if (user.discord) { %><a href="https://discordapp.com/users/<%= user.discord %>"
+                            target="_blank"><i class="fab fa-discord"></i></a>
+                        <% } %>
+                            <% if (user.instagram) { %><a href="https://instagram.com/<%= user.instagram %>"
+                                    target="_blank"><i class="fab fa-instagram"></i></a>
+                                <% } %>
+                                    <% if (user.snapchat) { %><a href="https://snapchat.com/add/<%= user.snapchat %>"
+                                            target="_blank"><i class="fab fa-snapchat"></i></a>
+                                        <% } %>
+                </div>
+                <div class="portfolio-links">
+                    <% if (portfolioLinks && portfolioLinks.length> 0) { %>
+                        <% portfolioLinks.forEach(link=> { %>
+                            <a href="<%= link.url %>" class="portfolio-button" target="_blank"
+                                rel="noopener noreferrer">
+                                <img src="<%= link.icon %>" alt="" class="portfolio-icon">
+                                <span>
+                                    <%= link.name %>
+                                </span>
+                            </a>
+                            <% }); %>
+                                <% } else { %>
+                                    <p>Aucun portfolio externe ajouté.</p>
+                                    <% } %>
+                </div>
+            </div>
+
+            <div class="profile-main">
+                <!-- Section des Projets -->
+                <div class="section-header">
+                    <h2>Projets de <%= user.name %>
+                    </h2>
+                    <% if (sessionUser && sessionUser.id===user.id) { %>
+                        <a href="/projects/my-projects" class="btn">Gérer mes projets</a>
+                        <% } %>
+                </div>
+                <div class="projects-grid">
+                    <% if (projects && projects.length> 0) { %>
+                        <% projects.forEach(project=> { %>
+                            <div class="project-card">
+                                <a href="/projects/<%= project.id %>">
+                                    <img src="<%= project.main_image || '/images/default-project.png' %>?v=<%= Date.now() %>"
+                                        alt="Image de <%= project.title %>">
+                                    <h3>
+                                        <%= project.title %>
+                                    </h3>
+                                    <% if (project.description) { %>
+                                        <p>
+                                            <%= project.description.substring(0, 100) %>...
+                                        </p>
+                                        <% } else { %>
+                                            <p>Pas de description.</p>
+                                            <% } %>
+                                </a>
+                            </div>
+                            <% }); %>
+                                <% } else { %>
+                                    <p>
+                                        <%= user.name %> n'a pas encore publié de projet.
+                                    </p>
+                                    <% } %>
+                </div>
+
+                <!-- Section des Publications (Posts) -->
+                <hr>
+                <h2>Publications de <%= user.name %>
+                </h2>
+                <div class="posts-feed">
+                    <% if (posts && posts.length> 0) { %>
+                        <% posts.forEach(post=> { %>
+                            <div class="post-card">
+                                <div class="post-author">
+                                    <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>"
+                                        alt="Avatar de <%= post.authorName %>">
+                                    <a href="/students/<%= post.author_id %>">
+                                        <%= post.authorName %>
+                                    </a>
+                                </div>
+                                <div class="post-content">
+                                    <p>
+                                        <%= post.content %>
+                                    </p>
+                                    <% if (post.media_path) { %>
+                                        <% if (post.media_type.startsWith('image')) { %>
+                                            <img src="<%= post.media_path %>" alt="Média de la publication">
+                                            <% } else if (post.media_type.startsWith('video')) { %>
+                                                <video controls src="<%= post.media_path %>"></video>
+                                                <% } %>
+                                                    <% } %>
+                                </div>
+                                <div class="post-footer">
+                                    <div class="post-actions">
+                                        <form action="/publications/<%= post.id %>/upvote" method="POST">
+                                            <button type="submit" class="upvote-button">▲ <%= post.upvotes %></button>
+                                        </form>
+                                        <a href="/publications/<%= post.id %>" class="comment-button">💬</a>
+                                    </div>
+                                    <span class="post-date">
+                                        <%= new Date(post.created_at).toLocaleDateString() %>
+                                    </span>
+                                </div>
+                            </div>
+                            <% }); %>
+                                <% } else { %>
+                                    <p>Aucune publication pour le moment.</p>
+                                    <% } %>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<%- include('partials/footer') %>
+    <%- include('partials/footer') %>
