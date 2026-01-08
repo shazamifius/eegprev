@@ -1,63 +1,42 @@
 // routes/students.js
 const express = require('express');
 const router = express.Router();
-const { db } = require('../database');
+const { db, knex } = require('../database');
+const User = require('../models/User');
 const { handleDbError, parsePortfolioLinks } = require('../utils/helpers');
 
 // Routes pour les élèves
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     const { search_name, search_class } = req.query;
-    let query = 'SELECT id, name, email, classe, bio, avatar FROM users';
-    const params = [];
 
-    let conditions = [];
-    if (search_name) {
-        conditions.push('name LIKE ?');
-        params.push(`%${search_name}%`);
+    try {
+        const users = await User.search({ name: search_name, classe: search_class });
+
+        // Enrich with showcase images
+        const usersWithShowcases = await Promise.all(users.map(async user => {
+            user.showcaseImages = await knex('showcase_images').where({ user_id: user.id }).limit(4);
+            return user;
+        }));
+
+        const classes = await User.listClasses();
+
+        res.render('students', {
+            users: usersWithShowcases,
+            user: req.session.user,
+            classes: classes,
+            search_name: search_name,
+            search_class: search_class
+        });
+    } catch (err) {
+        handleDbError(err, res);
     }
-    if (search_class) {
-        conditions.push('classe = ?');
-        params.push(search_class);
-    }
-
-    if (conditions.length > 0) {
-        query += ' WHERE ' + conditions.join(' AND ');
-    }
-
-    db.all(query, params, (err, users) => {
-        if (err) return handleDbError(err, res);
-
-        const promises = users.map(user =>
-            new Promise((resolve, reject) => {
-                db.all('SELECT image_path FROM showcase_images WHERE user_id = ? LIMIT 4', [user.id], (err, images) => {
-                    if (err) return reject(err);
-                    user.showcaseImages = images;
-                    resolve(user);
-                });
-            })
-        );
-
-        Promise.all(promises)
-            .then(usersWithShowcases => {
-                db.all('SELECT DISTINCT classe FROM users WHERE classe IS NOT NULL ORDER BY classe', [], (err, classes) => {
-                    if (err) return handleDbError(err, res);
-                    res.render('students', {
-                        users: usersWithShowcases,
-                        user: req.session.user,
-                        classes: classes.map(c => c.classe),
-                        search_name: search_name,
-                        search_class: search_class
-                    });
-                });
-            })
-            .catch(err => handleDbError(err, res));
-    });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     const userId = req.params.id;
-    db.get('SELECT * FROM users WHERE id = ?', [userId], (err, user) => {
-        if (err || !user) {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
             return res.redirect('/students');
         }
 
@@ -102,7 +81,10 @@ router.get('/:id', (req, res) => {
                 res.render('profile', { user: user, sessionUser: req.session.user, projects: projects, showcaseImages: showcaseImages, posts: posts, portfolioLinks: portfolioLinks, badges: badges });
             })
             .catch(err => handleDbError(err, res));
-    });
+
+    } catch (err) {
+        handleDbError(err, res);
+    }
 });
 
 module.exports = router;

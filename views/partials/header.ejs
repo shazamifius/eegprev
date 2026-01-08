@@ -16,10 +16,9 @@
     <link rel="stylesheet" href="/css/projects.css">
     <link rel="stylesheet" href="/css/clock.css"> <!-- Clock Styles -->
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r125/three.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/socket-client.js"></script>
     <script src="/js/clock.js" defer></script>
-    <script src="/js/logo.js" defer></script>
 
     <% if (typeof user !=='undefined' && user) { %>
         <style>
@@ -29,281 +28,116 @@
                 --primary-color: <%=user.color_primary || '#d95e4f' %>;
                 --secondary-color: <%=user.color_secondary || '#41435e' %>;
             }
-
-            /* Custom logo container size */
-            #magic {
-                width: 300px;
-                height: 100px;
-                display: inline-block;
-            }
         </style>
         <% } %>
 </head>
 
-<body>
+<body <%=(typeof user !=='undefined' && user) ? `data-user-id=${user.id}` : '' %>>
     <header>
-        <div class="container"
-            style="display: flex; justify-content: space-between; align-items: center; height: 80px;">
-            <!-- Logo area -->
-            <div id="branding" style="flex: 1; display: flex; align-items: center;">
-                <a href="/" style="display: block;">
-                    <div id="magic"></div>
-                </a>
-            </div>
+        <div class="container" style="position: relative; height: 80px; display: flex; align-items: center;">
+            <!-- Logo area REMOVED -->
 
-            <!-- Left Navigation -->
-            <nav class="nav-left" style="flex: 2; display: flex; justify-content: flex-end; padding-right: 20px;">
-                <ul style="display: flex; gap: 20px; margin: 0; padding: 0; list-style: none;">
-                    <% if (typeof user !=='undefined' && user) { %>
-                        <li><a href="/">Accueil</a></li>
-                        <li><a href="/students">Élèves</a></li>
-                        <li><a href="/projects">Projets</a></li>
-                        <li><a href="/projects/my-projects">Mes Projets</a></li>
-                        <% } else { %>
-                            <li><a href="/login">Connexion</a></li>
-                            <% } %>
-                </ul>
-            </nav>
+            <!-- Absolute Center Group -->
 
-            <!-- Centered Clock -->
-            <div class="clock__container"
-                style="transform: scale(0.6); width: 100px; height: 100px; display: flex; justify-content: center; align-items: center;">
-                <div class="clock__content grid">
-                    <div class="clock__circle">
-                        <span class="clock__twelve"></span>
-                        <span class="clock__three"></span>
-                        <span class="clock__six"></span>
-                        <span class="clock__nine"></span>
-
-                        <div class="clock__rounder"></div>
-                        <div class="clock__hour" id="clock-hour"></div>
-                        <div class="clock__minutes" id="clock-minutes"></div>
-                        <div class="clock__seconds" id="clock-seconds"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Navigation -->
-            <nav class="nav-right" style="flex: 2; display: flex; justify-content: flex-start; padding-left: 20px;">
-                <ul style="display: flex; gap: 20px; margin: 0; padding: 0; list-style: none;">
-                    <% if (typeof user !=='undefined' && user) { %>
-                        <li><a href="/publications">Publications</a></li>
-                        <li><a href="/news">Actualités</a></li>
-                        <li><a href="/help">Entraide</a></li>
-                        <li><a href="/chat">Chat</a></li>
-                        <li><a href="/profile">Profil</a></li>
-                        <li><a href="/logout" style="color: var(--primary-color);"> <i class="fas fa-power-off"></i></a>
-                        </li>
-                        <% } else { %>
-                            <li><a href="/register">Inscription</a></li>
-                            <% } %>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <% if (typeof user !=='undefined' && user) { %>
-        <!-- Beacon Widget -->
-        <button class="beacon-toggle-btn" id="beaconToggleBtn" onclick="toggleBeaconWidget()">
-            <div class="beacon-btn-content">
-                <i class="fas fa-wifi"></i>
-                <span id="beaconCount">0</span>
-            </div>
-            <i class="fas fa-chevron-up"></i>
-        </button>
-
-        <div class="beacon-widget" id="beaconWidget">
-            <div class="beacon-header">
-                <div class="beacon-title">
-                    <span class="beacon-dot"></span> Workspace
-                </div>
-                <i class="fas fa-chevron-down" style="cursor: pointer;" onclick="toggleBeaconWidget()"></i>
-            </div>
-
-            <div class="coworking-switch">
-                <label class="switch">
-                    <input type="checkbox" id="coworkingToggle">
-                    <span class="slider"></span>
-                </label>
-                <span id="coworkingLabel">Je suis disponible</span>
-            </div>
-
-            <!-- "Fini" Button, hidden by default -->
-            <button id="stopCoworkingBtn" class="btn btn-sm btn-danger"
-                style="display:none; width: 100%; margin-bottom: 1rem;" onclick="stopCoworking()">
-                <i class="fas fa-times"></i> Terminer la session
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
             </button>
 
-            <div class="beacon-inputs" id="beaconInputs">
-                <select id="coworkRoom" class="beacon-input">
-                    <option value="" disabled selected>Choisir une salle...</option>
-                    <optgroup label="Bâtiment Principal - RDC">
-                        <option value="The Kid">The Kid</option>
-                        <option value="Banksy">Banksy</option>
-                        <option value="Malika Favre">Malika Favre</option>
-                        <option value="Anne Imhof">Anne Imhof</option>
-                    </optgroup>
-                    <optgroup label="Bâtiment Principal - Étage 1">
-                        <option value="Joan Cornella">Joan Cornella</option>
-                        <option value="Fabienne Verdier">Fabienne Verdier</option>
-                        <option value="Ron Mueck">Ron Mueck</option>
-                        <option value="Jules Julien">Jules Julien</option>
-                        <option value="Philip Johnson">Philip Johnson</option>
-                        <option value="Frank Gehry">Frank Gehry</option>
-                    </optgroup>
-                    <optgroup label="Extension - RDC">
-                        <option value="Suzanne Kare">Suzanne Kare</option>
-                        <option value="Frida Kahlo">Frida Kahlo</option>
-                        <option value="Yves Klein">Yves Klein</option>
-                        <option value="Paul Cox">Paul Cox</option>
-                        <option value="Charlotte Perriand">Charlotte Perriand</option>
-                    </optgroup>
-                    <optgroup label="Annexe - RDC">
-                        <option value="Tim Burton">Tim Burton</option>
-                        <option value="Saul Bass">Saul Bass</option>
-                    </optgroup>
-                    <optgroup label="Annexe - Étage 1">
-                        <option value="Zaha Hadid">Zaha Hadid</option>
-                        <option value="Karabo Poppy">Karabo Poppy</option>
-                    </optgroup>
-                    <optgroup label="Zones Communes">
-                        <option value="Hall">Hall</option>
-                        <option value="Passerelle">Passerelle</option>
-                        <option value="Extérieur">Extérieur</option>
-                    </optgroup>
-                </select>
-                <input type="text" id="coworkActivity" class="beacon-input" placeholder="Activité (ex: Montage)">
-                <button onclick="updateCoworkingStatus()" class="btn btn-sm btn-primary"
-                    style="margin-top: 0.5rem; width: 100%;">Valider</button>
+            <!-- Absolute Center Group (Desktop) -->
+            <div class="header-center-group">
+                <!-- Left Navigation -->
+                <nav class="nav-left">
+                    <ul>
+                        <% if (typeof user !=='undefined' && user) { %>
+                            <li><a href="/">Accueil</a></li>
+                            <li><a href="/students">Élèves</a></li>
+                            <li><a href="/projects">Projets</a></li>
+                            <li><a href="/projects/my-projects">Mes Projets</a></li>
+                            <% } else { %>
+                                <li><a href="/login">Connexion</a></li>
+                                <% } %>
+                    </ul>
+                </nav>
+
+                <!-- Centered Clock -->
+                <div class="clock__container">
+                    <div class="clock__content grid">
+                        <div class="clock__circle">
+                            <span class="clock__twelve"></span>
+                            <span class="clock__three"></span>
+                            <span class="clock__six"></span>
+                            <span class="clock__nine"></span>
+
+                            <div class="clock__rounder"></div>
+                            <div class="clock__hour" id="clock-hour"></div>
+                            <div class="clock__minutes" id="clock-minutes"></div>
+                            <div class="clock__seconds" id="clock-seconds"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Navigation -->
+                <nav class="nav-right">
+                    <ul>
+                        <% if (typeof user !=='undefined' && user) { %>
+                            <li><a href="/publications">Publications</a></li>
+                            <li><a href="/news">Actualités</a></li>
+                            <li><a href="/help">Entraide</a></li>
+                            <li><a href="/chat">Chat</a></li>
+                            <li><a href="/profile">Profil</a></li>
+                            <li><a href="/logout" style="color: var(--primary-color);"> <i
+                                        class="fas fa-power-off"></i></a>
+                            </li>
+                            <% } else { %>
+                                <li><a href="/register">Inscription</a></li>
+                                <% } %>
+                    </ul>
+                </nav>
             </div>
 
-            <div class="coworkers-list" id="coworkersList">
-                <!-- Populated by JS -->
+            <!-- Mobile Menu Overlay -->
+            <div class="mobile-menu-overlay">
+                <div class="mobile-menu-header">
+                    <h3>Menu</h3>
+                    <button class="mobile-menu-close"><i class="fas fa-times"></i></button>
+                </div>
+                <nav class="mobile-nav">
+                    <ul>
+                        <% if (typeof user !=='undefined' && user) { %>
+                            <li><a href="/" class="mobile-link"><i class="fas fa-home"></i> Accueil</a></li>
+                            <li><a href="/students" class="mobile-link"><i class="fas fa-users"></i> Élèves</a></li>
+                            <li><a href="/projects" class="mobile-link"><i class="fas fa-project-diagram"></i>
+                                    Projets</a></li>
+                            <li><a href="/projects/my-projects" class="mobile-link"><i class="fas fa-layer-group"></i>
+                                    Mes Projets</a></li>
+                            <hr class="mobile-divider">
+                            <li><a href="/publications" class="mobile-link"><i class="fas fa-newspaper"></i>
+                                    Publications</a></li>
+                            <li><a href="/news" class="mobile-link"><i class="fas fa-bullhorn"></i> Actualités</a></li>
+                            <li><a href="/help" class="mobile-link"><i class="fas fa-hands-helping"></i> Entraide</a>
+                            </li>
+                            <li><a href="/chat" class="mobile-link"><i class="fas fa-comments"></i> Chat</a></li>
+                            <hr class="mobile-divider">
+                            <li><a href="/profile" class="mobile-link"><i class="fas fa-user-circle"></i> Profil</a>
+                            </li>
+                            <li><a href="/logout" class="mobile-link logout"><i class="fas fa-power-off"></i>
+                                    Déconnexion</a></li>
+                            <% } else { %>
+                                <li><a href="/login" class="mobile-link"><i class="fas fa-sign-in-alt"></i>
+                                        Connexion</a></li>
+                                <li><a href="/register" class="mobile-link"><i class="fas fa-user-plus"></i>
+                                        Inscription</a></li>
+                                <% } %>
+                    </ul>
+                </nav>
             </div>
         </div>
+    </header>
+    <script src="/js/header.js"></script>
 
-        <script>
-            window.socket = io();
-            const socket = window.socket;
-            const beaconWidget = document.getElementById('beaconWidget');
-            const beaconToggleBtn = document.getElementById('beaconToggleBtn');
-            const coworkingToggle = document.getElementById('coworkingToggle');
-            const beaconInputs = document.getElementById('beaconInputs');
-            const stopCoworkingBtn = document.getElementById('stopCoworkingBtn');
-            const coworkersList = document.getElementById('coworkersList');
-
-            const user = <% - JSON.stringify({
-                id: user.id,
-                name: user.name,
-                avatar: user.avatar,
-                is_coworking: user.is_coworking || false,
-                coworking_room: user.coworking_room || '',
-                coworking_activity: user.coworking_activity || ''
-            }) %>;
-
-            if (user.is_coworking) {
-                coworkingToggle.checked = true;
-                document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
-                document.getElementById('coworkRoom').value = user.coworking_room;
-                document.getElementById('coworkActivity').value = user.coworking_activity;
-                stopCoworkingBtn.style.display = 'block';
-                beaconInputs.classList.remove('active');
-            } else {
-                coworkingToggle.checked = false;
-                document.getElementById('coworkingLabel').innerText = "Je suis disponible";
-                stopCoworkingBtn.style.display = 'none';
-                beaconInputs.classList.remove('active');
-            }
-
-            socket.emit('user connected', user);
-
-            function toggleBeaconWidget() {
-                beaconWidget.classList.toggle('minimized');
-                if (beaconWidget.classList.contains('minimized')) {
-                    beaconToggleBtn.style.display = 'flex';
-                } else {
-                    beaconToggleBtn.style.display = 'none';
-                }
-            }
-
-            coworkingToggle.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    beaconInputs.classList.add('active');
-                    document.getElementById('coworkingLabel').innerText = "Mode Coworking Activé";
-                    stopCoworkingBtn.style.display = 'none';
-                } else {
-                    stopCoworking();
-                }
-            });
-
-            function updateCoworkingStatus() {
-                const room = document.getElementById('coworkRoom').value;
-                const activity = document.getElementById('coworkActivity').value;
-
-                if (room && activity) {
-                    socket.emit('coworking update', {
-                        is_coworking: true,
-                        room: room,
-                        activity: activity
-                    });
-
-                    beaconInputs.classList.remove('active');
-                    stopCoworkingBtn.style.display = 'block';
-                }
-            }
-
-            function stopCoworking() {
-                beaconInputs.classList.remove('active');
-                document.getElementById('coworkingLabel').innerText = "Je suis disponible";
-                coworkingToggle.checked = false;
-                stopCoworkingBtn.style.display = 'none';
-                socket.emit('coworking update', { is_coworking: false });
-            }
-
-            socket.on('coworking error', (msg) => {
-                alert(msg);
-                coworkingToggle.checked = false;
-                beaconInputs.classList.remove('active');
-                document.getElementById('coworkingLabel').innerText = "Je suis disponible";
-                stopCoworkingBtn.style.display = 'none';
-            });
-
-            socket.on('update coworkers list', (coworkers) => {
-                const countElement = document.getElementById('beaconCount');
-                if (countElement) {
-                    countElement.innerText = coworkers.length;
-                }
-
-                coworkersList.innerHTML = '';
-                coworkers.forEach(coworker => {
-                    const div = document.createElement('div');
-                    div.className = 'coworker-item';
-
-                    const img = document.createElement('img');
-                    img.src = coworker.avatar;
-                    img.className = 'coworker-avatar';
-                    img.alt = coworker.name;
-
-                    const infoDiv = document.createElement('div');
-                    infoDiv.className = 'coworker-info';
-
-                    const nameDiv = document.createElement('div');
-                    nameDiv.className = 'coworker-name';
-                    nameDiv.textContent = coworker.name;
-
-                    const statusDiv = document.createElement('div');
-                    statusDiv.className = 'coworker-status';
-                    statusDiv.textContent = `${coworker.room} • ${coworker.activity}`;
-
-                    infoDiv.appendChild(nameDiv);
-                    infoDiv.appendChild(statusDiv);
-                    div.appendChild(img);
-                    div.appendChild(infoDiv);
-
-                    coworkersList.appendChild(div);
-                });
-            });
-        </script>
+    <% if (typeof user !=='undefined' && user) { %>
+        <!-- Legacy Beacon Widget Removed - Replaced by Workspace Widget on Dashboard -->
         <% } %>
 
             <% if (typeof fullscreen==='undefined' || !fullscreen) { %>

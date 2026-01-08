@@ -1,62 +1,103 @@
 <%- include('partials/header', { title: project.title, user: user }) %>
 
-<div class="project-detail-container">
-    <h1><%= project.title %></h1>
-    <p class="project-author">par <a href="/students/<%= project.author_id %>"><%= project.authorName %></a></p>
+    <div class="project-detail-container">
+        <h1>
+            <%= project.title %>
+        </h1>
+        <p class="project-author">par <a href="/students/<%= project.author_id %>">
+                <%= project.authorName %>
+            </a></p>
 
-    <div class="project-detail-images">
-        <div class="project-detail-main-image">
-            <img src="<%= project.main_image || '/images/default-project.png' %>" alt="Image principale de <%= project.title %>">
+        <div class="project-detail-images">
+            <div class="project-detail-main-image">
+                <img src="<%= project.main_image || '/images/default-project.png' %>"
+                    alt="Image principale de <%= project.title %>">
+            </div>
+            <div class="project-detail-thumbnails">
+                <% if (project.secondary_images && project.secondary_images.length> 0) { %>
+                    <% project.secondary_images.forEach(image=> { %>
+                        <div class="project-detail-thumbnail">
+                            <img src="<%= image %>" alt="Image secondaire de <%= project.title %>">
+                        </div>
+                        <% }); %>
+                            <% } %>
+            </div>
         </div>
-        <div class="project-detail-thumbnails">
-            <% if (project.secondary_images && project.secondary_images.length > 0) { %>
-                <% project.secondary_images.forEach(image => { %>
-                    <div class="project-detail-thumbnail">
-                        <img src="<%= image %>" alt="Image secondaire de <%= project.title %>">
+
+        <div class="project-content-layout">
+            <!-- Main Column: Description & Readme -->
+            <div class="project-main-column">
+                <h2>Description</h2>
+                <p>
+                    <%= project.description %>
+                </p>
+
+                <% if (project.readme) { %>
+                    <div class="project-readme">
+                        <h2>README</h2>
+                        <pre><code><%= project.readme %></code></pre>
                     </div>
-                <% }); %>
-            <% } %>
+                    <% } %>
+            </div>
+
+            <!-- Sidebar Column: Meta Info, Files, Actions -->
+            <div class="project-sidebar-column">
+                <div class="sidebar-section">
+                    <h3>À propos</h3>
+                    <p class="project-meta-item">
+                        <i class="fas fa-user-circle"></i>
+                        Project Chef : <a href="/students/<%= project.author_id %>">
+                            <%= project.authorName %>
+                        </a>
+                    </p>
+
+                    <% if (collaborators && collaborators.length> 0) { %>
+                        <div class="project-meta-item">
+                            <i class="fas fa-users"></i>
+                            <strong>Collaborateurs :</strong>
+                            <div class="collaborators-list">
+                                <% collaborators.forEach((collaborator, index)=> { %>
+                                    <a href="/students/<%= collaborator.id %>">
+                                        <%= collaborator.name %>
+                                    </a>
+                                    <%= index < collaborators.length - 1 ? ', ' : '' %>
+                                        <% }); %>
+                            </div>
+                        </div>
+                        <% } %>
+
+                            <p class="project-meta-item">
+                                <i class="fas fa-clock"></i> Publié le <%= new
+                                    Date(project.created_at).toLocaleDateString() %>
+                            </p>
+                </div>
+
+                <% if (projectFiles && projectFiles.length> 0) { %>
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-file-alt"></i> Fichiers</h3>
+                        <ul class="project-files-list">
+                            <% projectFiles.forEach(file=> { %>
+                                <li>
+                                    <a href="<%= file.file_path %>" download>
+                                        <i class="fas fa-download"></i>
+                                        <%= file.file_name %>
+                                    </a>
+                                </li>
+                                <% }); %>
+                        </ul>
+                    </div>
+                    <% } %>
+
+                        <div class="sidebar-section">
+                            <form action="/projects/<%= project.id %>/upvote" method="POST">
+                                <button type="submit" class="upvote-button"
+                                    style="width: 100%; justify-content: center;">
+                                    ▲ Upvote (<%= project.upvotes %>)
+                                </button>
+                            </form>
+                        </div>
+            </div>
         </div>
     </div>
 
-    <div class="project-detail-info">
-        <h2>Participants</h2>
-        <p><strong>Auteur :</strong> <a href="/students/<%= project.author_id %>"><%= project.authorName %></a></p>
-        <% if (collaborators && collaborators.length > 0) { %>
-            <p><strong>Collaborateurs :</strong>
-                <% collaborators.forEach((collaborator, index) => { %>
-                    <a href="/students/<%= collaborator.id %>"><%= collaborator.name %></a><%= index < collaborators.length - 1 ? ', ' : '' %>
-                <% }); %>
-            </p>
-        <% } %>
-
-        <h2>Description</h2>
-        <p><%= project.description %></p>
-
-        <% if (project.readme) { %>
-            <div class="project-readme">
-                <h2>README</h2>
-                <pre><code><%= project.readme %></code></pre>
-            </div>
-        <% } %>
-
-        <% if (projectFiles && projectFiles.length > 0) { %>
-            <div class="project-files">
-                <h2>Fichiers du projet</h2>
-                <ul>
-                    <% projectFiles.forEach(file => { %>
-                        <li><a href="<%= file.file_path %>" download><%= file.file_name %></a></li>
-                    <% }); %>
-                </ul>
-            </div>
-        <% } %>
-
-        <div class="project-detail-footer">
-            <form action="/projects/<%= project.id %>/upvote" method="POST">
-                <button type="submit" class="upvote-button">▲ Upvote (<%= project.upvotes %>)</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<%- include('partials/footer') %>
+    <%- include('partials/footer') %>

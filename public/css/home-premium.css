@@ -395,3 +395,54 @@ body {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
 }
+
+/* Mobile Overrides */
+@media (max-width: 768px) {
+    .hero-container {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 100px;
+        /* Space for header */
+        padding-bottom: 50px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .btn-hero {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .perspective-grid {
+        padding: 1rem;
+    }
+
+    .card-3d {
+        width: 100%;
+        /* Full width cards on mobile */
+    }
+
+    .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .welcome-stats {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+}

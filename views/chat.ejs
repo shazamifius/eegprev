@@ -28,41 +28,79 @@
 
         // Émettre un événement pour annoncer la connexion de l'utilisateur
         socket.emit('user connected', currentUser);
+        socket.emit('join chat'); // Request history
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (input.value) {
-                socket.emit('chat message', { name: currentUser.name, avatar: currentUser.avatar, msg: input.value });
-                input.value = '';
-            }
-        });
-
-        socket.on('chat message', (data) => {
+        // Helper to display a message
+        function appendMessage(data) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('chat-message');
 
+            // Highlight own messages
+            if (data.author_name === currentUser.name) {
+                messageElement.style.justifyContent = 'flex-end';
+                messageElement.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                messageElement.style.borderRadius = '8px';
+                messageElement.style.padding = '5px';
+            }
+
             const avatarElement = document.createElement('img');
-            avatarElement.src = data.avatar || '/images/default-avatar.png';
-            avatarElement.alt = `Avatar de ${data.name}`;
+            avatarElement.src = data.author_avatar || data.avatar || '/images/default-avatar.png';
+            avatarElement.alt = `Avatar de ${data.author_name || data.name}`;
             avatarElement.classList.add('chat-avatar');
 
             const contentElement = document.createElement('div');
             contentElement.classList.add('chat-message-content');
 
             const nameElement = document.createElement('strong');
-            nameElement.textContent = data.name;
+            nameElement.textContent = data.author_name || data.name;
 
             const textElement = document.createElement('p');
-            textElement.textContent = data.msg;
+            textElement.textContent = data.content || data.msg;
 
             contentElement.appendChild(nameElement);
             contentElement.appendChild(textElement);
 
-            messageElement.appendChild(avatarElement);
-            messageElement.appendChild(contentElement);
+            // Reorder for own messages if desired, or keep standard avatar left
+            if (data.author_name === currentUser.name) {
+                // messageElement.appendChild(contentElement);
+                // messageElement.appendChild(avatarElement); 
+                // Keep standard order for consistency but aligned right
+                messageElement.appendChild(avatarElement);
+                messageElement.appendChild(contentElement);
+            } else {
+                messageElement.appendChild(avatarElement);
+                messageElement.appendChild(contentElement);
+            }
 
             messages.appendChild(messageElement);
             messages.scrollTop = messages.scrollHeight;
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (input.value) {
+                const msgData = {
+                    name: currentUser.name,
+                    avatar: currentUser.avatar,
+                    msg: input.value,
+                    author_id: currentUser.id
+                };
+                socket.emit('chat message', msgData);
+                input.value = '';
+            }
+        });
+
+        // Load History
+        socket.on('chat history', (history) => {
+            messages.innerHTML = ''; // Clear loading text or empty state
+            history.forEach(msg => {
+                appendMessage(msg);
+            });
+        });
+
+        // Real-time messages
+        socket.on('chat message', (data) => {
+            appendMessage(data);
         });
 
         socket.on('update user list', (users) => {

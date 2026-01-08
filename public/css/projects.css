@@ -2,20 +2,140 @@
     max-width: 900px;
     margin: 40px auto;
 }
+
 .form-container h1 {
     text-align: center;
     color: var(--accent-color);
 }
+
 .form-container .form-check {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
 }
+
 .form-container .form-check-input {
-   width: auto;
-   margin-bottom: 0;
+    width: auto;
+    margin-bottom: 0;
 }
+
 .tox-tinymce {
     border-radius: var(--border-radius) !important;
+}
+
+/* Project Detail Page Layout Refactor */
+.project-content-layout {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    /* 3/4 Main, 1/4 Sidebar */
+    gap: 30px;
+    margin-top: 30px;
+    align-items: start;
+    /* Essential for sticky sidebar to work */
+}
+
+/* Main Column Styles */
+.project-main-column {
+    background-color: var(--background-light);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-readme {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.project-readme pre {
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    color: #d4d4d4;
+}
+
+/* Sidebar Column Styles */
+.project-sidebar-column {
+    position: sticky;
+    top: 100px;
+    /* Offset from header */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar-section {
+    background-color: var(--background-light);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-section h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.project-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.project-meta-item i {
+    width: 20px;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.project-files-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.project-files-list li {
+    margin-bottom: 10px;
+}
+
+.project-files-list a {
+    display: block;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.project-files-list a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.project-files-list i {
+    margin-right: 8px;
+    color: var(--accent-color);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .project-content-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .project-sidebar-column {
+        position: static;
+    }
 }

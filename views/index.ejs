@@ -124,139 +124,145 @@
                             </div>
                             <% } %>
 
-                                <!-- Quick Actions Grid -->
-                                <div class="action-grid">
-                                    <a href="/projects/new" class="action-card">
-                                        <div class="action-icon">
-                                            <i class="fas fa-plus"></i>
-                                        </div>
-                                        <h3>Créer un projet</h3>
-                                        <p>Partagez votre dernier travail</p>
-                                    </a>
-                                    <a href="/publications" class="action-card">
-                                        <div class="action-icon">
-                                            <i class="fas fa-pen-fancy"></i>
-                                        </div>
-                                        <h3>Fil d'actualité</h3>
-                                        <p>Voir ce que les autres postent</p>
-                                    </a>
-                                    <a href="/help" class="action-card">
-                                        <div class="action-icon">
-                                            <i class="fas fa-hands-helping"></i>
-                                        </div>
-                                        <h3>Entraide</h3>
-                                        <p>Besoin d'un coup de main ?</p>
-                                    </a>
-                                    <a href="/students" class="action-card">
-                                        <div class="action-icon">
-                                            <i class="fas fa-users"></i>
-                                        </div>
-                                        <h3>Étudiants</h3>
-                                        <p>Explorer la communauté</p>
-                                    </a>
-                                </div>
+                                <!-- Workspace Widget -->
+                                <%- include('partials/workspace_widget') %>
 
-                                <!-- Main Content Split -->
-                                <div class="dashboard-grid">
-                                    <!-- Feed Column -->
-                                    <div class="feed-section">
-                                        <h2>Publications Récentes</h2>
-                                        <% if (posts && posts.length> 0) { %>
-                                            <% posts.forEach(post=> { %>
-                                                <div class="feed-card">
-                                                    <div class="feed-header">
-                                                        <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>"
-                                                            class="feed-avatar" alt="Avatar">
-                                                        <div class="feed-meta">
-                                                            <h4>
-                                                                <%= post.authorName %>
-                                                            </h4>
-                                                            <!-- Add Time ago logic if available, currently just static or simple -->
-                                                            <span>Il y a quelque temps</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="feed-body">
-                                                        <p>
-                                                            <%= post.content %>
-                                                        </p>
-                                                        <% if (post.media_path) { %>
-                                                            <% if (post.media_type &&
-                                                                post.media_type.startsWith('image/')) { %>
-                                                                <img src="<%= post.media_path %>"
-                                                                    style="width: 100%; border-radius: 8px; margin-top: 1rem; max-height: 400px; object-fit: cover;"
-                                                                    alt="Post media">
-                                                                <% } else if (post.media_type &&
-                                                                    post.media_type.startsWith('video/')) { %>
-                                                                    <video src="<%= post.media_path %>" controls
-                                                                        style="width: 100%; border-radius: 8px; margin-top: 1rem;"></video>
-                                                                    <% } else { %>
-                                                                        <div
-                                                                            style="margin-top: 1rem; padding: 1rem; background: #0f172a; border-radius: 8px;">
-                                                                            <a href="<%= post.media_path %>"
-                                                                                style="color: #3b82f6; text-decoration: none;"><i
-                                                                                    class="fas fa-paperclip"></i> Voir
-                                                                                la pièce jointe</a>
-                                                                        </div>
-                                                                        <% } %>
-                                                                            <% } %>
-                                                    </div>
-                                                    <div
-                                                        style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem;">
-                                                        <a href="/publications/<%= post.id %>"
-                                                            style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;"><i
-                                                                class="far fa-comment"></i> Commenter</a>
-                                                        <span style="color: #94a3b8; font-size: 0.9rem;"><i
-                                                                class="far fa-heart"></i>
-                                                            <%= post.upvotes || 0 %>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <% }); %>
-                                                    <div style="text-align: center; margin-top: 2rem;">
-                                                        <a href="/publications" class="button">Voir plus</a>
-                                                    </div>
-                                                    <% } else { %>
-                                                        <div class="feed-card"
-                                                            style="text-align: center; color: #94a3b8;">
-                                                            <p>Aucune publication récente.</p>
-                                                        </div>
-                                                        <% } %>
+                                    <!-- Quick Actions Grid -->
+                                    <div class="action-grid">
+                                        <a href="/projects/new" class="action-card">
+                                            <div class="action-icon">
+                                                <i class="fas fa-plus"></i>
+                                            </div>
+                                            <h3>Créer un projet</h3>
+                                            <p>Partagez votre dernier travail</p>
+                                        </a>
+                                        <a href="/publications" class="action-card">
+                                            <div class="action-icon">
+                                                <i class="fas fa-pen-fancy"></i>
+                                            </div>
+                                            <h3>Fil d'actualité</h3>
+                                            <p>Voir ce que les autres postent</p>
+                                        </a>
+                                        <a href="/help" class="action-card">
+                                            <div class="action-icon">
+                                                <i class="fas fa-hands-helping"></i>
+                                            </div>
+                                            <h3>Entraide</h3>
+                                            <p>Besoin d'un coup de main ?</p>
+                                        </a>
+                                        <a href="/students" class="action-card">
+                                            <div class="action-icon">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            <h3>Étudiants</h3>
+                                            <p>Explorer la communauté</p>
+                                        </a>
                                     </div>
 
-                                    <!-- Sidebar Column -->
-                                    <div class="sidebar-section">
-                                        <!-- News Widget -->
-                                        <div
-                                            style="background: #1e293b; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.05);">
-                                            <h3
-                                                style="color: white; margin-top: 0; font-size: 1.1rem; margin-bottom: 1rem;">
-                                                📢 Actualités EEGP</h3>
-                                            <% if (news && news.length> 0) { %>
-                                                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                                    <% news.forEach(article=> { %>
-                                                        <div class="mini-news-item">
-                                                            <a href="/news"
-                                                                style="color: #cbd5e1; text-decoration: none; font-weight: 500; display: block; margin-bottom: 0.25rem;">
-                                                                <%= article.title %>
-                                                            </a>
-                                                            <span style="font-size: 0.8rem; color: #64748b;">
-                                                                <%= new Date(article.created_at).toLocaleDateString() %>
+                                    <!-- Main Content Split -->
+                                    <div class="dashboard-grid">
+                                        <!-- Feed Column -->
+                                        <div class="feed-section">
+                                            <h2>Publications Récentes</h2>
+                                            <% if (posts && posts.length> 0) { %>
+                                                <% posts.forEach(post=> { %>
+                                                    <div class="feed-card">
+                                                        <div class="feed-header">
+                                                            <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>"
+                                                                class="feed-avatar" alt="Avatar">
+                                                            <div class="feed-meta">
+                                                                <h4>
+                                                                    <%= post.authorName %>
+                                                                </h4>
+                                                                <!-- Add Time ago logic if available, currently just static or simple -->
+                                                                <span>Il y a quelque temps</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="feed-body">
+                                                            <p>
+                                                                <%= post.content %>
+                                                            </p>
+                                                            <% if (post.media_path) { %>
+                                                                <% if (post.media_type &&
+                                                                    post.media_type.startsWith('image/')) { %>
+                                                                    <img src="<%= post.media_path %>"
+                                                                        style="width: 100%; border-radius: 8px; margin-top: 1rem; max-height: 400px; object-fit: cover;"
+                                                                        alt="Post media">
+                                                                    <% } else if (post.media_type &&
+                                                                        post.media_type.startsWith('video/')) { %>
+                                                                        <video src="<%= post.media_path %>" controls
+                                                                            style="width: 100%; border-radius: 8px; margin-top: 1rem;"></video>
+                                                                        <% } else { %>
+                                                                            <div
+                                                                                style="margin-top: 1rem; padding: 1rem; background: #0f172a; border-radius: 8px;">
+                                                                                <a href="<%= post.media_path %>"
+                                                                                    style="color: #3b82f6; text-decoration: none;"><i
+                                                                                        class="fas fa-paperclip"></i>
+                                                                                    Voir
+                                                                                    la pièce jointe</a>
+                                                                            </div>
+                                                                            <% } %>
+                                                                                <% } %>
+                                                        </div>
+                                                        <div
+                                                            style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem;">
+                                                            <a href="/publications/<%= post.id %>"
+                                                                style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;"><i
+                                                                    class="far fa-comment"></i> Commenter</a>
+                                                            <span style="color: #94a3b8; font-size: 0.9rem;"><i
+                                                                    class="far fa-heart"></i>
+                                                                <%= post.upvotes || 0 %>
                                                             </span>
                                                         </div>
-                                                        <% }); %>
-                                                </div>
-                                                <% } else { %>
-                                                    <p style="color: #64748b; font-size: 0.9rem;">Aucune news pour le
-                                                        moment.</p>
-                                                    <% } %>
+                                                    </div>
+                                                    <% }); %>
+                                                        <div style="text-align: center; margin-top: 2rem;">
+                                                            <a href="/publications" class="button">Voir plus</a>
+                                                        </div>
+                                                        <% } else { %>
+                                                            <div class="feed-card"
+                                                                style="text-align: center; color: #94a3b8;">
+                                                                <p>Aucune publication récente.</p>
+                                                            </div>
+                                                            <% } %>
                                         </div>
 
-                                        <!-- Footer Links Mini -->
-                                        <div style="color: #64748b; font-size: 0.8rem; line-height: 1.6;">
-                                            <p>&copy; 2024 EEGP Community.<br>Fait avec ❤️ par Antigravity.</p>
+                                        <!-- Sidebar Column -->
+                                        <div class="sidebar-section">
+                                            <!-- News Widget -->
+                                            <div
+                                                style="background: #1e293b; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                                                <h3
+                                                    style="color: white; margin-top: 0; font-size: 1.1rem; margin-bottom: 1rem;">
+                                                    📢 Actualités EEGP</h3>
+                                                <% if (news && news.length> 0) { %>
+                                                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                                        <% news.forEach(article=> { %>
+                                                            <div class="mini-news-item">
+                                                                <a href="/news"
+                                                                    style="color: #cbd5e1; text-decoration: none; font-weight: 500; display: block; margin-bottom: 0.25rem;">
+                                                                    <%= article.title %>
+                                                                </a>
+                                                                <span style="font-size: 0.8rem; color: #64748b;">
+                                                                    <%= new
+                                                                        Date(article.created_at).toLocaleDateString() %>
+                                                                </span>
+                                                            </div>
+                                                            <% }); %>
+                                                    </div>
+                                                    <% } else { %>
+                                                        <p style="color: #64748b; font-size: 0.9rem;">Aucune news pour
+                                                            le
+                                                            moment.</p>
+                                                        <% } %>
+                                            </div>
+
+                                            <!-- Footer Links Mini -->
+                                            <div style="color: #64748b; font-size: 0.8rem; line-height: 1.6;">
+                                                <p>&copy; 2024 EEGP Community.<br>Fait avec ❤️ par Antigravity.</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
             </div>
             <% } %>
 

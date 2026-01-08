@@ -1,4 +1,4 @@
-/* Adapter for login-form styles within the EJS layout */
+ok j'ai /* Adapter for login-form styles within the EJS layout */
 :root {
     --login-bg: #2b2e38;
     --login-text: #b9bbbe;
@@ -274,5 +274,28 @@ input.form-style::placeholder {
 
     .center-wrap {
         padding: 0 20px;
+    }
+
+    .section h4 {
+        font-size: 1.2rem;
+        /* Smaller title */
+    }
+}
+
+@media (max-height: 700px) {
+
+    /* For landscape mobile or small stakeholders */
+    .login-section {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        align-items: flex-start;
+        /* scroll enabled */
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .card-3d-wrap {
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
 }

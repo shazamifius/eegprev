@@ -5,24 +5,35 @@
 
 :root {
   /* Color Palette */
-  --primary-color: #d95e4f; /* Orangey Red - For main actions, buttons */
-  --secondary-color: #41435e; /* Dark Blue/Purple - For secondary elements */
-  --accent-color: #adc0ec; /* Light Blue/Lavender - For highlights, accents */
-  --dark-accent-color: #1f344e; /* Deep Blue - For text, titles */
+  --primary-color: #d95e4f;
+  /* Orangey Red - For main actions, buttons */
+  --secondary-color: #41435e;
+  /* Dark Blue/Purple - For secondary elements */
+  --accent-color: #adc0ec;
+  /* Light Blue/Lavender - For highlights, accents */
+  --dark-accent-color: #1f344e;
+  /* Deep Blue - For text, titles */
 
   /* Background Colors */
-  --background-dark: #23272A; /* Discord-like dark background */
-  --background-light: #2C2F33; /* Slightly lighter for cards, containers */
-  --card-bg-color: #2C2F33; /* Alias for card background */
+  --background-dark: #23272A;
+  /* Discord-like dark background */
+  --background-light: #2C2F33;
+  /* Slightly lighter for cards, containers */
+  --card-bg-color: #2C2F33;
+  /* Alias for card background */
 
   /* Text Colors */
-  --text-primary: #ffffff; /* White for primary text */
-  --text-secondary: #b9bbbe; /* Lighter gray for secondary text */
+  --text-primary: #ffffff;
+  /* White for primary text */
+  --text-secondary: #b9bbbe;
+  /* Lighter gray for secondary text */
 
   /* Other variables */
-  --border-radius: 12px; /* Slightly more rounded for modern look */
+  --border-radius: 12px;
+  /* Slightly more rounded for modern look */
   --transition-speed: 0.3s;
-  --border-color: #41435e; /* Default border color */
+  --border-color: #41435e;
+  /* Default border color */
 }
 
 body {
@@ -37,207 +48,210 @@ body {
 
 /* Page Header Box - New Addition */
 .page-header-container {
-    background-color: var(--background-light);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    margin-bottom: 3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 5px solid var(--primary-color); /* Accent border */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 5px solid var(--primary-color);
+  /* Accent border */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 /* Subtle background pattern/gradient for header */
 .page-header-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 30%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03));
-    pointer-events: none;
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03));
+  pointer-events: none;
 }
 
 .page-header-title h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .page-header-subtitle {
-    margin-top: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 1rem;
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
 }
 
 /* Futuristic New Project Button */
 .btn-futuristic-action {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 14px 28px;
-    background: linear-gradient(135deg, var(--primary-color), #ec4899); /* Use primary var + pink */
-    color: white;
-    border: none;
-    border-radius: 50px; /* Pill shape */
-    font-weight: 700;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    text-decoration: none;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 1;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--primary-color), #ec4899);
+  /* Use primary var + pink */
+  color: white;
+  border: none;
+  border-radius: 50px;
+  /* Pill shape */
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
 .btn-futuristic-action::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #ec4899, var(--primary-color));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ec4899, var(--primary-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
 }
 
 .btn-futuristic-action:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
 }
 
 .btn-futuristic-action:hover::before {
-    opacity: 1;
+  opacity: 1;
 }
 
 .btn-icon-circle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
 }
 
 /* Modern Project Grid */
 .modern-project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
 }
 
 /* Modern Project Card */
 .modern-project-card {
-    background-color: var(--card-bg-color);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
 }
 
 .modern-project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-    border-color: var(--primary-color);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary-color);
 }
 
 .card-banner-container {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
 }
 
 .card-banner-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
 .modern-project-card:hover .card-banner-img {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .card-content {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .card-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
-    line-height: 1.3;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  line-height: 1.3;
 }
 
 .card-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .author-name {
-    font-weight: 600;
-    color: var(--accent-color);
+  font-weight: 600;
+  color: var(--accent-color);
 }
 
 .card-summary {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    flex-grow: 1;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1;
 }
 
 .card-actions {
-    margin-top: auto;
+  margin-top: auto;
 }
 
 .btn-card-action {
-    display: block;
-    width: 100%;
-    padding: 10px 0;
-    text-align: center;
-    background: transparent;
-    border: 1px solid var(--secondary-color);
-    color: var(--text-primary);
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    transition: all 0.2s ease;
-    text-decoration: none;
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  text-align: center;
+  background: transparent;
+  border: 1px solid var(--secondary-color);
+  color: var(--text-primary);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .btn-card-action:hover {
-    background: var(--secondary-color);
-    color: white;
+  background: var(--secondary-color);
+  color: white;
 }
 
 /* Publications Feed & Post Cards */
@@ -266,11 +280,13 @@ body {
 }
 
 .validation-icon.valid {
-  color: #2ecc71; /* Green */
+  color: #2ecc71;
+  /* Green */
 }
 
 .validation-icon.invalid {
-  color: #e74c3c; /* Red */
+  color: #e74c3c;
+  /* Red */
 }
 
 .post-card:hover {
@@ -290,7 +306,8 @@ body {
   border-radius: 50%;
   margin-right: 15px;
   border: 2px solid var(--accent-color);
-  object-fit: cover; /* Empêche la distorsion */
+  object-fit: cover;
+  /* Empêche la distorsion */
 }
 
 .post-author a {
@@ -312,7 +329,8 @@ body {
 .post-content p {
   margin: 0;
   line-height: 1.6;
-  overflow-wrap: break-word; /* Ajout pour gérer le dépassement de texte */
+  overflow-wrap: break-word;
+  /* Ajout pour gérer le dépassement de texte */
 }
 
 .post-content img,
@@ -330,30 +348,34 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto; /* Push footer to the bottom */
+  margin-top: auto;
+  /* Push footer to the bottom */
 }
 
 .post-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.upvote-button, .comment-button {
-    background: none;
-    border: 1px solid var(--secondary-color);
-    color: var(--text-secondary);
-    padding: 5px 10px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all var(--transition-speed);
-    font-size: 0.9em;
-    text-decoration: none; /* For comment-button */
+.upvote-button,
+.comment-button {
+  background: none;
+  border: 1px solid var(--secondary-color);
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  font-size: 0.9em;
+  text-decoration: none;
+  /* For comment-button */
 }
 
-.upvote-button:hover, .comment-button:hover {
-    background-color: var(--secondary-color);
-    color: var(--text-primary);
+.upvote-button:hover,
+.comment-button:hover {
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
 }
 
 .post-date {
@@ -369,7 +391,8 @@ body {
   height: 250px;
   border-radius: var(--border-radius);
   overflow: hidden;
-  margin-bottom: 20px; /* Remove the negative margin */
+  margin-bottom: 20px;
+  /* Remove the negative margin */
   border: 1px solid var(--secondary-color);
 }
 
@@ -381,7 +404,8 @@ body {
 .showcase-image-container img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Crop, don't distort */
+  object-fit: cover;
+  /* Crop, don't distort */
 }
 
 .profile-header {
@@ -397,7 +421,8 @@ body {
   border-radius: 50%;
   border: 5px solid var(--background-dark);
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-  object-fit: cover; /* Empêche la distorsion */
+  object-fit: cover;
+  /* Empêche la distorsion */
 }
 
 .profile-header-info {
@@ -466,7 +491,8 @@ body {
 .social-links a {
   display: inline-block;
   margin-right: 15px;
-  font-size: 24px; /* Icon size */
+  font-size: 24px;
+  /* Icon size */
   color: var(--text-secondary);
   transition: color var(--transition-speed), transform var(--transition-speed);
 }
@@ -477,90 +503,94 @@ body {
 }
 
 .portfolio-link a {
-    display: block;
-    margin-top: 20px;
-    background-color: var(--primary-color);
-    color: white;
-    text-align: center;
-    padding: 12px;
-    border-radius: var(--border-radius);
-    text-decoration: none;
-    font-weight: bold;
+  display: block;
+  margin-top: 20px;
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 12px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .portfolio-link a:hover {
-    background-color: #c0392b; /* A darker shade of primary */
+  background-color: #c0392b;
+  /* A darker shade of primary */
 }
 
 .portfolio-links {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .portfolio-button {
-    display: flex;
-    align-items: center;
-    background-color: var(--secondary-color);
-    color: var(--text-primary);
-    padding: 10px 15px;
-    border-radius: var(--border-radius);
-    text-decoration: none;
-    font-weight: 600;
-    margin-bottom: 10px;
-    transition: background-color var(--transition-speed);
+  display: flex;
+  align-items: center;
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 10px;
+  transition: background-color var(--transition-speed);
 }
 
 .portfolio-button:hover {
-    background-color: var(--dark-accent-color);
+  background-color: var(--dark-accent-color);
 }
 
 .portfolio-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 12px;
-    border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  border-radius: 4px;
 }
 
 .profile-main h2 {
-    color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .project-card {
-    background-color: var(--background-light);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    transition: transform var(--transition-speed);
-    text-decoration: none;
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: transform var(--transition-speed);
+  text-decoration: none;
 }
+
 .project-card:hover {
-    transform: translateY(-5px);
+  transform: translateY(-5px);
 }
 
 .project-card img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
 }
 
 .project-card h3 {
-    margin: 15px;
-    color: var(--text-primary);
+  margin: 15px;
+  color: var(--text-primary);
 }
+
 .project-card p {
-    margin: 0 15px 15px;
-    color: var(--text-secondary);
+  margin: 0 15px 15px;
+  color: var(--text-secondary);
 }
 
 
 /* General UI Harmonization: Forms & Buttons */
 
 /* Buttons */
-button, .button {
+button,
+.button {
   background-color: var(--primary-color);
   color: var(--text-primary);
   border: none;
@@ -574,12 +604,16 @@ button, .button {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: background-color var(--transition-speed), transform var(--transition-speed);
-  display: inline-block; /* For <a> tags styled as buttons */
-  text-decoration: none; /* For <a> tags styled as buttons */
+  display: inline-block;
+  /* For <a> tags styled as buttons */
+  text-decoration: none;
+  /* For <a> tags styled as buttons */
 }
 
-button:hover, .button:hover {
-  background-color: #c0392b; /* A darker shade of primary */
+button:hover,
+.button:hover {
+  background-color: #c0392b;
+  /* A darker shade of primary */
   transform: translateY(-2px);
 }
 
@@ -606,9 +640,9 @@ form {
 }
 
 form h2 {
-    margin-top: 0;
-    color: var(--accent-color);
-    text-align: center;
+  margin-top: 0;
+  color: var(--accent-color);
+  text-align: center;
 }
 
 /* Form Inputs */
@@ -627,7 +661,8 @@ select {
   border-radius: var(--border-radius);
   color: var(--text-primary);
   font-family: 'Poppins', sans-serif;
-  box-sizing: border-box; /* Important for width calculation */
+  box-sizing: border-box;
+  /* Important for width calculation */
   transition: border-color var(--transition-speed);
 }
 
@@ -667,21 +702,129 @@ header {
 }
 
 header .container {
-    display: flex;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto;
+  /* Center the container */
+}
+
+/* New Header Layout for Absolute Centering */
+.header-center-group {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  /* Space between Nav Left - Clock - Nav Right */
+  width: max-content;
+  /* Ensure it doesn't stretch unnecessarily */
+}
+
+.header-center-group nav ul {
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Ensure Logo stays on the left */
+#branding {
+  z-index: 10;
+  /* Keep logo clickable */
+}
+
+/** Responsive Design for Header **/
+@media (max-width: 1200px) {
+  .header-center-group {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  header .container {
     justify-content: space-between;
-    align-items: center;
-    width: 95%;
-    max-width: 1400px;
-    margin: 0 auto; /* Center the container */
+  }
+
+  .header-center-group {
+    position: static;
+    transform: none;
+    flex-direction: column;
+    gap: 10px;
+    display: none;
+    /* Hide for now on tablet/mobile or replace with burger */
+  }
+
+  /* Simple responsive fallback: if we want to show them, we might need a burger menu.
+       For this task, "responsive" implies it shouldn't look broken. 
+       Let's keep them visible but standard flow if space permits, or stack.
+    */
+}
+
+/* For this specific user request, they want it "middle and responsive". 
+   Let's try to keep it visible but maybe scale down or hide text if needed.
+   actually, let's make a better responsive rule.
+*/
+@media (max-width: 1024px) {
+  .header-center-group {
+    position: static;
+    transform: none;
+    margin-left: auto;
+  }
+
+  #branding {
+    flex: 0 0 auto;
+    margin-right: 20px;
+  }
+}
+
+/* Mobile styles - Stack everything nicely */
+@media (max-width: 768px) {
+  header {
+    padding: 10px 0;
+    height: auto !important;
+    /* Override fixed height */
+  }
+
+  header .container {
+    flex-direction: column;
+    height: auto !important;
+    gap: 20px;
+  }
+
+  .header-center-group {
+    position: static;
+    transform: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+  }
+
+  .header-center-group nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Adjust Clock for mobile */
+  .clock__container {
+    transform: scale(0.5);
+    margin: -20px 0;
+    /* Reduce vertical space taken by scaled clock */
+  }
 }
 
 /* This is for the main content container */
 .container {
-    width: 95%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 #branding h1 a {
@@ -694,34 +837,35 @@ header .container {
 }
 
 #branding h1 a:hover {
-    color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 nav ul li {
-    display: inline-block;
-    margin-left: 25px;
+  display: inline-block;
+  margin-left: 25px;
 }
 
 nav ul li a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1em;
-    padding-bottom: 5px;
-    border-bottom: 2px solid transparent;
-    transition: color var(--transition-speed), border-color var(--transition-speed);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1em;
+  padding-bottom: 5px;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition-speed), border-color var(--transition-speed);
 }
 
 nav ul li a:hover,
-nav ul li a.active { /* You might want to add an 'active' class via JS later */
-    color: var(--accent-color);
-    border-bottom-color: var(--accent-color);
+nav ul li a.active {
+  /* You might want to add an 'active' class via JS later */
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
 }
 
 /* Help Detail & Comments */
@@ -730,13 +874,14 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
   padding: 15px;
   border-radius: var(--border-radius);
   margin-bottom: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .comment p {
   margin: 0;
   line-height: 1.6;
-  overflow-wrap: break-word; /* Ajout pour gérer le dépassement de texte */
+  overflow-wrap: break-word;
+  /* Ajout pour gérer le dépassement de texte */
   color: var(--text-secondary);
 }
 
@@ -750,16 +895,19 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover; /* Empêche la distorsion */
+  object-fit: cover;
+  /* Empêche la distorsion */
   margin-right: 15px;
 }
 
 /* Chat Styles */
 .chat-container {
   display: flex;
-  height: calc(80vh - 70px); /* Hauteur réduite de 20vh */
+  height: calc(80vh - 70px);
+  /* Hauteur réduite de 20vh */
   max-height: calc(80vh - 70px);
-  overflow: hidden; /* Prevent body scroll */
+  overflow: hidden;
+  /* Prevent body scroll */
 }
 
 .user-list-panel {
@@ -793,13 +941,15 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
   display: flex;
   flex-direction: column;
   background-color: var(--background-light);
-  overflow: hidden; /* Prevent internal overflow from affecting layout */
+  overflow: hidden;
+  /* Prevent internal overflow from affecting layout */
 }
 
 .chat-messages {
   flex-grow: 1;
   padding: 20px;
-  overflow-y: auto; /* This is the only scrolling part */
+  overflow-y: auto;
+  /* This is the only scrolling part */
 }
 
 .chat-message {
@@ -887,13 +1037,13 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
   background-color: var(--background-light);
   border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .student-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .student-card-banner {
@@ -909,8 +1059,9 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
 }
 
 .placeholder-banner {
-    grid-column: 1 / -1; /* Span all 4 columns */
-    background-color: var(--background-dark);
+  grid-column: 1 / -1;
+  /* Span all 4 columns */
+  background-color: var(--background-dark);
 }
 
 .student-card-content {
@@ -944,11 +1095,13 @@ nav ul li a.active { /* You might want to add an 'active' class via JS later */
 .student-card-bio {
   color: var(--text-secondary);
   line-height: 1.6;
-  height: calc(1.6em * 2); /* line-height * number of lines */
+  height: calc(1.6em * 2);
+  /* line-height * number of lines */
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-line-clamp: 2;
+  /* number of lines to show */
   -webkit-box-orient: vertical;
 }
 
@@ -1041,12 +1194,15 @@ a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-but
 .post-author a,
 .comment-author a,
 .filter-nav a {
-    color: var(--text-primary) !important;
-    font-weight: bold !important;
-    text-decoration: none !important;
-    background-color: transparent !important; /* Annule tout fond */
-    border: none !important; /* Annule toute bordure */
-    transition: none !important; /* Annule les transitions pour garder le style constant */
+  color: var(--text-primary) !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  /* Annule tout fond */
+  border: none !important;
+  /* Annule toute bordure */
+  transition: none !important;
+  /* Annule les transitions pour garder le style constant */
 }
 
 /* Assure que le style reste constant au survol, à la visite, etc. */
@@ -1057,36 +1213,323 @@ a:not(.button):not(.edit-profile-button):not(.portfolio-button):not(.comment-but
 .post-author a:hover,
 .comment-author a:hover,
 .filter-nav a:hover {
-    color: var(--text-primary) !important;
-    font-weight: bold !important;
-    text-decoration: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    transform: none !important; /* Annule tout effet de transformation */
+  color: var(--text-primary) !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  transform: none !important;
+  /* Annule tout effet de transformation */
 }
 
 /* Special overrides for card actions */
 .btn-action-delete {
-    width: 100%;
-    border: 1px solid #e74c3c !important; /* Force red border */
-    color: #e74c3c !important;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 0; /* Override generic button min-width */
+  width: 100%;
+  border: 1px solid #e74c3c !important;
+  /* Force red border */
+  color: #e74c3c !important;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  /* Override generic button min-width */
 }
 
 .btn-action-delete:hover {
-    background-color: #e74c3c !important;
-    color: white !important;
-    border-color: #e74c3c !important;
+  background-color: #e74c3c !important;
+  color: white !important;
+  border-color: #e74c3c !important;
 }
 
 .btn-action-edit {
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* =========================================
+   RESPONSIVE / MOBILE OPTIMIZATION
+   ========================================= */
+
+/* Default: Hide Mobile Elements on Desktop */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1001;
+  /* Above header */
+  padding: 10px;
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--background-dark);
+  z-index: 2000;
+  transform: translateX(-100%);
+  /* Hidden by default */
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.mobile-menu-overlay.active {
+  transform: translateX(0);
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--secondary-color);
+  padding-bottom: 15px;
+}
+
+.mobile-menu-header h3 {
+  margin: 0;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.mobile-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mobile-nav li {
+  width: 100%;
+  margin: 0;
+}
+
+.mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 10px 0;
+  transition: color 0.2s;
+}
+
+.mobile-link i {
+  width: 25px;
+  /* Fixed width for icons */
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.mobile-link:hover,
+.mobile-link:active {
+  color: var(--accent-color);
+}
+
+.mobile-link:hover i {
+  color: var(--accent-color);
+}
+
+.mobile-divider {
+  border: 0;
+  border-top: 1px solid var(--secondary-color);
+  margin: 10px 0;
+}
+
+.mobile-link.logout {
+  color: #e74c3c;
+}
+
+/* =========================================
+   MEDIA QUERIES
+   ========================================= */
+
+@media (max-width: 1024px) {
+
+  /* Header Changes */
+  .header-center-group {
+    display: none !important;
+    /* Hide desktop nav */
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+    /* Show burger */
+  }
+
+  header .container {
+    justify-content: flex-start;
+    /* Burger on left */
+    padding-left: 15px;
+  }
+
+  /* Grid collapses */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modern-project-grid,
+  .posts-feed,
+  .student-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    /* Slightly smaller min-width */
+  }
+
+  .profile-content {
+    grid-template-columns: 1fr;
+    /* Stack sidebar and main */
+  }
+
+  .profile-sidebar {
+    margin-bottom: 20px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    margin-bottom: 15px;
+    width: 140px;
+    height: 140px;
+  }
+
+  .profile-header-info {
+    margin-left: 0;
+    margin-bottom: 15px;
+  }
+
+  .profile-header-info h1 {
+    font-size: 1.8rem;
+  }
+
+  .edit-profile-button {
+    margin-left: 0;
+    /* Centered */
+  }
+
+  .profile-banner {
+    height: 180px;
+    /* Smaller banner */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 cols instead of 4 */
+  }
+
+  .showcase-image-container:nth-child(n+3) {
+    display: none;
+    /* Hide extra images on tablet/mobile if needed, or just stack */
+  }
+}
+
+@media (max-width: 768px) {
+
+  /* Mobile Typography */
+  html {
+    font-size: 14px;
+    /* Base scale down */
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  /* Container fixes */
+  .container {
+    padding: 15px;
+    width: 100%;
+    /* Full width */
+  }
+
+  .page-header-container {
+    padding: 1.5rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .page-header-container::after {
+    width: 100%;
+    height: 50%;
+    top: auto;
+    bottom: 0;
+    background: linear-gradient(0deg, transparent, rgba(255, 255, 255, 0.03));
+  }
+
+  .btn-futuristic-action {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Card adjustments */
+  .modern-project-card,
+  .post-card,
+  .student-card {
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Login Page specific tweaks if any generic ones */
+  .login-section {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  /* Hide some elements on very small screens if needed */
+  .clock__container {
+    display: none;
+    /* Hide clock completely on mobile */
+  }
+}
+
+/* =========================================
+   CUSTOM SCROLLBAR
+   ========================================= */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
 }

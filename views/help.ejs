@@ -1,157 +1,168 @@
 <%- include('partials/header', { title: title }) %>
 
-<div class="main-container">
+    <div class="main-container">
 
-    <div class="help-header">
-        <h1>Hub Entraide & Collaboration</h1>
-        <p style="color: #94a3b8; max-width: 600px; margin: 0 auto;">Pose tes questions, partage tes compétences, et trouve des partenaires pour tes projets. Ensemble, on va plus loin.</p>
+        <div class="help-header">
+            <h1>Hub Entraide & Collaboration</h1>
+            <p style="color: #94a3b8; max-width: 600px; margin: 0 auto;">Pose tes questions, partage tes compétences, et
+                trouve des partenaires pour tes projets. Ensemble, on va plus loin.</p>
 
-        <div style="margin-top: 2rem;">
-            <button onclick="openModal('help')" class="btn btn-primary"><i class="fas fa-question-circle"></i> Demander de l'Aide</button>
-            <button onclick="openModal('swap')" class="btn" style="background: #d946ef; color: white; margin-left: 1rem;"><i class="fas fa-sync-alt"></i> Proposer un Échange</button>
+            <div style="margin-top: 2rem;">
+                <button onclick="openModal('help')" class="btn btn-primary"><i class="fas fa-hands-helping"></i>
+                    Demander de l'Aide</button>
+                <button onclick="openModal('swap')" class="btn"
+                    style="background: #d946ef; color: white; margin-left: 1rem;"><i class="fas fa-exchange-alt"></i>
+                    Proposer un Échange</button>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <span style="color: #94a3b8; font-weight: 600; margin-right: 0.5rem;">Filtrer par :</span>
+            <a href="/help<%= filters.type ? '?type='+filters.type : '' %>" class="filter-btn">Tout</a>
+            <a href="/help?category=Développement<%= filters.type ? '&type='+filters.type : '' %>"
+                class="filter-btn">Dev</a>
+            <a href="/help?category=Design<%= filters.type ? '&type='+filters.type : '' %>"
+                class="filter-btn">Design</a>
+            <a href="/help?category=3D<%= filters.type ? '&type='+filters.type : '' %>" class="filter-btn">3D</a>
+            <a href="/help?status=ouverte<%= filters.type ? '&type='+filters.type : '' %>" class="filter-btn">Ouvertes
+                uniquement</a>
+        </div>
+
+        <div class="request-grid">
+            <% if (requests.length===0) { %>
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #94a3b8;">
+                    <i class="fas fa-wind" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                    <p>C'est calme par ici... Lance le mouvement !</p>
+                </div>
+                <% } %>
+
+                    <% requests.forEach(request=> { %>
+                        <div class="request-card <%= request.request_type === 'swap' ? 'swap-card' : 'help-card' %> <%= request.status === 'résolue' ? 'resolved' : '' %>"
+                            onclick="window.location.href='/help/<%= request.id %>'" style="cursor: pointer;">
+                            <div class="status-badge <%= request.status === 'résolue' ? 'resolved' : 'open' %>">
+                                <%= request.status==='résolue' ? 'Résolu' : 'Ouvert' %>
+                            </div>
+
+                            <div class="card-header">
+                                <img src="<%= request.authorAvatar %>" alt="Avatar" class="card-avatar">
+                                <div class="card-meta">
+                                    <h3>
+                                        <%= request.authorName %>
+                                    </h3>
+                                    <span>
+                                        <%= new Date(request.created_at).toLocaleDateString() %> • <%= request.category
+                                                %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="card-title">
+                                <%= request.title %>
+                            </div>
+
+                            <p
+                                style="color: #cbd5e1; font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                <%= request.description %>
+                            </p>
+
+                            <div class="card-tags">
+                                <% if (request.tags) { %>
+                                    <% request.tags.split(',').forEach(tag=> { %>
+                                        <span class="tag">
+                                            <%= tag.trim() %>
+                                        </span>
+                                        <% }) %>
+                                            <% } %>
+                                                <% if (request.request_type==='swap' ) { %>
+                                                    <span class="tag" style="background: #701a75; color: #f5d0fe;">Skill
+                                                        Swap</span>
+                                                    <% } %>
+                            </div>
+                        </div>
+                        <% }) %>
         </div>
     </div>
 
-    <div class="help-tabs">
-        <a href="/help" class="help-tab <%= !filters.type || filters.type === 'help' ? 'active' : '' %>">
-            <i class="fas fa-hands-helping"></i> Demandes d'Aide
-        </a>
-        <a href="/help?type=swap" class="help-tab swap-tab <%= filters.type === 'swap' ? 'active' : '' %>">
-            <i class="fas fa-exchange-alt"></i> Échange de Compétences
-        </a>
-    </div>
+    <!-- Modal Creation -->
+    <div id="newRequestModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeModal()"
+                style="float: right; cursor: pointer; color: #94a3b8; font-size: 1.5rem;">&times;</span>
+            <h2 id="modalTitle" style="color: white; margin-bottom: 1.5rem;">Nouvelle Demande</h2>
 
-    <div class="filters-bar">
-        <span style="color: #94a3b8; font-weight: 600; margin-right: 0.5rem;">Filtrer par :</span>
-        <a href="/help<%= filters.type ? '?type='+filters.type : '' %>" class="filter-btn">Tout</a>
-        <a href="/help?category=Développement<%= filters.type ? '&type='+filters.type : '' %>" class="filter-btn">Dev</a>
-        <a href="/help?category=Design<%= filters.type ? '&type='+filters.type : '' %>" class="filter-btn">Design</a>
-        <a href="/help?category=3D<%= filters.type ? '&type='+filters.type : '' %>" class="filter-btn">3D</a>
-        <a href="/help?status=ouverte<%= filters.type ? '&type='+filters.type : '' %>" class="filter-btn">Ouvertes uniquement</a>
-    </div>
+            <form action="/help/new" method="POST">
+                <input type="hidden" name="request_type" id="requestTypeInput" value="help">
 
-    <div class="request-grid">
-        <% if (requests.length === 0) { %>
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #94a3b8;">
-                <i class="fas fa-wind" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                <p>C'est calme par ici... Lance le mouvement !</p>
-            </div>
-        <% } %>
-
-        <% requests.forEach(request => { %>
-            <div class="request-card <%= request.request_type === 'swap' ? 'swap-card' : 'help-card' %> <%= request.status === 'résolue' ? 'resolved' : '' %>" onclick="window.location.href='/help/<%= request.id %>'" style="cursor: pointer;">
-                <div class="status-badge <%= request.status === 'résolue' ? 'resolved' : 'open' %>">
-                    <%= request.status === 'résolue' ? 'Résolu' : 'Ouvert' %>
+                <div class="form-group">
+                    <label>Titre</label>
+                    <input type="text" name="title" class="form-control" placeholder="Ex: Problème de rendu Blender..."
+                        required>
                 </div>
 
-                <div class="card-header">
-                    <img src="<%= request.authorAvatar %>" alt="Avatar" class="card-avatar">
-                    <div class="card-meta">
-                        <h3><%= request.authorName %></h3>
-                        <span><%= new Date(request.created_at).toLocaleDateString() %> • <%= request.category %></span>
-                    </div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select name="category" class="form-control">
+                        <option value="Général">Général</option>
+                        <option value="Développement">Développement</option>
+                        <option value="Design">Design</option>
+                        <option value="3D">3D</option>
+                        <option value="Vidéo">Vidéo</option>
+                        <option value="Autre">Autre</option>
+                    </select>
                 </div>
 
-                <div class="card-title">
-                    <%= request.title %>
+                <div class="form-group">
+                    <label>Tags (séparés par des virgules)</label>
+                    <input type="text" name="tags" class="form-control" placeholder="Ex: C++, Texture, Urgent">
                 </div>
 
-                <p style="color: #cbd5e1; font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                    <%= request.description %>
-                </p>
-
-                <div class="card-tags">
-                    <% if (request.tags) { %>
-                        <% request.tags.split(',').forEach(tag => { %>
-                            <span class="tag"><%= tag.trim() %></span>
-                        <% }) %>
-                    <% } %>
-                    <% if (request.request_type === 'swap') { %>
-                        <span class="tag" style="background: #701a75; color: #f5d0fe;">Skill Swap</span>
-                    <% } %>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" rows="5" required></textarea>
                 </div>
-            </div>
-        <% }) %>
+
+                <div class="form-group">
+                    <label class="incognito-toggle">
+                        <input type="checkbox" name="is_anonymous">
+                        <i class="fas fa-user-secret"></i> Poster en mode Incognito (Anonyme)
+                    </label>
+                    <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Seuls les admins verront ton nom.
+                        Idéal si tu es timide.</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Publier</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- Modal Creation -->
-<div id="newRequestModal" class="modal">
-    <div class="modal-content">
-        <span onclick="closeModal()" style="float: right; cursor: pointer; color: #94a3b8; font-size: 1.5rem;">&times;</span>
-        <h2 id="modalTitle" style="color: white; margin-bottom: 1.5rem;">Nouvelle Demande</h2>
+    <script>
+        function openModal(type) {
+            const modal = document.getElementById('newRequestModal');
+            const title = document.getElementById('modalTitle');
+            const typeInput = document.getElementById('requestTypeInput');
 
-        <form action="/help/new" method="POST">
-            <input type="hidden" name="request_type" id="requestTypeInput" value="help">
-
-            <div class="form-group">
-                <label>Titre</label>
-                <input type="text" name="title" class="form-control" placeholder="Ex: Problème de rendu Blender..." required>
-            </div>
-
-            <div class="form-group">
-                <label>Catégorie</label>
-                <select name="category" class="form-control">
-                    <option value="Général">Général</option>
-                    <option value="Développement">Développement</option>
-                    <option value="Design">Design</option>
-                    <option value="3D">3D</option>
-                    <option value="Vidéo">Vidéo</option>
-                    <option value="Autre">Autre</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Tags (séparés par des virgules)</label>
-                <input type="text" name="tags" class="form-control" placeholder="Ex: C++, Texture, Urgent">
-            </div>
-
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" class="form-control" rows="5" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="incognito-toggle">
-                    <input type="checkbox" name="is_anonymous">
-                    <i class="fas fa-user-secret"></i> Poster en mode Incognito (Anonyme)
-                </label>
-                <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Seuls les admins verront ton nom. Idéal si tu es timide.</p>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Publier</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    function openModal(type) {
-        const modal = document.getElementById('newRequestModal');
-        const title = document.getElementById('modalTitle');
-        const typeInput = document.getElementById('requestTypeInput');
-
-        modal.style.display = 'block';
-        if (type === 'swap') {
-            title.textContent = "Proposer un Échange de Compétences";
-            title.style.color = '#d946ef';
-            typeInput.value = 'swap';
-        } else {
-            title.textContent = "Demander de l'Aide";
-            title.style.color = 'white';
-            typeInput.value = 'help';
+            modal.style.display = 'block';
+            if (type === 'swap') {
+                title.textContent = "Proposer un Échange de Compétences";
+                title.style.color = '#d946ef';
+                typeInput.value = 'swap';
+            } else {
+                title.textContent = "Demander de l'Aide";
+                title.style.color = 'white';
+                typeInput.value = 'help';
+            }
         }
-    }
 
-    function closeModal() {
-        document.getElementById('newRequestModal').style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById('newRequestModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
+        function closeModal() {
+            document.getElementById('newRequestModal').style.display = 'none';
         }
-    }
-</script>
 
-<%- include('partials/footer') %>
+        window.onclick = function (event) {
+            const modal = document.getElementById('newRequestModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
+    <%- include('partials/footer') %>

@@ -1,5 +1,5 @@
 // middleware/auth.js
-const { db } = require('../database');
+const User = require('../models/User');
 
 const isAdmin = (req, res, next) => {
     if (req.session.user && req.session.user.is_admin) {
@@ -9,10 +9,11 @@ const isAdmin = (req, res, next) => {
     }
 };
 
-const refreshSessionUser = (req, res, next) => {
+const refreshSessionUser = async (req, res, next) => {
     if (req.session.user) {
-        db.get('SELECT * FROM users WHERE id = ?', [req.session.user.id], (err, refreshedUser) => {
-            if (!err && refreshedUser) {
+        try {
+            const refreshedUser = await User.findById(req.session.user.id);
+            if (refreshedUser) {
                 // Update properties from DB
                 req.session.user = refreshedUser;
                 // Force save not strictly necessary if we modify the object in place and store uses it,
@@ -24,7 +25,10 @@ const refreshSessionUser = (req, res, next) => {
             } else {
                 next();
             }
-        });
+        } catch (err) {
+            console.error("Session refresh error:", err);
+            next();
+        }
     } else {
         next();
     }
