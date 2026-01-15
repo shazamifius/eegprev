@@ -42,6 +42,11 @@
                             <div class="status-badge <%= request.status === 'résolue' ? 'resolved' : 'open' %>">
                                 <%= request.status==='résolue' ? 'Résolu' : 'Ouvert' %>
                             </div>
+                            <button class="btn-warn"
+                                onclick="openReportModal('help_request', '<%= request.id %>'); event.stopPropagation();"
+                                title="Signaler">
+                                <i class="fas fa-exclamation"></i>
+                            </button>
 
                             <div class="card-header">
                                 <img src="<%= request.authorAvatar %>" alt="Avatar" class="card-avatar">
@@ -165,4 +170,5 @@
         }
     </script>
 
-    <%- include('partials/footer') %>
+    <%- include('partials/report-modal') %>
+        <%- include('partials/footer') %>

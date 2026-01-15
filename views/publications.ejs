@@ -1,68 +1,77 @@
-<%- include('partials/header', { title: "Publications", user: user }) %>
+<%- include('partials/header', { title: "Publications" , user: user }) %>
 
-<div class="publications-container">
-    <h1>Publications de la communauté</h1>
+    <div class="publications-container">
+        <h1>Publications de la communauté</h1>
 
-    <% if (user) { %>
-    <div class="new-post-form">
-        <h2>Créer une publication</h2>
-        <form action="/publications/new" method="POST" enctype="multipart/form-data">
-            <textarea name="content" placeholder="Quoi de neuf ?" required></textarea>
-            <%- include('partials/file-uploader', {
-                fieldName: 'media',
-                labelText: 'Cliquez ou glissez-déposez une image ou une vidéo',
-                isMultiple: false,
-                isRequired: false
-            }) %>
-            <label for="category">Catégorie :</label>
-            <select name="category">
-                <option value="Texte">Texte</option>
-                <option value="Illustrations">Illustrations</option>
-                <option value="3D">3D</option>
-                <option value="Vidéo">Vidéo</option>
-            </select>
-            <button type="submit">Publier</button>
-        </form>
-    </div>
-    <% } %>
-
-    <div class="feed-filters">
-        <a href="/publications">Tous</a>
-        <a href="/publications?filter=Illustrations">Illustrations</a>
-        <a href="/publications?filter=3D">3D</a>
-        <a href="/publications?filter=Vidéo">Vidéo</a>
-        <a href="/publications?filter=Texte">Texte</a>
-    </div>
-
-    <div class="posts-feed">
-        <% posts.forEach(post => { %>
-        <div class="post-card">
-            <div class="post-author">
-                <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>" alt="Avatar de <%= post.authorName %>">
-                <a href="/students/<%= post.author_id %>"><%= post.authorName %></a>
+        <% if (user) { %>
+            <div class="new-post-form">
+                <h2>Créer une publication</h2>
+                <form action="/publications/new" method="POST" enctype="multipart/form-data">
+                    <textarea name="content" placeholder="Quoi de neuf ?" required></textarea>
+                    <%- include('partials/file-uploader', { fieldName: 'media' ,
+                        labelText: 'Cliquez ou glissez-déposez une image ou une vidéo' , isMultiple: false, isRequired:
+                        false }) %>
+                        <label for="category">Catégorie :</label>
+                        <select name="category">
+                            <option value="Texte">Texte</option>
+                            <option value="Illustrations">Illustrations</option>
+                            <option value="3D">3D</option>
+                            <option value="Vidéo">Vidéo</option>
+                        </select>
+                        <button type="submit">Publier</button>
+                </form>
             </div>
-            <div class="post-content">
-                <p><%= post.content %></p>
-                <% if (post.media_path) { %>
-                    <% if (post.media_type.startsWith('image')) { %>
-                        <img src="<%= post.media_path %>" alt="Média de la publication">
-                    <% } else if (post.media_type.startsWith('video')) { %>
-                        <video controls src="<%= post.media_path %>"></video>
-                    <% } %>
-                <% } %>
-            </div>
-            <div class="post-footer">
-                <div class="post-actions">
-                    <form action="/publications/<%= post.id %>/upvote" method="POST">
-                        <button type="submit" class="upvote-button">▲ <%= post.upvotes %></button>
-                    </form>
-                    <a href="/publications/<%= post.id %>" class="comment-button">💬</a>
+            <% } %>
+
+                <div class="feed-filters">
+                    <a href="/publications">Tous</a>
+                    <a href="/publications?filter=Illustrations">Illustrations</a>
+                    <a href="/publications?filter=3D">3D</a>
+                    <a href="/publications?filter=Vidéo">Vidéo</a>
+                    <a href="/publications?filter=Texte">Texte</a>
                 </div>
-                <span class="post-date"><%= new Date(post.created_at).toLocaleDateString() %></span>
-            </div>
-        </div>
-        <% }); %>
-    </div>
-</div>
 
-<%- include('partials/footer') %>
+                <div class="posts-feed">
+                    <% posts.forEach(post=> { %>
+                        <div class="post-card">
+                            <button class="btn-warn" onclick="openReportModal('post', '<%= post.id %>')"
+                                title="Signaler">
+                                <i class="fas fa-exclamation"></i>
+                            </button>
+                            <div class="post-author">
+                                <img src="<%= post.authorAvatar || '/images/default-avatar.png' %>"
+                                    alt="Avatar de <%= post.authorName %>">
+                                <a href="/students/<%= post.author_id %>">
+                                    <%= post.authorName %>
+                                </a>
+                            </div>
+                            <div class="post-content">
+                                <p>
+                                    <%= post.content %>
+                                </p>
+                                <% if (post.media_path) { %>
+                                    <% if (post.media_type.startsWith('image')) { %>
+                                        <img src="<%= post.media_path %>" alt="Média de la publication">
+                                        <% } else if (post.media_type.startsWith('video')) { %>
+                                            <video controls src="<%= post.media_path %>"></video>
+                                            <% } %>
+                                                <% } %>
+                            </div>
+                            <div class="post-footer">
+                                <div class="post-actions">
+                                    <form action="/publications/<%= post.id %>/upvote" method="POST">
+                                        <button type="submit" class="upvote-button">▲ <%= post.upvotes %></button>
+                                    </form>
+                                    <a href="/publications/<%= post.id %>" class="comment-button">💬</a>
+                                </div>
+                                <span class="post-date">
+                                    <%= new Date(post.created_at).toLocaleDateString() %>
+                                </span>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+    </div>
+
+    <%- include('partials/report-modal') %>
+        <%- include('partials/footer') %>

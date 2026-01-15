@@ -10,39 +10,46 @@
 
         <div class="projects-grid">
             <% projects.forEach(project=> { %>
-                <a href="/projects/<%= project.id %>" style="text-decoration: none; color: inherit;">
-                    <article class="modern-project-card">
-                        <div class="card-banner-container">
-                            <img src="<%= project.main_image || '/images/default-project.png' %>"
-                                alt="<%= project.title %>" class="card-banner-img">
+                <!-- Clickable Article instead of Anchor wrapper to allow nested buttons -->
+                <article class="modern-project-card" onclick="window.location.href='/projects/<%= project.id %>'"
+                    style="cursor: pointer;">
+                    <button class="btn-warn"
+                        onclick="openReportModal('project', '<%= project.id %>'); event.stopPropagation();"
+                        title="Signaler">
+                        <i class="fas fa-exclamation"></i>
+                    </button>
+
+                    <div class="card-banner-container">
+                        <img src="<%= project.main_image || '/images/default-project.png' %>" alt="<%= project.title %>"
+                            class="card-banner-img">
+                    </div>
+
+                    <div class="card-content">
+                        <h3 class="card-title">
+                            <%= project.title %>
+                        </h3>
+
+                        <div class="card-meta">
+                            <span class="author-name">par <%= project.authorName %></span>
+                            <span class="project-upvotes" style="margin-left: auto;">
+                                <i class="fas fa-arrow-up"></i>
+                                <%= project.upvotes %>
+                            </span>
                         </div>
 
-                        <div class="card-content">
-                            <h3 class="card-title">
-                                <%= project.title %>
-                            </h3>
+                        <p class="card-summary">
+                            <%= project.description.length> 100 ? project.description.substring(0, 100) + '...' :
+                                project.description %>
+                        </p>
 
-                            <div class="card-meta">
-                                <span class="author-name">par <%= project.authorName %></span>
-                                <span class="project-upvotes" style="margin-left: auto;">
-                                    <i class="fas fa-arrow-up"></i>
-                                    <%= project.upvotes %>
-                                </span>
-                            </div>
-
-                            <p class="card-summary">
-                                <%= project.description.length> 100 ? project.description.substring(0, 100) + '...' :
-                                    project.description %>
-                            </p>
-
-                            <div class="card-actions">
-                                <span class="btn-card-action">Voir le projet</span>
-                            </div>
+                        <div class="card-actions">
+                            <span class="btn-card-action">Voir le projet</span>
                         </div>
-                    </article>
-                </a>
+                    </div>
+                </article>
                 <% }); %>
         </div>
     </div>
 
-    <%- include('partials/footer') %>
+    <%- include('partials/report-modal') %>
+        <%- include('partials/footer') %>

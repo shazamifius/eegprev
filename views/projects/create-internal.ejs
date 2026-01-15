@@ -1,69 +1,73 @@
-<%- include('../partials/header', { title: 'Nouveau Projet Local', user: user }) %>
+<%- include('../partials/header', { title: 'Nouveau Projet Local' , user: user }) %>
 
-<div class="form-container">
-    <form id="create-project-form" action="/projects/new/internal" method="POST" enctype="multipart/form-data">
-        <h1>Nouveau Projet Local</h1>
-        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">Remplissez les informations ci-dessous pour créer votre projet.</p>
+    <div class="form-container">
+        <form id="create-project-form" action="/projects/new/internal" method="POST" enctype="multipart/form-data">
+            <h1>Nouveau Projet Local</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">Remplissez les
+                informations ci-dessous pour créer votre projet.</p>
 
-        <div class="form-group mb-3">
-            <label for="title">Titre du projet</label>
-            <input type="text" id="title" name="title" required>
-        </div>
+            <div class="form-group mb-3">
+                <label for="title">Titre du projet</label>
+                <input type="text" id="title" name="title" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label for="banner">Bannière du projet</label>
-            <input type="file" id="banner" name="banner" accept="image/*" class="form-control" style="border: 1px solid var(--border-color); padding: 10px; border-radius: 5px; background: var(--card-bg-color); color: var(--text-color);">
-            <small style="display: block; margin-top: 5px; color: var(--text-secondary);">Choisissez une image représentative pour votre projet.</small>
-        </div>
+            <div class="form-group mb-3">
+                <label for="banner">Bannière du projet</label>
+                <input type="file" id="banner" name="banner" accept="image/*" class="form-control"
+                    style="border: 1px solid var(--border-color); padding: 10px; border-radius: 5px; background: var(--card-bg-color); color: var(--text-color);">
+                <small style="display: block; margin-top: 5px; color: var(--text-secondary);">Choisissez une image
+                    représentative pour votre projet.</small>
+            </div>
 
-        <div class="form-group mb-3">
-            <label for="readme_content">Description (README)</label>
-            <div style="display: flex; gap: 20px;">
-                <div style="flex: 2;">
-                    <textarea id="readme_content" name="readme_content" rows="20" class="form-control" style="width: 100%; background: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; font-family: monospace;" placeholder="# Titre du projet&#10;&#10;## Description&#10;Votre description ici...&#10;&#10;![Texte alternatif](lien_image.jpg)"></textarea>
-                </div>
-                <div style="flex: 1; background: var(--card-bg-color); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                    <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--accent-color);">Aide Markdown</h3>
-                    <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.6;">
-                        <li><strong># Titre 1</strong> - Grand titre</li>
-                        <li><strong>## Titre 2</strong> - Sous-titre</li>
-                        <li><strong>### Titre 3</strong> - Petit titre</li>
-                        <li><strong>**Gras**</strong> - Texte en gras</li>
-                        <li><strong>*Italique*</strong> - Texte en italique</li>
-                        <li><strong>- Liste</strong> - Liste à puces</li>
-                        <li><strong>1. Liste</strong> - Liste numérotée</li>
-                        <li><strong>[Lien](url)</strong> - Lien hypertexte</li>
-                        <li><strong>![Alt](url)</strong> - Image</li>
-                        <li><strong>`Code`</strong> - Code en ligne</li>
-                        <li><strong>```Code```</strong> - Bloc de code</li>
-                    </ul>
-                    <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Vous pouvez héberger vos images dans la section fichiers ci-dessous et copier leur lien.</p>
+            <div class="form-group mb-3">
+                <label for="readme_content">Description (README)</label>
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 2;">
+                        <textarea id="readme_content" name="readme_content" rows="20" class="form-control"
+                            style="width: 100%; background: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; font-family: monospace;"
+                            placeholder="# Titre du projet&#10;&#10;## Description&#10;Votre description ici...&#10;&#10;![Texte alternatif](lien_image.jpg)"></textarea>
+                    </div>
+                    <div
+                        style="flex: 1; background: var(--card-bg-color); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                        <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--accent-color);">Aide Markdown</h3>
+                        <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.6;">
+                            <li><strong># Titre 1</strong> - Grand titre</li>
+                            <li><strong>## Titre 2</strong> - Sous-titre</li>
+                            <li><strong>### Titre 3</strong> - Petit titre</li>
+                            <li><strong>**Gras**</strong> - Texte en gras</li>
+                            <li><strong>*Italique*</strong> - Texte en italique</li>
+                            <li><strong>- Liste</strong> - Liste à puces</li>
+                            <li><strong>1. Liste</strong> - Liste numérotée</li>
+                            <li><strong>[Lien](url)</strong> - Lien hypertexte</li>
+                            <li><strong>![Alt](url)</strong> - Image</li>
+                            <li><strong>`Code`</strong> - Code en ligne</li>
+                            <li><strong>```Code```</strong> - Bloc de code</li>
+                        </ul>
+                        <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Vous pouvez
+                            héberger vos images dans la section fichiers ci-dessous et copier leur lien.</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="form-group mb-3">
-            <label>Fichiers du projet</label>
-            <%- include('../partials/file-uploader', {
-                fieldName: 'project_files',
-                labelText: 'Cliquez ou glissez-déposez vos fichiers ici (max 10)',
-                isMultiple: true,
-                isRequired: false
-            }) %>
-        </div>
+            <div class="form-group mb-3">
+                <label>Fichiers du projet</label>
+                <%- include('../partials/file-uploader', { fieldName: 'project_files' ,
+                    labelText: 'Cliquez ou glissez-déposez vos fichiers ou dossiers ici (illimité)' , isMultiple: true,
+                    isRequired: false, accept: '*/*' , allowFolders: true }) %>
+            </div>
 
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
-            <label class="form-check-label" for="is_public">Rendre ce projet public (visible par tous)</label>
-        </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
+                <label class="form-check-label" for="is_public">Rendre ce projet public (visible par tous)</label>
+            </div>
 
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" checked>
-            <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
-        </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" checked>
+                <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
+            </div>
 
-        <button type="submit" class="button" style="width: 100%; margin-top: 20px;">Créer le projet</button>
-    </form>
-</div>
+            <button type="submit" class="button" style="width: 100%; margin-top: 20px;">Créer le projet</button>
+        </form>
+    </div>
 
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>

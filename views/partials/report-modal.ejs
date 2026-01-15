@@ -1,0 +1,183 @@
+<!-- Report Modal -->
+<div id="reportModal" class="modal" style="display: none; z-index: 2000;">
+    <div class="modal-content report-modal-content">
+        <span onclick="closeReportModal()" class="close-modal-btn">&times;</span>
+
+        <div class="report-header" style="text-align: center; margin-bottom: 1.5rem;">
+            <h2
+                style="color: #f59e0b; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0;">
+                <i class="fas fa-exclamation-triangle"></i> Signalement
+            </h2>
+            <div class="report-progress">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+            </div>
+        </div>
+
+        <!-- Step 1: Reason -->
+        <div id="reportStep1" class="report-step">
+            <h3 style="color: white; text-align: center; font-size: 1.2rem; margin-bottom: 1rem;">Pourquoi
+                souhaitez-vous signaler ce contenu ?</h3>
+
+            <div class="report-reasons-grid">
+                <div class="reason-option" onclick="selectReason('Spam')">
+                    <i class="fas fa-trash-alt" style="display: block; font-size: 1.5rem; margin-bottom: 5px;"></i>
+                    Spam
+                </div>
+                <div class="reason-option" onclick="selectReason('Harcèlement')">
+                    <i class="fas fa-user-injured" style="display: block; font-size: 1.5rem; margin-bottom: 5px;"></i>
+                    Harcèlement
+                </div>
+                <div class="reason-option" onclick="selectReason('Contenu inapproprié')">
+                    <i class="fas fa-ban" style="display: block; font-size: 1.5rem; margin-bottom: 5px;"></i>
+                    Inapproprié
+                </div>
+                <div class="reason-option" onclick="selectReason('Autre')">
+                    <i class="fas fa-question-circle"
+                        style="display: block; font-size: 1.5rem; margin-bottom: 5px;"></i>
+                    Autre
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Details -->
+        <div id="reportStep2" class="report-step" style="display: none;">
+            <h3 style="color: white; font-size: 1.2rem; margin-bottom: 1rem;">Plus de détails (Optionnel)</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">Aidez-nous à comprendre le contexte.</p>
+
+            <textarea id="reportDetails" class="form-control" rows="4"
+                placeholder="Expliquez brièvement le problème..."></textarea>
+
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button onclick="prevStep(1)" class="button"
+                    style="background: transparent; border: 1px solid #475569;">Retour</button>
+                <button onclick="submitReport()" class="button"
+                    style="background: #f59e0b; border: none; flex-grow: 1;">Envoyer le signalement</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div id="reportStep3" class="report-step" style="display: none; text-align: center; padding: 2rem 0;">
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: #2ecc71; margin-bottom: 1rem;"></i>
+            <h3 style="color: white;">Merci !</h3>
+            <p style="color: #94a3b8;">Votre signalement a été reçu et sera traité par nos modérateurs.</p>
+            <button onclick="closeReportModal()" class="button"
+                style="margin-top: 1.5rem; background: #334155;">Fermer</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let currentReport = {
+        type: null,
+        id: null,
+        reason: null
+    };
+
+    function openReportModal(type, id) {
+        // Prevent event bubbling if called from a card click listener
+        if (event) event.stopPropagation();
+
+        currentReport = { type, id, reason: null };
+        const modal = document.getElementById('reportModal');
+        modal.style.display = 'block';
+
+        // Reset steps
+        showStep(1);
+        document.getElementById('reportDetails').value = '';
+
+        // Clear selection
+        document.querySelectorAll('.reason-option').forEach(el => el.classList.remove('selected'));
+    }
+
+    function closeReportModal() {
+        if (event) event.stopPropagation();
+        document.getElementById('reportModal').style.display = 'none';
+        currentReport = { type: null, id: null, reason: null };
+    }
+
+    // Close on click outside
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById('reportModal');
+        if (event.target == modal) {
+            closeReportModal();
+        }
+    });
+
+    function selectReason(reason) {
+        currentReport.reason = reason;
+
+        // Visual feedback
+        document.querySelectorAll('.reason-option').forEach(el => el.classList.remove('selected'));
+        // Identify clicked element logic omitted for brevity as we jump to step 2
+
+        showStep(2);
+    }
+
+    function showStep(step) {
+        document.querySelectorAll('.report-step').forEach(el => el.style.display = 'none');
+        document.getElementById('reportStep' + step).style.display = 'block';
+
+        // Update dots
+        document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+        for (let i = 1; i <= step; i++) {
+            const dot = document.getElementById('dot' + i);
+            if (dot) dot.classList.add('active');
+        }
+    }
+
+    function prevStep(step) {
+        showStep(step);
+    }
+
+    async function submitReport() {
+        const details = document.getElementById('reportDetails').value;
+        const finalReason = currentReport.reason + (details ? ': ' + details : '');
+
+        // Disable button to prevent double submit
+        const btn = document.querySelector('#reportStep2 button[onclick="submitReport()"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Envoi...";
+        }
+
+        try {
+            const response = await fetch('/report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    target_type: currentReport.type,
+                    target_id: currentReport.id,
+                    reason: finalReason
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showStep(3);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "Envoyer le signalement";
+                }
+            } else {
+                alert('Erreur: ' + result.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "Envoyer le signalement";
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('Une erreur est survenue.');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Envoyer le signalement";
+            }
+        }
+    }
+</script>

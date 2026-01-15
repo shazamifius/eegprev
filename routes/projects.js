@@ -42,7 +42,7 @@ router.get('/new', isAuthenticated, projectController.getNewProjectChoice);
 router.get('/new/internal', isAuthenticated, projectController.getNewInternalProject);
 
 // POST /projects/new/internal - Handle internal project creation
-router.post('/new/internal', isAuthenticated, upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'project_files', maxCount: 10 }]), projectController.createInternalProject);
+router.post('/new/internal', isAuthenticated, upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'project_files', maxCount: 9999 }]), projectController.createInternalProject);
 
 // POST /projects/upload-image - Handle image uploads from TinyMCE
 router.post('/upload-image', isAuthenticated, upload.single('file'), projectController.uploadImage);
@@ -54,7 +54,7 @@ router.get('/:id', projectController.getProject);
 router.get('/:id/edit', isAuthenticated, projectController.getEditProject);
 
 // POST /projects/:id/edit - Handle project edit
-router.post('/:id/edit', isAuthenticated, upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'project_files', maxCount: 10 }]), projectController.updateProject);
+router.post('/:id/edit', isAuthenticated, upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'project_files', maxCount: 9999 }]), projectController.updateProject);
 
 // POST /projects/:id/comment - Handle new comment
 router.post('/:id/comment', isAuthenticated, projectController.postComment);

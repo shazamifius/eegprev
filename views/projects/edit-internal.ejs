@@ -1,88 +1,95 @@
-<%- include('../partials/header', { title: 'Modifier le Projet', user: user }) %>
+<%- include('../partials/header', { title: 'Modifier le Projet' , user: user }) %>
 
-<div class="container">
-    <h1>Modifier le Projet Interne</h1>
-    <p class="text-secondary mb-4">Mettez à jour les informations de votre projet ci-dessous.</p>
+    <div class="container">
+        <h1>Modifier le Projet Interne</h1>
+        <p class="text-secondary mb-4">Mettez à jour les informations de votre projet ci-dessous.</p>
 
-    <form action="/projects/<%= project.id %>/edit" method="POST" enctype="multipart/form-data">
-        <div class="form-group mb-3">
-            <label for="title">Titre du projet</label>
-            <input type="text" class="form-control" id="title" name="title" value="<%= project.title %>" required>
-        </div>
+        <form action="/projects/<%= project.id %>/edit" method="POST" enctype="multipart/form-data">
+            <div class="form-group mb-3">
+                <label for="title">Titre du projet</label>
+                <input type="text" class="form-control" id="title" name="title" value="<%= project.title %>" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label for="banner">Mettre à jour la bannière (laisser vide pour conserver l'actuelle)</label>
-            <% if (project.banner_path) { %>
-                <div class="mb-2">
-                    <img src="/uploads/projects/<%= project.banner_path %>" alt="Bannière actuelle" style="max-width: 100%; height: auto; max-height: 200px; border-radius: 5px;">
-                </div>
-            <% } %>
-            <input type="file" id="banner" name="banner" accept="image/*" class="form-control" style="border: 1px solid var(--border-color); padding: 10px; border-radius: 5px; background: var(--card-bg-color); color: var(--text-color);">
-        </div>
+            <div class="form-group mb-3">
+                <label for="banner">Mettre à jour la bannière (laisser vide pour conserver l'actuelle)</label>
+                <% if (project.banner_path) { %>
+                    <div class="mb-2">
+                        <img src="/uploads/projects/<%= project.banner_path %>" alt="Bannière actuelle"
+                            style="max-width: 100%; height: auto; max-height: 200px; border-radius: 5px;">
+                    </div>
+                    <% } %>
+                        <input type="file" id="banner" name="banner" accept="image/*" class="form-control"
+                            style="border: 1px solid var(--border-color); padding: 10px; border-radius: 5px; background: var(--card-bg-color); color: var(--text-color);">
+            </div>
 
-        <div class="form-group mb-3">
-            <label for="readme_content">Description (README)</label>
-            <div style="display: flex; gap: 20px;">
-                <div style="flex: 2;">
-                    <textarea id="readme_content" name="readme_content" rows="20" class="form-control" style="width: 100%; background: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; font-family: monospace;" placeholder="# Titre du projet&#10;&#10;## Description&#10;Votre description ici...&#10;&#10;![Texte alternatif](lien_image.jpg)"><%= project.readme_content %></textarea>
-                </div>
-                <div style="flex: 1; background: var(--card-bg-color); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                    <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--accent-color);">Aide Markdown</h3>
-                    <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.6;">
-                        <li><strong># Titre 1</strong> - Grand titre</li>
-                        <li><strong>## Titre 2</strong> - Sous-titre</li>
-                        <li><strong>### Titre 3</strong> - Petit titre</li>
-                        <li><strong>**Gras**</strong> - Texte en gras</li>
-                        <li><strong>*Italique*</strong> - Texte en italique</li>
-                        <li><strong>- Liste</strong> - Liste à puces</li>
-                        <li><strong>1. Liste</strong> - Liste numérotée</li>
-                        <li><strong>[Lien](url)</strong> - Lien hypertexte</li>
-                        <li><strong>![Alt](url)</strong> - Image</li>
-                        <li><strong>`Code`</strong> - Code en ligne</li>
-                        <li><strong>```Code```</strong> - Bloc de code</li>
-                    </ul>
-                    <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Vous pouvez héberger vos images dans la section fichiers ci-dessous et copier leur lien.</p>
+            <div class="form-group mb-3">
+                <label for="readme_content">Description (README)</label>
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 2;">
+                        <textarea id="readme_content" name="readme_content" rows="20" class="form-control"
+                            style="width: 100%; background: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; font-family: monospace;"
+                            placeholder="# Titre du projet&#10;&#10;## Description&#10;Votre description ici...&#10;&#10;![Texte alternatif](lien_image.jpg)"><%= project.readme_content %></textarea>
+                    </div>
+                    <div
+                        style="flex: 1; background: var(--card-bg-color); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                        <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--accent-color);">Aide Markdown</h3>
+                        <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.6;">
+                            <li><strong># Titre 1</strong> - Grand titre</li>
+                            <li><strong>## Titre 2</strong> - Sous-titre</li>
+                            <li><strong>### Titre 3</strong> - Petit titre</li>
+                            <li><strong>**Gras**</strong> - Texte en gras</li>
+                            <li><strong>*Italique*</strong> - Texte en italique</li>
+                            <li><strong>- Liste</strong> - Liste à puces</li>
+                            <li><strong>1. Liste</strong> - Liste numérotée</li>
+                            <li><strong>[Lien](url)</strong> - Lien hypertexte</li>
+                            <li><strong>![Alt](url)</strong> - Image</li>
+                            <li><strong>`Code`</strong> - Code en ligne</li>
+                            <li><strong>```Code```</strong> - Bloc de code</li>
+                        </ul>
+                        <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Vous pouvez
+                            héberger vos images dans la section fichiers ci-dessous et copier leur lien.</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="form-group mb-3">
-            <h5>Fichiers Actuels</h5>
-            <% if (project.files && project.files.length > 0) { %>
-                <ul class="list-group mb-3">
-                    <% project.files.forEach(file => { %>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <%= file.file_name %>
-                            <a href="/projects/<%= project.id %>/files/<%= file.id %>/delete" class="btn btn-sm btn-danger">Supprimer</a>
-                        </li>
-                    <% }); %>
-                </ul>
-            <% } else { %>
-                <p>Aucun fichier n'est actuellement associé à ce projet.</p>
-            <% } %>
-        </div>
+            <div class="form-group mb-3">
+                <h5>Fichiers Actuels</h5>
+                <% if (project.files && project.files.length> 0) { %>
+                    <ul class="list-group mb-3">
+                        <% project.files.forEach(file=> { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <%= file.file_name %>
+                                    <a href="/projects/<%= project.id %>/files/<%= file.id %>/delete"
+                                        class="btn btn-sm btn-danger">Supprimer</a>
+                            </li>
+                            <% }); %>
+                    </ul>
+                    <% } else { %>
+                        <p>Aucun fichier n'est actuellement associé à ce projet.</p>
+                        <% } %>
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Ajouter de nouveaux fichiers</label>
-            <%- include('../partials/file-uploader', {
-                fieldName: 'project_files',
-                labelText: 'Cliquez ou glissez-déposez pour ajouter des fichiers',
-                isMultiple: true
-            }) %>
-        </div>
+            <div class="form-group mb-3">
+                <label>Ajouter de nouveaux fichiers</label>
+                <%- include('../partials/file-uploader', { fieldName: 'project_files' ,
+                    labelText: 'Cliquez ou glissez-déposez vos fichiers ou dossiers supplémentaires' , isMultiple: true,
+                    isRequired: false, accept: '*/*' , allowFolders: true }) %>
+            </div>
 
-        <div class="form-group form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="is_public" name="is_public" <%= project.is_public ? 'checked' : '' %>>
-            <label class="form-check-label" for="is_public">Rendre ce projet public</label>
-        </div>
+            <div class="form-group form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="is_public" name="is_public" <%=project.is_public
+                    ? 'checked' : '' %>>
+                <label class="form-check-label" for="is_public">Rendre ce projet public</label>
+            </div>
 
-        <div class="form-group form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download" <%= project.allow_download ? 'checked' : '' %>>
-            <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
-        </div>
+            <div class="form-group form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="allow_download" name="allow_download"
+                    <%=project.allow_download ? 'checked' : '' %>>
+                <label class="form-check-label" for="allow_download">Autoriser le téléchargement des fichiers</label>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-    </form>
-</div>
+            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+        </form>
+    </div>
 
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>

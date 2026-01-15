@@ -12,6 +12,7 @@ server.log
 /public/images/publications/
 /public/images/news/
 /public/images/help/
+/uploads/
 
 # Fichiers temporaires de développement
 cookies.txt

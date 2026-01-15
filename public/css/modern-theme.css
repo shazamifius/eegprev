@@ -712,17 +712,31 @@ header .container {
 }
 
 /* New Header Layout for Absolute Centering */
+/* New Header Layout for Symmetrical Centering */
 .header-center-group {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 40px;
-  /* Space between Nav Left - Clock - Nav Right */
-  width: max-content;
-  /* Ensure it doesn't stretch unnecessarily */
+  width: 100%;
+  height: 100%;
+  /* Match parent height (80px) */
+  grid-template-rows: 100%;
+  /* Force row to be container height */
+  gap: 0;
+  /* Scaling of clock provides visual gap */
+}
+
+.nav-left {
+  justify-self: end;
+}
+
+.nav-right {
+  justify-self: start;
+}
+
+.clock__container {
+  justify-self: center;
 }
 
 .header-center-group nav ul {
@@ -900,118 +914,7 @@ nav ul li a.active {
   margin-right: 15px;
 }
 
-/* Chat Styles */
-.chat-container {
-  display: flex;
-  height: calc(80vh - 70px);
-  /* Hauteur réduite de 20vh */
-  max-height: calc(80vh - 70px);
-  overflow: hidden;
-  /* Prevent body scroll */
-}
 
-.user-list-panel {
-  width: 240px;
-  background-color: var(--background-dark);
-  padding: 20px;
-  border-right: 1px solid var(--secondary-color);
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.user-list-panel h2 {
-  margin-top: 0;
-  color: var(--accent-color);
-  font-size: 1.2em;
-}
-
-#user-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#user-list li {
-  padding: 10px 0;
-  color: var(--text-secondary);
-}
-
-.chat-panel {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-light);
-  overflow: hidden;
-  /* Prevent internal overflow from affecting layout */
-}
-
-.chat-messages {
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
-  /* This is the only scrolling part */
-}
-
-.chat-message {
-  display: flex;
-  margin-bottom: 20px;
-  align-items: flex-start;
-}
-
-.chat-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 15px;
-  flex-shrink: 0;
-}
-
-.chat-message-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-message-content strong {
-  color: var(--text-primary);
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-
-.chat-message-content p {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  overflow-wrap: break-word;
-}
-
-.chat-form {
-  display: flex;
-  padding: 20px;
-  border-top: 1px solid var(--secondary-color);
-  background-color: var(--background-dark);
-}
-
-.chat-form input {
-  flex-grow: 1;
-  background-color: var(--background-light);
-  border: 1px solid var(--secondary-color);
-  border-radius: var(--border-radius);
-  color: var(--text-primary);
-  padding: 12px;
-  font-family: 'Poppins', sans-serif;
-  margin-right: 10px;
-  transition: border-color var(--transition-speed);
-}
-
-.chat-form input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-}
-
-.chat-form button {
-  min-width: 100px;
-}
 
 /* Students Page */
 .students-container h1 {

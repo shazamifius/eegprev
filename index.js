@@ -44,7 +44,8 @@ const port = 3000;
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '5gb' }));
+app.use(bodyParser.json({ limit: '5gb' })); // Fix for parsing application/json (Report feature)
 
 const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET || 'une-super-clé-secrète-pour-le-développement',
@@ -73,22 +74,15 @@ app.use('/publications', publicationsRouter);
 app.use('/students', studentsRouter);
 app.use('/projects', projectsRouter);
 app.use('/help', helpRouter);
+app.use('/', require('./routes/reports'));
 
 
-// Chat view route - keep simple view routes here or move to a controller/route?
-// It was inline:
-app.get('/chat', (req, res) => {
-    if (req.session.user) {
-        res.render('chat', { user: req.session.user });
-    } else {
-        res.redirect('/login');
-    }
-});
+
 // Logout was moved to authRouter/authController
 
 // Socket.IO Logic
 require('./sockets/coworkingSocket')(io);
-require('./sockets/chatSocket')(io);
+
 
 if (process.env.NODE_ENV !== 'test') {
     server.listen(port, () => {
